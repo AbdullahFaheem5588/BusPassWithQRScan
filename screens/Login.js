@@ -42,7 +42,7 @@ const Login = () => {
           fontSize: 25,
           fontWeight: 'bold',
         }}>
-        QR Scan
+        QR Scans
       </Text>
       <TextInput
         style={styles.input}
