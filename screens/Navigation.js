@@ -12,9 +12,36 @@ import ProfileScreen from './Student/ProfileScreen';
 import NotificationScreen from './Student/NotificationScreen';
 import ChangePasswordScreen from './Student/ChangePasswordScreen';
 import HistoryScreen from './Student/HistoryScreen';
+import NotificationDetails from './Student/NotificationDetailsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
+
+const NotificationStack = () => {
+  return(
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#2FAA98',
+        },
+        headerTintColor: 'white',
+        tabBarStyle: {
+          backgroundColor: '#2FAA98',
+        },
+      }} initialRouteName='NotificationScreen'>
+      <Stack.Screen
+        name="NotificationScreen"
+        component={NotificationScreen}
+        options={{title: 'Notification'}}
+      />
+      <Stack.Screen
+        name="NotificationDetails"
+        component={NotificationDetails}
+        options={{title: 'Notification Details'}}
+      />
+    </Stack.Navigator>
+  );
+};
 
 const DashboardStack = () => {
   return (
@@ -153,8 +180,9 @@ const MyTabs = () => {
       />
       <Tab.Screen
         name="Notification"
-        component={NotificationScreen}
+        component={NotificationStack}
         options={{
+          headerShown: false,
           tabBarIcon: ({focused}) => (
             <Image
               source={
