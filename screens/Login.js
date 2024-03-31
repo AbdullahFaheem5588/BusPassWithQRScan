@@ -15,8 +15,12 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleLogin = () => {
-    navigation.replace('MyTabs');
+  const handleLogin = UserType => {
+    if (UserType === 'Student') navigation.replace('StudentTabs');
+    else if (UserType === 'Parent') navigation.replace('ParentTabs');
+    else if (UserType === 'Condutor') navigation.replace('StudentTabs');
+    else if (UserType === 'Admin') navigation.replace('StudentTabs');
+    else setError('Invalid User Type!')
   };
 
   return (
@@ -70,7 +74,11 @@ const Login = () => {
         }}>
         {error}
       </Text>
-      <TouchableOpacity style={{marginTop: 20, marginBottom:25,}} onPress={handleLogin}>
+      <TouchableOpacity
+        style={{marginTop: 20, marginBottom: 25}}
+        onPress={() => {
+          handleLogin(username);
+        }}>
         <View style={styles.btn}>
           <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
             LOG IN
