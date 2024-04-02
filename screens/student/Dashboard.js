@@ -18,6 +18,14 @@ import {
     const arr = ['Abdullah', 'Adeel', 'Umer', 'Zia'];
     const navigation = useNavigation();
     const scrollViewRef = useRef(null);
+    const [notificationIcon, setNotificationIcon] = useState(require('../../assets/Notification-Focused.png'));
+
+    const handleNotificartionIcon = () => {
+      if (notificationIcon === require('../../assets/Notification-Focused.png'))
+       setNotificationIcon(require('../../assets/Notification-On.png'));
+      else
+      setNotificationIcon(require('../../assets/Notification-Focused.png'));
+    };
   
     const handleScroll = (event) => {
       const contentOffsetX = event.nativeEvent.contentOffset.x;
@@ -108,13 +116,11 @@ import {
                     borderRadius: 30,
                   }}>
                   <TouchableOpacity
-                    onPress={() => {
-                      navigation.navigate('Dashboard');
-                    }}
-                    style={{width: 30, flex: 1, alignSelf: 'flex-end'}}>
+                    onPress={handleNotificartionIcon}
+                    style={{width: 30, flex: 1, alignSelf: 'flex-end',}}>
                     <Image
-                      source={require('../../assets/Notification-On.png')}
-                      style={{marginTop: 10}}
+                      source={notificationIcon}
+                      style={{marginTop: 10,marginLeft:-5,}}
                     />
                   </TouchableOpacity>
                   <Text
