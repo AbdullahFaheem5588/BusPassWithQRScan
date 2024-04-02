@@ -15,6 +15,7 @@ import MapViewDirections from 'react-native-maps-directions';
 const MapScreen = () => {
   const arr = ['Abdullah', 'Adeel', 'Umer', 'Zia'];
   const scrollViewRef = useRef(null);
+  const mapView = useRef();
   const [offset, setOffset] = useState(0);
   const [scrollViewVisible, setScrollViewVisible] = useState(false);
   const scaleAnim = useRef(new Animated.Value(0)).current;
@@ -52,6 +53,7 @@ const MapScreen = () => {
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapView}
         style={StyleSheet.absoluteFill}
         initialRegion={{
           latitude: 33.64340057674401,
@@ -73,7 +75,11 @@ const MapScreen = () => {
           strokeWidth={5}
         />
         {stops.map((waypoint, index) => (
-          <Marker key={index} coordinate={waypoint} onPress={handleStopPopupVisibility} />
+          <Marker
+            key={index}
+            coordinate={waypoint}
+            onPress={handleStopPopupVisibility}
+          />
         ))}
       </MapView>
       <Animated.View style={[{transform: [{scale: scaleAnim}]}]}>
@@ -230,13 +236,12 @@ const MapScreen = () => {
           </View>
         )}
         <TouchableOpacity onPress={handleStopPopupVisibility}>
-              <View style={styles.btn}>
-                <Text
-                  style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
-                  CLOSE
-                </Text>
-              </View>
-            </TouchableOpacity>
+          <View style={styles.btn}>
+            <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
+              CLOSE
+            </Text>
+          </View>
+        </TouchableOpacity>
       </Animated.View>
     </View>
   );
@@ -253,7 +258,7 @@ const styles = StyleSheet.create({
     width: 380,
     borderRadius: 30,
     elevation: 10,
-    marginBottom:30,
+    marginBottom: 30,
   },
   btn: {
     alignSelf: 'center',

@@ -24,12 +24,12 @@ const NotificationScreen = () => {
     'Announcement!',
   ];
   const Images = {
-    'Announcement!': require('../../assets/Announcement.png'),
-    'Check Out!': require('../../assets/CheckOut.png'),
-    'Check In!': require('../../assets/CheckIn.png'),
-    'QR-Code Scanned!': require('../../assets/QR-CodeScanned.png'),
-    'Bus Arrived!': require('../../assets/BusArrived.png'),
-    'Bus En-route!': require('../../assets/BusEn-route.png')
+    'Announcement!': require('../assets/Announcement.png'),
+    'Check Out!': require('../assets/CheckOut.png'),
+    'Check In!': require('../assets/CheckIn.png'),
+    'QR-Code Scanned!': require('../assets/QR-CodeScanned.png'),
+    'Bus Arrived!': require('../assets/BusArrived.png'),
+    'Bus En-route!': require('../assets/BusEn-route.png')
   };
   return (
     <View style={styles.container}>

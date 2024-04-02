@@ -27,7 +27,7 @@ const ChangePasswordScreen = () => {
     <View style={styles.container}>
       <View style={styles.ContentContainer}>
         <Image
-          source={require('../../assets/ChangePassword.png')}
+          source={require('../assets/ChangePassword.png')}
           style={{
             width: 100,
             height: 110,

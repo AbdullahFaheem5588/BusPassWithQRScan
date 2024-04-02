@@ -9,11 +9,14 @@ import { default as StudentMapScreen } from './Student/MapScreen';
 import { default as Login } from './Login';
 import { default as StudentQrCodeScreen } from './Student/QrCodeScreen';
 import { default as StudentProfileScreen } from './Student/ProfileScreen';
-import { default as StudentNotificationScreen } from './Student/NotificationScreen';
-import { default as StudentChangePasswordScreen } from './Student/ChangePasswordScreen';
+import { default as NotificationScreen } from './NotificationScreen';
+import { default as ChangePasswordScreen } from './ChangePasswordScreen';
 import { default as StudentHistoryScreen } from './Student/HistoryScreen';
-import { default as StudentNotificationDetails } from './Student/NotificationDetailsScreen';
+import { default as NotificationDetails } from './NotificationDetailsScreen';
 import { default as ParentDashboard } from './Parent/Dashboard';
+import {default as ParentMapScreen } from  './Parent/MapScreen';
+import {default as ParentProfileScreen } from './Parent/ProfileScreen';
+import {default as ParentHistoryScreen } from './Parent/HistoryScreen';
 
 
 const Tab = createBottomTabNavigator();
@@ -31,7 +34,7 @@ const MainStack = () => {
   );
 };
 
-const StudentNotificationStack = () => {
+const NotificationStack = () => {
   return(
     <Stack.Navigator
       screenOptions={{
@@ -45,12 +48,12 @@ const StudentNotificationStack = () => {
       }} initialRouteName='NotificationScreen'>
       <Stack.Screen
         name="NotificationScreen"
-        component={StudentNotificationScreen}
+        component={NotificationScreen}
         options={{title: 'Notification'}}
       />
       <Stack.Screen
         name="NotificationDetails"
-        component={StudentNotificationDetails}
+        component={NotificationDetails}
         options={{title: 'Notification Details'}}
       />
     </Stack.Navigator>
@@ -101,12 +104,43 @@ const StudentProfileStack = () => {
       />
       <Stack.Screen
         name="ChangePassword"
-        component={StudentChangePasswordScreen}
+        component={ChangePasswordScreen}
         options={{title: 'Change Password'}}
       />
       <Stack.Screen
         name="History"
         component={StudentHistoryScreen}
+        options={{title: 'History'}}
+      />
+    </Stack.Navigator>
+  );
+};
+
+const ParentProfileStack = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#2FAA98',
+        },
+        headerTintColor: 'white',
+        tabBarStyle: {
+          backgroundColor: '#2FAA98',
+        },
+      }} initialRouteName='ProfileScreen'>
+      <Stack.Screen
+        name="ProfileScreen"
+        component={ParentProfileScreen}
+        options={{title: 'Profile'}}
+      />
+      <Stack.Screen
+        name="ChangePassword"
+        component={ChangePasswordScreen}
+        options={{title: 'Change Password'}}
+      />
+      <Stack.Screen
+        name="History"
+        component={ParentHistoryScreen}
         options={{title: 'History'}}
       />
     </Stack.Navigator>
@@ -184,7 +218,7 @@ const StudentTabs = () => {
       />
       <Tab.Screen
         name="Notification"
-        component={StudentNotificationStack}
+        component={NotificationStack}
         options={{
           headerShown: false,
           tabBarIcon: ({focused}) => (
@@ -257,7 +291,7 @@ const ParentTabs = () => {
       />
       <Tab.Screen
         name="Map"
-        component={StudentMapScreen}
+        component={ParentMapScreen}
         options={{
           tabBarIcon: ({focused}) => (
             <Image
@@ -273,7 +307,7 @@ const ParentTabs = () => {
       />
       <Tab.Screen
         name="Notification"
-        component={StudentNotificationStack}
+        component={NotificationStack}
         options={{
           headerShown: false,
           tabBarIcon: ({focused}) => (
@@ -290,7 +324,7 @@ const ParentTabs = () => {
       />
       <Tab.Screen
         name="Profile"
-        component={StudentProfileStack}
+        component={ParentProfileStack}
         options={{
           headerShown: false,
           tabBarIcon: ({focused}) => (
