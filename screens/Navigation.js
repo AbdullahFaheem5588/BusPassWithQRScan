@@ -17,8 +17,8 @@ import { default as ParentDashboard } from './Parent/Dashboard';
 import {default as ParentMapScreen } from  './Parent/MapScreen';
 import {default as ParentProfileScreen } from './Parent/ProfileScreen';
 import {default as ParentHistoryScreen } from './Parent/HistoryScreen';
-
-
+import {default as ConductorDashboard } from './Conductor/Dashboard';
+import {default as ConductorMapScreen } from './Conductor/MapScreen';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
@@ -29,6 +29,7 @@ const MainStack = () => {
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="StudentTabs" component={StudentTabs} />
         <Stack.Screen name="ParentTabs" component={ParentTabs} />
+        <Stack.Screen name="ConductorTabs" component={ConductorTabs} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -292,6 +293,95 @@ const ParentTabs = () => {
       <Tab.Screen
         name="Map"
         component={ParentMapScreen}
+        options={{
+          tabBarIcon: ({focused}) => (
+            <Image
+              source={
+                focused
+                  ? require('../assets/Map-Focused.png')
+                  : require('../assets/Map-UnFocused.png')
+              }
+              style={{width: 25, height: 25}}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Notification"
+        component={NotificationStack}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({focused}) => (
+            <Image
+              source={
+                focused
+                  ? require('../assets/Notification-Focused.png')
+                  : require('../assets/Notification-UnFocused.png')
+              }
+              style={{width: 25, height: 25}}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ParentProfileStack}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({focused}) => (
+            <Image
+              source={
+                focused
+                  ? require('../assets/Profile-Focused.png')
+                  : require('../assets/Profile-UnFocused.png')
+              }
+              style={{width: 25, height: 30}}
+            />
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  );
+};
+
+const ConductorTabs = () => {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#2FAA98',
+        },
+        headerTintColor: 'white',
+        tabBarStyle: {
+          backgroundColor: '#2FAA98',
+          height: 60,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          marginBottom:3,
+        },
+        tabBarActiveTintColor: 'white',
+        tabBarInactiveTintColor: 'transparent',
+      }}>
+      <Tab.Screen
+        name="Dashboard"
+        component={ConductorDashboard}
+        options={{
+          tabBarIcon: ({focused}) => (
+            <Image
+              source={
+                focused
+                  ? require('../assets/Home-Focused.png')
+                  : require('../assets/Home-UnFocused.png')
+              }
+              style={{width: 25, height: 25}}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Map"
+        component={ConductorMapScreen}
         options={{
           tabBarIcon: ({focused}) => (
             <Image

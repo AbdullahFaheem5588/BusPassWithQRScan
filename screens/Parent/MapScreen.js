@@ -48,7 +48,7 @@ const MapScreen = () => {
         <Marker
           coordinate={unicords}
           title="Barani Institute of Information Technology"
-          image={require('../../assets/UniMarkinMap.png')}
+          image={require('../../assets/UniMapMarker.png')}
         />
         <MapViewDirections
           origin={ChildLocation[0]}

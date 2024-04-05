@@ -18,7 +18,7 @@ const Login = () => {
   const handleLogin = UserType => {
     if (UserType === 'Student') navigation.replace('StudentTabs');
     else if (UserType === 'Parent') navigation.replace('ParentTabs');
-    else if (UserType === 'Condutor') navigation.replace('StudentTabs');
+    else if (UserType === 'Conductor') navigation.replace('ConductorTabs');
     else if (UserType === 'Admin') navigation.replace('StudentTabs');
     else setError('Invalid User Type!')
   };
