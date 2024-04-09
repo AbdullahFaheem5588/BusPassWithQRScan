@@ -1,349 +1,323 @@
-import React,{useState,useRef} from 'react';
+import React, { useState, useRef } from 'react';
 import {
-    Text,
-    View,
-    StyleSheet,
-    Image,
-    TouchableOpacity,
-    ScrollView,
-  } from 'react-native';
-  import * as Progress from 'react-native-progress';
-  import { enableScreens } from 'react-native-screens';
-  import { useNavigation } from '@react-navigation/native';
-  
-  enableScreens();
-  
-  const Dashboard = () => {
-    const [offset, setOffset] = useState(0);
-    const arr = ['Abdullah', 'Adeel', 'Umer', 'Zia'];
-    const navigation = useNavigation();
-    const scrollViewRef = useRef(null);
-    const [notificationIcon, setNotificationIcon] = useState(require('../../assets/Notification-Focused.png'));
+  Text,
+  View,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  Dimensions,
+} from 'react-native';
+import * as Progress from 'react-native-progress';
+import { enableScreens } from 'react-native-screens';
+import { useNavigation } from '@react-navigation/native';
 
-    const handleNotificartionIcon = () => {
-      if (notificationIcon === require('../../assets/Notification-Focused.png'))
-       setNotificationIcon(require('../../assets/Notification-On.png'));
-      else
+enableScreens();
+
+const { width, height } = Dimensions.get('window');
+
+const Dashboard = () => {
+  const [offset, setOffset] = useState(0);
+  const [notificationIcon, setNotificationIcon] = useState(require('../../assets/Notification-Focused.png'));
+
+  const handleNotificartionIcon = () => {
+    if (notificationIcon === require('../../assets/Notification-Focused.png'))
+      setNotificationIcon(require('../../assets/Notification-On.png'));
+    else
       setNotificationIcon(require('../../assets/Notification-Focused.png'));
-    };
-  
-    const handleScroll = (event) => {
-      const contentOffsetX = event.nativeEvent.contentOffset.x;
-      const index = Math.round(contentOffsetX / 360);
-      setOffset(index);
-    };
-  
-    // useEffect(() => {
-    //   const login = async () => {
-    //     try {
-    //       const response = await fetch(
-    //         url + 'Users/Login?username=student2&password=studentpass2',
-    //       );
-    //       const userData = await response.json();
-    //       setData(userData.Students);
-    //     } catch (error) {
-    //       console.error('Error fetching data:', error);
-    //     }
-    //   };
-    //   login();
-  
-    //   const GetFavStops = async () => {
-    //     try {
-    //       const response = await fetch(url + 'Student/GetFavStops?passId=2');
-    //       const stops = await response.json();
-    //       setFavStops(stops);
-    //     } catch (error) {
-    //       console.error('Error fetching data:', error);
-    //     }
-    //   };
-    //   GetFavStops();
-    // }, []);
-  
-    return (
-      <View style={styles.container}>
-        <View style={styles.progress}>
-          <>
-            <Progress.Circle
-              progress={25 / 50}
-              size={150}
-              showsText={true}
-              color="white"
-              borderWidth={7}
-              borderColor="#2FAA98"
-              formatText={() => `${25} / ${50}`}
-            />
-            <Text
-              style={{
-                fontSize: 16,
-                color: 'white',
-                alignSelf: 'center',
-                marginTop: -55,
-                marginBottom: 45,
-              }}>
-              Seats Booked
-            </Text>
-          </>
+  };
+
+  const handleScroll = (event) => {
+    const contentOffsetX = event.nativeEvent.contentOffset.x;
+    const index = Math.round(contentOffsetX / (width * 0.9));
+    setOffset(index);
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.progress}>
+        <>
+          <Progress.Circle
+            progress={25 / 50}
+            size={width * 0.35}
+            showsText={true}
+            color="white"
+            borderWidth={width * 0.015}
+            borderColor="#2FAA98"
+            formatText={() => `${25} / ${50}`}
+          />
+          <Text
+            style={{
+              fontSize: width * 0.025,
+              color: 'white',
+              alignSelf: 'center',
+              marginTop: -(width * 0.1),
+              marginBottom: width * 0.08,
+            }}>
+            Seats Booked
+          </Text>
+        </>
+      </View>
+      <View style={styles.MainContainer}>
+        <View style={styles.Title}>
+          <Text
+            style={{
+              fontSize: width * 0.05,
+              fontWeight: 'bold',
+              color: '#168070',
+            }}>
+            Next Stop
+          </Text>
         </View>
-        <View style={styles.MainContainer}>
-          <View style={styles.Title}>
-            <Text
-              style={{
-                fontSize: 23,
-                fontWeight: 'bold',
-                color: '#168070',
-              }}>
-              Next Stop
-            </Text>
-          </View>
+        <View
+          style={{
+            borderColor: 'white',
+            borderStyle: 'solid',
+            borderWidth: 1,
+            width: width * 0.9,
+            margin: width * 0.025,
+            marginTop: width * 0.025,
+            borderRadius: width * 0.075,
+          }}>
+          <Text
+            style={{
+              fontSize: width * 0.055,
+              fontWeight: 'bold',
+              color: 'white',
+              alignSelf: 'center',
+            }}>
+            {/*favStops[0].Name*/}
+            Chandni Chowk
+          </Text>
           <View
-                  style={{
-                    borderColor: 'white',
-                    borderStyle: 'solid',
-                    borderWidth: 1,
-                    width: 360,
-                    margin: 10,
-                    marginTop: 10,
-                    borderRadius: 30,
-                  }}>
-                  <Text
-                    style={{
-                      fontSize: 25,
-                      fontWeight: 'bold',
-                      color: 'white',
-                      alignSelf: 'center',
-                    }}>
-                    {/*favStops[0].Name*/}
-                    Chandni Chowk
-                  </Text>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      marginTop: 10,
-                      marginBottom: 10,
-                    }}>
-                    <View
-                      style={{
-                        marginLeft: 10,
-                        backgroundColor: '#2FAA98',
-                        borderRadius: 30,
-                        elevation: 10,
-                        width: 160,
-                        height: 160,
-                      }}>
-                      <Image
-                        source={require('../../assets/RouteNo.png')}
-                        style={{
-                          width: 21,
-                          height: 85,
-                          alignSelf: 'center',
-                          marginTop: 10,
-                        }}
-                      />
-                      <Text
-                        style={{
-                          fontSize: 15,
-                          color: 'white',
-                          alignSelf: 'center',
-                          marginTop: 5,
-                        }}>
-                        Route No
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: 25,
-                          fontWeight: 'bold',
-                          color: 'white',
-                          alignSelf: 'center',
-                        }}>
-                        1111
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        marginRight: 10,
-                        width: 160,
-                        height: 160,
-                        backgroundColor: '#2FAA98',
-                        borderRadius: 30,
-                        elevation: 10,
-                      }}>
-                      <Image
-                        source={require('../../assets/StopTiming.png')}
-                        style={{
-                          width: 120,
-                          height: 85,
-                          alignSelf: 'center',
-                          marginTop:10,
-                        }}
-                      />
-                      <Text
-                        style={{
-                          fontSize: 15,
-                          color: 'white',
-                          alignSelf: 'center',
-                          marginTop: 5,
-                        }}>
-                        Stop Timing
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: 25,
-                          fontWeight: 'bold',
-                          color: 'white',
-                          alignSelf: 'center',
-                        }}>
-                        1111
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-        </View>
-        <View style={[styles.MainContainer, {marginTop:20,}]}>
-          <View style={styles.Title}>
-            <Text
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginTop: width * 0.025,
+              marginBottom: width * 0.025,
+            }}>
+            <View
               style={{
-                fontSize: 23,
-                fontWeight: 'bold',
-                color: '#168070',
+                marginLeft: width * 0.025,
+                backgroundColor: '#2FAA98',
+                borderRadius: width * 0.075,
+                elevation: width * 0.025,
+                width: width * 0.4,
+                height: height * 0.175,
               }}>
-              Bus Seat Availability
-            </Text>
+              <Image
+                source={require('../../assets/RouteNo.png')}
+                style={{
+                  width: width * 0.04,
+                  height: height * 0.1,
+                  alignSelf: 'center',
+                  marginTop: width * 0.01,
+                }}
+              />
+              <Text
+                style={{
+                  fontSize: width * 0.035,
+                  color: 'white',
+                  alignSelf: 'center',
+                  marginTop: width * 0.0125,
+                }}>
+                Route No
+              </Text>
+              <Text
+                style={{
+                  fontSize: width * 0.055,
+                  fontWeight: 'bold',
+                  color: 'white',
+                  alignSelf: 'center',
+                }}>
+                1111
+              </Text>
+            </View>
+            <View
+              style={{
+                marginRight: width * 0.025,
+                width: width * 0.4,
+                height: height * 0.175,
+                backgroundColor: '#2FAA98',
+                borderRadius: width * 0.075,
+                elevation: width * 0.025,
+              }}>
+              <Image
+                source={require('../../assets/StopTiming.png')}
+                style={{
+                  width: width * 0.27,
+                  height: height * 0.1,
+                  alignSelf: 'center',
+                  marginTop: height * 0.005,
+                }}
+              />
+              <Text
+                style={{
+                  fontSize: width * 0.035,
+                  color: 'white',
+                  alignSelf: 'center',
+                  marginTop: width * 0.0125,
+                }}>
+                Stop Timing
+              </Text>
+              <Text
+                style={{
+                  fontSize: width * 0.055,
+                  fontWeight: 'bold',
+                  color: 'white',
+                  alignSelf: 'center',
+                }}>
+                1111
+              </Text>
+            </View>
           </View>
-          <View
-                  style={{
-                    borderColor: 'white',
-                    borderStyle: 'solid',
-                    borderWidth: 1,
-                    width: 360,
-                    margin: 10,
-                    marginTop: 10,
-                    borderRadius: 30,
-                  }}>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      marginTop: 10,
-                      marginBottom: 10,
-                    }}>
-                    <View
-                      style={{
-                        marginLeft: 10,
-                        backgroundColor: '#2FAA98',
-                        borderRadius: 30,
-                        elevation: 10,
-                        width: 160,
-                        height: 160,
-                      }}>
-                      <Image
-                        source={require('../../assets/RouteNo.png')}
-                        style={{
-                          width: 21,
-                          height: 85,
-                          alignSelf: 'center',
-                          marginTop: 10,
-                        }}
-                      />
-                      <Text
-                        style={{
-                          fontSize: 15,
-                          color: 'white',
-                          alignSelf: 'center',
-                          marginTop: 5,
-                        }}>
-                        Route No
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: 25,
-                          fontWeight: 'bold',
-                          color: 'white',
-                          alignSelf: 'center',
-                        }}>
-                        1111
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        marginRight: 10,
-                        width: 160,
-                        height: 160,
-                        backgroundColor: '#2FAA98',
-                        borderRadius: 30,
-                        elevation: 10,
-                      }}>
-                      <Image
-                        source={require('../../assets/StopTiming.png')}
-                        style={{
-                          width: 120,
-                          height: 85,
-                          alignSelf: 'center',
-                          marginTop:10,
-                        }}
-                      />
-                      <Text
-                        style={{
-                          fontSize: 15,
-                          color: 'white',
-                          alignSelf: 'center',
-                          marginTop: 5,
-                        }}>
-                        Stop Timing
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: 25,
-                          fontWeight: 'bold',
-                          color: 'white',
-                          alignSelf: 'center',
-                        }}>
-                        1111
-                      </Text>
-                    </View>
-                  </View>
-                </View>
         </View>
       </View>
-    );
-  };
-  
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: '#168070',
-    },
-    progress: {
-      alignItems: 'center',
-    },
-    MainContainer: {
-      backgroundColor: '#168070',
-      width: 380,
-      borderRadius: 30,
-      elevation: 10,
-    },
-    Title: {
-      alignItems: 'center',
-      backgroundColor: '#D9D9D9',
-      width: 380,
-      borderTopLeftRadius: 30,
-      borderTopRightRadius: 30,
-      height: 30,
-    },
-    btn: {
-      alignSelf: 'center',
-      backgroundColor: 'white',
-      width: 360,
-      height: 50,
-      borderRadius: 8,
-      justifyContent: 'center',
-      alignItems: 'center',
-      elevation: 5,
-      marginBottom: 25,
-      marginTop: 10,
-    },
-  });
-  
-  export default Dashboard;
+      <View style={[styles.MainContainer, { marginTop: height * 0.015 }]}>
+        <View style={styles.Title}>
+          <Text
+            style={{
+              fontSize: width * 0.05,
+              fontWeight: 'bold',
+              color: '#168070',
+            }}>
+            Bus Seat Availability
+          </Text>
+        </View>
+        <View
+          style={{
+            borderColor: 'white',
+            borderStyle: 'solid',
+            borderWidth: 1,
+            width: width * 0.9,
+            margin: width * 0.025,
+            marginTop: width * 0.025,
+            borderRadius: width * 0.075,
+          }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginTop: width * 0.025,
+              marginBottom: width * 0.025,
+            }}>
+            <View
+              style={{
+                marginLeft: width * 0.025,
+                backgroundColor: '#2FAA98',
+                borderRadius: width * 0.075,
+                elevation: width * 0.025,
+                width: width * 0.4,
+                height: height * 0.175,
+              }}>
+              <Image
+                source={require('../../assets/CheckIn.png')}
+                style={{
+                  width: width * 0.25,
+                  height: height * 0.1,
+                  alignSelf: 'center',
+                  marginTop: width * 0.01,
+                }}
+              />
+              <Text
+                style={{
+                  fontSize: width * 0.035,
+                  color: 'white',
+                  alignSelf: 'center',
+                  marginTop: width * 0.0125,
+                }}>
+                Route No
+              </Text>
+              <Text
+                style={{
+                  fontSize: width * 0.055,
+                  fontWeight: 'bold',
+                  color: 'white',
+                  alignSelf: 'center',
+                }}>
+                1111
+              </Text>
+            </View>
+            <View
+              style={{
+                marginRight: width * 0.025,
+                width: width * 0.4,
+                height: height * 0.175,
+                backgroundColor: '#2FAA98',
+                borderRadius: width * 0.075,
+                elevation: width * 0.025,
+              }}>
+              <Image
+                source={require('../../assets/Seats.png')}
+                style={{
+                  width: width * 0.129,
+                  height: height * 0.09,
+                  alignSelf: 'center',
+                  marginTop: height * 0.005,
+                }}
+              />
+              <Text
+                style={{
+                  fontSize: width * 0.035,
+                  color: 'white',
+                  alignSelf: 'center',
+                  marginTop: width * 0.0125,
+                }}>
+                Stop Timing
+              </Text>
+              <Text
+                style={{
+                  fontSize: width * 0.055,
+                  fontWeight: 'bold',
+                  color: 'white',
+                  alignSelf: 'center',
+                }}>
+                1111
+              </Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#168070',
+  },
+  progress: {
+    alignItems: 'center',
+  },
+  MainContainer: {
+    backgroundColor: '#168070',
+    width: width * 0.95,
+    borderRadius: width * 0.075,
+    elevation: width * 0.025,
+  },
+  Title: {
+    alignItems: 'center',
+    backgroundColor: '#D9D9D9',
+    width: width * 0.95,
+    borderTopLeftRadius: width * 0.075,
+    borderTopRightRadius: width * 0.075,
+    height: height * 0.035,
+  },
+  btn: {
+    alignSelf: 'center',
+    backgroundColor: 'white',
+    width: width * 0.9,
+    height: width * 0.125,
+    borderRadius: width * 0.02,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: width * 0.0125,
+    marginBottom: width * 0.0625,
+    marginTop: width * 0.025,
+  },
+});
+
+export default Dashboard;
