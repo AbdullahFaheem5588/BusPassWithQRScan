@@ -1,5 +1,7 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions} from 'react-native';
+
+const { width, height } = Dimensions.get('window');
 
 const FavStops = () => {
 
@@ -101,14 +103,14 @@ const styles = StyleSheet.create({
   btn: {
     alignSelf: 'center',
     backgroundColor: 'white',
-    width: 360,
-    height: 50,
-    borderRadius: 8,
+    width: width * 0.9,
+    height: width * 0.125,
+    borderRadius: width * 0.02,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5,
-    marginBottom: 10,
-    marginTop: -20,
+    elevation: width * 0.0125,
+    marginBottom: width * 0.01,
+    marginTop: - width * 0.05,
   },
   StopNametextStyle: {
     color: 'white',

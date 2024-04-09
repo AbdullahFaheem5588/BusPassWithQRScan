@@ -1,24 +1,34 @@
-import React, { useState, useRef } from 'react';
-import { Text, View, StyleSheet, Image, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import React, {useState, useRef} from 'react';
+import {
+  Text,
+  View,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  Dimensions,
+} from 'react-native';
 import * as Progress from 'react-native-progress';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
+
+const {width, height} = Dimensions.get('window');
 
 const Dashboard = () => {
-  const { width, height } = Dimensions.get('window');
   const [offset, setOffset] = useState(0);
   const arr = ['Abdullah', 'Adeel', 'Umer', 'Zia'];
   const navigation = useNavigation();
   const scrollViewRef = useRef(null);
-  const [notificationIcon, setNotificationIcon] = useState(require('../../assets/Notification-Focused.png'));
+  const [notificationIcon, setNotificationIcon] = useState(
+    require('../../assets/Notification-Focused.png'),
+  );
 
   const handleNotificartionIcon = () => {
     if (notificationIcon === require('../../assets/Notification-Focused.png'))
       setNotificationIcon(require('../../assets/Notification-On.png'));
-    else
-      setNotificationIcon(require('../../assets/Notification-Focused.png'));
+    else setNotificationIcon(require('../../assets/Notification-Focused.png'));
   };
 
-  const handleScroll = (event) => {
+  const handleScroll = event => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(contentOffsetX / 360);
     setOffset(index);
@@ -52,18 +62,29 @@ const Dashboard = () => {
           {arr &&
             arr.map((item, ind) => (
               <View key={ind} style={styles.favoriteStopContainer}>
-                <TouchableOpacity onPress={handleNotificartionIcon} style={styles.notificationIconContainer}>
-                  <Image source={notificationIcon} style={styles.notificationIcon} />
+                <TouchableOpacity
+                  onPress={handleNotificartionIcon}
+                  style={styles.notificationIconContainer}>
+                  <Image
+                    source={notificationIcon}
+                    style={styles.notificationIcon}
+                  />
                 </TouchableOpacity>
                 <Text style={styles.favoriteStopText}>Chandni Chowk</Text>
                 <View style={styles.infoContainer}>
                   <View style={styles.infoBox}>
-                    <Image source={require('../../assets/RouteNo.png')} style={styles.infoImage} />
+                    <Image
+                      source={require('../../assets/RouteNo.png')}
+                      style={styles.infoImage}
+                    />
                     <Text style={styles.infoLabel}>Route No</Text>
                     <Text style={styles.infoText}>1111</Text>
                   </View>
-                  <View style={[styles.infoBox, {marginRight:10,}]}>
-                    <Image source={require('../../assets/StopTiming.png')} style={styles.StopTimingImage} />
+                  <View style={[styles.infoBox, {marginRight: 10}]}>
+                    <Image
+                      source={require('../../assets/StopTiming.png')}
+                      style={styles.StopTimingImage}
+                    />
                     <Text style={styles.infoLabel}>Stop Timing</Text>
                     <Text style={styles.infoText}>1111</Text>
                   </View>
@@ -74,10 +95,18 @@ const Dashboard = () => {
         <View style={styles.pageIndicatorContainer}>
           {arr &&
             arr.map((item, ind) => (
-              <View key={ind} style={[styles.pageIndicator, ind === offset ? styles.activePageIndicator : null]}></View>
+              <View
+                key={ind}
+                style={[
+                  styles.pageIndicator,
+                  ind === offset ? styles.activePageIndicator : null,
+                ]}></View>
             ))}
         </View>
-        <TouchableOpacity onPress={() => { navigation.navigate('FavStops'); }}>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('FavStops');
+          }}>
           <View style={styles.btn}>
             <Text style={styles.btnText}>EDIT FAVOURITE STOPS</Text>
           </View>
@@ -101,24 +130,24 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'white',
     marginTop: -70,
-    marginBottom: 80,
+    marginBottom: 60,
   },
   MyFavStop: {
     backgroundColor: '#168070',
-    width: 380,
-    borderRadius: 30,
-    elevation: 10,
+    width: width * 0.95,
+    borderRadius: width * 0.075,
+    elevation: width * 0.025,
   },
   MyFavStopTitle: {
     alignItems: 'center',
     backgroundColor: '#D9D9D9',
-    width: 380,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    height: 40,
+    width: width * 0.95,
+    borderTopLeftRadius: width * 0.075,
+    borderTopRightRadius: width * 0.075,
+    height: height * 0.035,
   },
   titleText: {
-    fontSize: 27,
+    fontSize: width * 0.05,
     fontWeight: 'bold',
     color: '#168070',
   },
@@ -126,10 +155,10 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     borderStyle: 'solid',
     borderWidth: 1,
-    width: 360,
-    margin: 10,
-    marginTop: 20,
-    borderRadius: 30,
+    width: width * 0.9,
+    margin: width * 0.025,
+    marginTop: width * 0.025,
+    borderRadius: width * 0.075,
   },
   notificationIconContainer: {
     width: 30,
@@ -150,37 +179,37 @@ const styles = StyleSheet.create({
   infoContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: width * 0.025,
+    marginBottom: width * 0.025,
   },
   infoBox: {
-    marginLeft: 10,
+    marginLeft: width * 0.025,
     backgroundColor: '#2FAA98',
-    borderRadius: 30,
-    elevation: 10,
-    width: 160,
-    height: 160,
+    borderRadius: width * 0.075,
+    elevation: width * 0.025,
+    width: width * 0.4,
+    height: height * 0.175,
   },
   infoImage: {
-    width: 21,
-    height: 85,
+    width: width * 0.04,
+    height: height * 0.1,
     alignSelf: 'center',
-    marginTop: 10,
+    marginTop: width * 0.01,
   },
-  StopTimingImage : {
-    width: 120,
-    height: 85,
+  StopTimingImage: {
+    width: width * 0.27,
+    height: height * 0.1,
     alignSelf: 'center',
-    marginTop:10,
+    marginTop: height * 0.005,
   },
   infoLabel: {
-    fontSize: 15,
+    fontSize: width * 0.035,
     color: 'white',
     alignSelf: 'center',
-    marginTop: 5,
+    marginTop: width * 0.0125,
   },
   infoText: {
-    fontSize: 25,
+    fontSize: width * 0.055,
     fontWeight: 'bold',
     color: 'white',
     alignSelf: 'center',
@@ -203,14 +232,14 @@ const styles = StyleSheet.create({
   btn: {
     alignSelf: 'center',
     backgroundColor: 'white',
-    width: 360,
-    height: 50,
-    borderRadius: 8,
+    width: width * 0.9,
+    height: width * 0.125,
+    borderRadius: width * 0.02,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5,
-    marginBottom: 25,
-    marginTop: 10,
+    elevation: width * 0.0125,
+    marginBottom: width * 0.0625,
+    marginTop: width * 0.025,
   },
   btnText: {
     fontSize: 25,

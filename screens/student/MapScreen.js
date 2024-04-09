@@ -7,10 +7,13 @@ import {
   ScrollView,
   Image,
   Animated,
+  Dimensions
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import GoogleMapKey from '../../GoogleMapKey';
 import MapViewDirections from 'react-native-maps-directions';
+
+const { width, height } = Dimensions.get('window');
 
 const MapScreen = () => {
   const arr = ['Abdullah', 'Adeel', 'Umer', 'Zia'];
@@ -82,7 +85,7 @@ const MapScreen = () => {
           />
         ))}
       </MapView>
-      <Animated.View style={[{transform: [{scale: scaleAnim}]}]}>
+      <Animated.View style={[{ transform: [{ scale: scaleAnim }] }]}>
         {scrollViewVisible && (
           <View style={[styles.StopPopup]}>
             <ScrollView
@@ -91,7 +94,8 @@ const MapScreen = () => {
               horizontal={true}
               showsHorizontalScrollIndicator={false}
               pagingEnabled={true}
-              horizontalScrollEventThrottle={360}>
+              horizontalScrollEventThrottle={(width * 0.9)}
+            >
               {arr &&
                 arr.map((item, ind) => (
                   <View
@@ -100,19 +104,21 @@ const MapScreen = () => {
                       borderColor: 'white',
                       borderStyle: 'solid',
                       borderWidth: 1,
-                      width: 360,
-                      margin: 10,
-                      marginTop: 20,
-                      borderRadius: 30,
-                    }}>
+                      width: width * 0.9,
+                      margin: width * 0.025,
+                      marginTop: width * 0.05,
+                      borderRadius: width * 0.075,
+                    }}
+                  >
                     <Text
                       style={{
-                        fontSize: 25,
+                        fontSize: width * 0.055,
                         fontWeight: 'bold',
                         color: 'white',
                         alignSelf: 'center',
-                        marginTop: 10,
-                      }}>
+                        marginTop: width * 0.025,
+                      }}
+                    >
                       {/*favStops[0].Name*/}
                       Chandni Chowk
                     </Text>
@@ -120,80 +126,87 @@ const MapScreen = () => {
                       style={{
                         flexDirection: 'row',
                         justifyContent: 'space-between',
-                        marginTop: 20,
-                        marginBottom: 20,
-                      }}>
+                        marginTop: width * 0.05,
+                        marginBottom: width * 0.05,
+                      }}
+                    >
                       <View
                         style={{
-                          marginLeft: 10,
+                          marginLeft: width * 0.025,
                           backgroundColor: '#2FAA98',
-                          borderRadius: 30,
-                          elevation: 10,
-                          width: 160,
-                          height: 160,
-                        }}>
+                          borderRadius: width * 0.075,
+                          elevation: width * 0.025,
+                          width: width * 0.4,
+                          height: width * 0.4,
+                        }}
+                      >
                         <Image
                           source={require('../../assets/RouteNo.png')}
                           style={{
-                            width: 21,
-                            height: 85,
+                            width: width * 0.05,
+                            height: width * 0.2,
                             alignSelf: 'center',
-                            marginTop: 10,
+                            marginTop: width * 0.025,
                           }}
                         />
                         <Text
                           style={{
-                            fontSize: 15,
+                            fontSize: width * 0.035,
                             color: 'white',
                             alignSelf: 'center',
-                            marginTop: 5,
-                          }}>
+                            marginTop: width * 0.0125,
+                          }}
+                        >
                           Route No
                         </Text>
                         <Text
                           style={{
-                            fontSize: 25,
+                            fontSize: width * 0.055,
                             fontWeight: 'bold',
                             color: 'white',
                             alignSelf: 'center',
-                          }}>
+                          }}
+                        >
                           1111
                         </Text>
                       </View>
                       <View
                         style={{
-                          marginRight: 10,
-                          width: 160,
-                          height: 160,
+                          marginRight: width * 0.025,
+                          width: width * 0.4,
+                          height: width * 0.4,
                           backgroundColor: '#2FAA98',
-                          borderRadius: 30,
-                          elevation: 10,
-                        }}>
+                          borderRadius: width * 0.075,
+                          elevation: width * 0.025,
+                        }}
+                      >
                         <Image
                           source={require('../../assets/StopTiming.png')}
                           style={{
-                            width: 120,
-                            height: 85,
+                            width: width * 0.3,
+                            height: width * 0.2,
                             alignSelf: 'center',
-                            marginTop: 10,
+                            marginTop: width * 0.025,
                           }}
                         />
                         <Text
                           style={{
-                            fontSize: 15,
+                            fontSize: width * 0.035,
                             color: 'white',
                             alignSelf: 'center',
-                            marginTop: 5,
-                          }}>
+                            marginTop: width * 0.0125,
+                          }}
+                        >
                           Stop Timing
                         </Text>
                         <Text
                           style={{
-                            fontSize: 25,
+                            fontSize: width * 0.055,
                             fontWeight: 'bold',
                             color: 'white',
                             alignSelf: 'center',
-                          }}>
+                          }}
+                        >
                           1111
                         </Text>
                       </View>
@@ -201,7 +214,7 @@ const MapScreen = () => {
                   </View>
                 ))}
             </ScrollView>
-            <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+            <View style={{ flexDirection: 'row', alignSelf: 'center' }}>
               {arr &&
                 arr.map((item, ind) => (
                   <View
@@ -209,26 +222,33 @@ const MapScreen = () => {
                     style={{
                       flexDirection: 'row',
                       alignSelf: 'center',
-                    }}>
+                    }}
+                  >
                     <View
                       style={[
                         {
-                          width: 10,
-                          height: 10,
-                          borderRadius: 5,
+                          width: width * 0.025,
+                          height: width * 0.025,
+                          borderRadius: width * 0.0125,
                           borderColor: 'white',
                           borderWidth: 1,
-                          marginHorizontal: 5,
+                          marginHorizontal: width * 0.0125,
                         },
-                        ind === offset ? {backgroundColor: 'white'} : null,
-                      ]}></View>
+                        ind === offset ? { backgroundColor: 'white' } : null,
+                      ]}
+                    ></View>
                   </View>
                 ))}
             </View>
             <TouchableOpacity>
               <View style={styles.btn}>
                 <Text
-                  style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
+                  style={{
+                    fontSize: width * 0.055,
+                    fontWeight: 'bold',
+                    color: '#168070',
+                  }}
+                >
                   ADD TO FAVOURITE STOPS
                 </Text>
               </View>
@@ -237,7 +257,13 @@ const MapScreen = () => {
         )}
         <TouchableOpacity onPress={handleStopPopupVisibility}>
           <View style={styles.btn}>
-            <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
+            <Text
+              style={{
+                fontSize: width * 0.055,
+                fontWeight: 'bold',
+                color: '#168070',
+              }}
+            >
               CLOSE
             </Text>
           </View>
@@ -255,22 +281,22 @@ const styles = StyleSheet.create({
   },
   StopPopup: {
     backgroundColor: '#168070',
-    width: 380,
-    borderRadius: 30,
-    elevation: 10,
-    marginBottom: 30,
+    width: width * 0.95,
+    borderRadius: width * 0.075,
+    elevation: width * 0.025,
+    marginBottom: width * 0.075,
   },
   btn: {
     alignSelf: 'center',
     backgroundColor: 'white',
-    width: 360,
-    height: 50,
-    borderRadius: 8,
+    width: width * 0.9,
+    height: width * 0.125,
+    borderRadius: width * 0.02,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5,
-    marginBottom: 25,
-    marginTop: 10,
+    elevation: width * 0.0125,
+    marginBottom: width * 0.0625,
+    marginTop: width * 0.025,
   },
 });
 

@@ -7,3 +7,4 @@ import {name as appName} from './app.json';
 import MainStack from './screens/Navigation';
 
 AppRegistry.registerComponent(appName, () => MainStack);
+console.disableYellowBox = true;

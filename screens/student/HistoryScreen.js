@@ -1,6 +1,8 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+
+const { width, height } = Dimensions.get('window');
 
 const HistoryScreen = () => {
   const data = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -105,7 +107,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   firstPicker: {
-    marginRight: 30,
+    marginRight: width * 0.05,
   },
   picker: {
     borderColor: '#2FAA98',
@@ -114,7 +116,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 20,
     height: 50,
-    width: 170,
+    width: width * 0.45,
     textAlign: 'center',
     textAlignVertical: 'center',
   },

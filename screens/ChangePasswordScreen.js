@@ -6,7 +6,10 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
+  Dimensions,
 } from 'react-native';
+
+const {width, height} = Dimensions.get('window');
 
 const ChangePasswordScreen = () => {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -15,11 +18,10 @@ const ChangePasswordScreen = () => {
   const [error, setError] = useState('');
 
   const HandleConfirm = () => {
-    if(newPassword !== confirmNewPassword){
-        setError('New Password not Matched!');
-    }
-    else{
-        setError('');
+    if (newPassword !== confirmNewPassword) {
+      setError('New Password not Matched!');
+    } else {
+      setError('');
     }
   };
 
@@ -69,12 +71,12 @@ const ChangePasswordScreen = () => {
             fontSize: 15,
             fontWeight: 'bold',
             marginLeft: 15,
-            marginBottom:10,
+            marginBottom: 10,
           }}>
           {error}
         </Text>
       </View>
-      <TouchableOpacity onPress= {HandleConfirm} style={{marginTop: 30}}>
+      <TouchableOpacity onPress={HandleConfirm} style={{marginTop: 30}}>
         <View style={styles.btn}>
           <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
             CONFIRM
@@ -94,28 +96,27 @@ const styles = StyleSheet.create({
   },
   ContentContainer: {
     backgroundColor: '#168070',
-    width: 380,
+    width: width * 0.95,
     borderRadius: 30,
     elevation: 20,
-    marginTop: 35,
   },
   btn: {
     alignSelf: 'center',
     backgroundColor: 'white',
-    width: 360,
-    height: 50,
-    borderRadius: 8,
+    width: width * 0.9,
+    height: width * 0.125,
+    borderRadius: width * 0.02,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5,
+    elevation: width * 0.0125,
   },
   input: {
-    marginBottom: 10,
-    width: 350,
+    marginBottom: width * 0.0125,
+    width: width * 0.875,
     borderBottomWidth: 2,
     color: 'white',
     borderColor: 'white',
-    marginLeft: 15,
+    marginLeft: width * 0.05,
   },
 });
 

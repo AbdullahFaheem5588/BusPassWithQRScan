@@ -1,6 +1,8 @@
 import React from 'react';
-import {View, Text, StyleSheet, Image} from 'react-native';
+import {View, Text, StyleSheet, Image, Dimensions} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
+
+const { width, height } = Dimensions.get('window');
 
 const QrCodeScreen = () => {
   return (
@@ -8,23 +10,23 @@ const QrCodeScreen = () => {
       <Image
         source={require('../../assets/ProfilePicture.png')}
         style={{
-          width: 150,
-          height: 150,
-          marginTop: 20,
+          width: width * 0.4,
+          height: height * 0.21,
+          marginTop: height * 0.01,
         }}
       />
       <Text
         style={{
-          fontSize: 30,
+          fontSize: width * 0.07,
           fontWeight: 'bold',
           color: 'white',
-          marginTop: 10,
+          marginTop: height * 0.001,
         }}>
         Abdullah Faheem
       </Text>
       <Text
         style={{
-          fontSize: 20,
+          fontSize: width * 0.05,
           fontWeight: 'bold',
           color: 'white',
         }}>
@@ -33,16 +35,16 @@ const QrCodeScreen = () => {
       <View
         style={{
           backgroundColor: 'white',
-          width: 350,
-          height: 350,
+          width: width * 0.95,
+          height: height * 0.45,
           justifyContent: 'center',
           alignItems: 'center',
           borderRadius:50,
-          marginTop:20,
+          marginTop:height * 0.03,
         }}>
         <QRCode
           value="https://discountedbrandsbyzofshan.myshopify.com/"
-          size={300}
+          size={width * 0.75}
         />
       </View>
     </View>
