@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 
 enableScreens();
 
-const { width: screenWidth } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 const Dashboard = () => {
   const [offset, setOffset] = useState(0);
@@ -16,7 +16,7 @@ const Dashboard = () => {
 
   const handleScroll = event => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const index = Math.round(contentOffsetX / screenWidth);
+    const index = Math.round(contentOffsetX / width);
     setOffset(index);
   };
 
@@ -38,7 +38,7 @@ const Dashboard = () => {
               <View style={styles.progress}>
                 <Progress.Circle
                   progress={0.59}
-                  size={screenWidth * 0.35}
+                  size={width * 0.3}
                   showsText={true}
                   color="white"
                   borderWidth={7}
@@ -105,52 +105,51 @@ const styles = StyleSheet.create({
   },
   MyChildren: {
     backgroundColor: '#168070',
-    width: '90%', // 90% of the screen width
+    width: '90%',
     borderRadius: 30,
     elevation: 10,
   },
   MyChildrenTitle: {
     alignItems: 'center',
     backgroundColor: '#D9D9D9',
-    width: '100%', // 90% of the screen width
+    width: '100%',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     height: '4%',
   },
   titleText: {
-    fontSize: 27,
+    fontSize: width * 0.05,
     fontWeight: 'bold',
     color: '#168070',
-    marginTop: -5,
+    marginTop: -3,
   },
   childContainer: {
     borderColor: 'white',
     borderWidth: 1,
-    width: screenWidth * 0.85, // 90% of the screen width
+    width: width * 0.85,
     margin: 10,
     marginTop: 5,
     borderRadius: 30,
   },
   progressText: {
-    fontSize: 14,
+    fontSize: width * 0.03,
     color: 'white',
     alignSelf: 'center',
-    marginTop: -55,
-    marginBottom: 40,
+    marginTop: -height * 0.065,
+    marginBottom: height * 0.04,
   },
   childName: {
-    fontSize: 25,
+    fontSize: width * 0.06,
     fontWeight: 'bold',
     color: 'white',
     alignSelf: 'center',
   },
   timings: {
-    fontSize: 15,
+    fontSize: width * 0.03,
     fontWeight: 'bold',
     color: 'white',
     alignSelf: 'center',
-    marginTop: 5,
-    marginBottom: 5,
+    marginBottom: 2,
   },
   timingContainer: {
     flexDirection: 'row',
@@ -158,25 +157,24 @@ const styles = StyleSheet.create({
   },
   timingBox: {
     backgroundColor: '#2FAA98',
-    borderRadius: 30,
-    elevation: 10,
-    width: '45%', // 45% of the screen width
-    height: '100%',
+    borderRadius: width * 0.075,
+    elevation: width * 0.025,
+    width: width * 0.38,
+    height: height * 0.160,
   },
   timingImage: {
-    width: 100,
-    height: 80,
+    width: width * 0.2,
+    height: height * 0.08,
     alignSelf: 'center',
-    marginTop: 10,
+    marginTop: 2,
   },
   timingImageText: {
-    fontSize: 15,
+    fontSize: width * 0.04,
     color: 'white',
     alignSelf: 'center',
-    marginTop: 5,
   },
   timingValue: {
-    fontSize: 25,
+    fontSize: width * 0.07,
     fontWeight: 'bold',
     color: 'white',
     alignSelf: 'center',
@@ -199,14 +197,14 @@ const styles = StyleSheet.create({
   btn: {
     alignSelf: 'center',
     backgroundColor: 'white',
-    width: '90%', // 90% of the screen width
-    height: 50,
-    borderRadius: 8,
+    width: width * 0.8,
+    height: width * 0.125,
+    borderRadius: width * 0.02,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5,
-    marginBottom: 10,
-    marginTop: 10,
+    elevation: width * 0.0125,
+    marginBottom: width * 0.0625,
+    marginTop: width * 0.025,
   },
   btnText: {
     fontSize: 25,

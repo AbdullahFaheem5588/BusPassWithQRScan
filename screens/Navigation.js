@@ -4,21 +4,26 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createStackNavigator} from '@react-navigation/stack';
 import {Image} from 'react-native';
 import {default as StudentFavStops} from './Student/FavStops';
-import { default as StudentDashboard } from './Student/Dashboard';
-import { default as StudentMapScreen } from './Student/MapScreen';
-import { default as Login } from './Login';
-import { default as StudentQrCodeScreen } from './Student/QrCodeScreen';
-import { default as StudentProfileScreen } from './Student/ProfileScreen';
-import { default as NotificationScreen } from './NotificationScreen';
-import { default as ChangePasswordScreen } from './ChangePasswordScreen';
-import { default as StudentHistoryScreen } from './Student/HistoryScreen';
-import { default as NotificationDetails } from './NotificationDetailsScreen';
-import { default as ParentDashboard } from './Parent/Dashboard';
-import {default as ParentMapScreen } from  './Parent/MapScreen';
-import {default as ParentProfileScreen } from './Parent/ProfileScreen';
-import {default as ParentHistoryScreen } from './Parent/HistoryScreen';
-import {default as ConductorDashboard } from './Conductor/Dashboard';
-import {default as ConductorMapScreen } from './Conductor/MapScreen';
+import {default as StudentDashboard} from './Student/Dashboard';
+import {default as StudentMapScreen} from './Student/MapScreen';
+import {default as Login} from './Login';
+import {default as StudentQrCodeScreen} from './Student/QrCodeScreen';
+import {default as StudentProfileScreen} from './Student/ProfileScreen';
+import {default as NotificationScreen} from './NotificationScreen';
+import {default as ChangePasswordScreen} from './ChangePasswordScreen';
+import {default as StudentHistoryScreen} from './Student/HistoryScreen';
+import {default as NotificationDetails} from './NotificationDetailsScreen';
+import {default as ParentDashboard} from './Parent/Dashboard';
+import {default as ParentMapScreen} from './Parent/MapScreen';
+import {default as ParentProfileScreen} from './Parent/ProfileScreen';
+import {default as ParentHistoryScreen} from './Parent/HistoryScreen';
+import {default as ConductorDashboard} from './Conductor/Dashboard';
+import {default as ConductorMapScreen} from './Conductor/MapScreen';
+import {default as ConductorQrCodeScanner} from './Conductor/QrCodeScanner';
+import {default as ConductorPassValidity} from './Conductor/PassValidity';
+import {default as ConductorProfileScreen} from './Conductor/ProfileScreen';
+import {default as ConductorHistoryScreen} from './Conductor/HistoryScreen';
+
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
@@ -36,7 +41,7 @@ const MainStack = () => {
 };
 
 const NotificationStack = () => {
-  return(
+  return (
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
@@ -46,7 +51,8 @@ const NotificationStack = () => {
         tabBarStyle: {
           backgroundColor: '#2FAA98',
         },
-      }} initialRouteName='NotificationScreen'>
+      }}
+      initialRouteName="NotificationScreen">
       <Stack.Screen
         name="NotificationScreen"
         component={NotificationScreen}
@@ -72,7 +78,8 @@ const StudentDashboardStack = () => {
         tabBarStyle: {
           backgroundColor: '#2FAA98',
         },
-      }} initialRouteName='DashboardScreen'>
+      }}
+      initialRouteName="DashboardScreen">
       <Stack.Screen
         name="DashboardScreen"
         component={StudentDashboard}
@@ -97,7 +104,8 @@ const StudentProfileStack = () => {
         tabBarStyle: {
           backgroundColor: '#2FAA98',
         },
-      }} initialRouteName='ProfileScreen'>
+      }}
+      initialRouteName="ProfileScreen">
       <Stack.Screen
         name="ProfileScreen"
         component={StudentProfileScreen}
@@ -128,7 +136,8 @@ const ParentProfileStack = () => {
         tabBarStyle: {
           backgroundColor: '#2FAA98',
         },
-      }} initialRouteName='ProfileScreen'>
+      }}
+      initialRouteName="ProfileScreen">
       <Stack.Screen
         name="ProfileScreen"
         component={ParentProfileScreen}
@@ -147,7 +156,59 @@ const ParentProfileStack = () => {
     </Stack.Navigator>
   );
 };
-
+const ConductorPassValidationStack = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#2FAA98',
+        },
+        headerTintColor: 'white',
+        tabBarStyle: {
+          backgroundColor: '#2FAA98',
+        },
+      }}
+      initialRouteName="Scan">
+      <Stack.Screen name="Scan" component={ConductorQrCodeScanner} />
+      <Stack.Screen
+        name="PassValidity"
+        component={ConductorPassValidity}
+        options={{title: 'Pass Status'}}
+      />
+    </Stack.Navigator>
+  );
+};
+const ConductorProfileStack = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#2FAA98',
+        },
+        headerTintColor: 'white',
+        tabBarStyle: {
+          backgroundColor: '#2FAA98',
+        },
+      }}
+      initialRouteName="ProfileScreen">
+      <Stack.Screen
+        name="ProfileScreen"
+        component={ConductorProfileScreen}
+        options={{title: 'Profile'}}
+      />
+      <Stack.Screen
+        name="ChangePassword"
+        component={ChangePasswordScreen}
+        options={{title: 'Change Password'}}
+      />
+      <Stack.Screen
+        name="History"
+        component={ConductorHistoryScreen}
+        options={{title: 'History'}}
+      />
+    </Stack.Navigator>
+  );
+};
 
 const StudentTabs = () => {
   return (
@@ -163,7 +224,7 @@ const StudentTabs = () => {
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          marginBottom:3,
+          marginBottom: 3,
         },
         tabBarActiveTintColor: 'white',
         tabBarInactiveTintColor: 'transparent',
@@ -269,7 +330,7 @@ const ParentTabs = () => {
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          marginBottom:3,
+          marginBottom: 3,
         },
         tabBarActiveTintColor: 'white',
         tabBarInactiveTintColor: 'transparent',
@@ -358,7 +419,7 @@ const ConductorTabs = () => {
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          marginBottom:3,
+          marginBottom: 3,
         },
         tabBarActiveTintColor: 'white',
         tabBarInactiveTintColor: 'transparent',
@@ -396,6 +457,23 @@ const ConductorTabs = () => {
         }}
       />
       <Tab.Screen
+        name="Scan"
+        component={ConductorPassValidationStack}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({focused}) => (
+            <Image
+              source={
+                focused
+                  ? require('../assets/QrCodeScanner-Focused.png')
+                  : require('../assets/QrCodeScanner-UnFocused.png')
+              }
+              style={{width: 25, height: 30}}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
         name="Notification"
         component={NotificationStack}
         options={{
@@ -414,7 +492,7 @@ const ConductorTabs = () => {
       />
       <Tab.Screen
         name="Profile"
-        component={ParentProfileStack}
+        component={ConductorProfileStack}
         options={{
           headerShown: false,
           tabBarIcon: ({focused}) => (

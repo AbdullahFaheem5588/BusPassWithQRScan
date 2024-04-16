@@ -1,16 +1,21 @@
 import React from 'react';
-import {View, Text, StyleSheet, Image, TouchableOpacity, Dimensions} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {View, Text, StyleSheet, Dimensions, Image} from 'react-native';
+import {useRoute} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
-const ProfileScreen = () => {
-  const navigation = useNavigation();
+const PassValidity = () => {
+  const route = useRoute();
+  const { PassStatus } = route.params;
+  const Images = {
+    'Valid': require('../../assets/ValidPass.png'),
+    'Invalid': require('../../assets/InvalidPass.png'),
+  };
   return (
     <View style={styles.container}>
       <View style={styles.ContentContainer}>
         <Image
-          source={require('../../assets/ProfilePicture.png')}
+          source={Images[PassStatus]}
           style={{
             width: width * 0.3,
             height: height * 0.159,
@@ -26,7 +31,7 @@ const ProfileScreen = () => {
             marginTop: height * 0.001,
             alignSelf: 'center',
           }}>
-          Khawaja Faheem Akhter
+          Pass Status: {PassStatus}
         </Text>
         <View>
           <View
@@ -52,16 +57,16 @@ const ProfileScreen = () => {
                   alignSelf: 'center',
                   marginTop: 5,
                 }}>
-                Contact Number
+                Student Name
               </Text>
               <Text
                 style={{
-                  fontSize: width * 0.06,
+                  fontSize: width * 0.05,
                   fontWeight: 'bold',
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                03345207788
+                Abdullah Faheem
               </Text>
             </View>
             <View
@@ -81,16 +86,80 @@ const ProfileScreen = () => {
                   alignSelf: 'center',
                   marginTop: 5,
                 }}>
-                Children Enrolled
+                Registration No
               </Text>
               <Text
                 style={{
-                  fontSize: width * 0.06,
+                  fontSize: width * 0.05,
                   fontWeight: 'bold',
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                2
+                2020-Arid-3587
+              </Text>
+            </View>
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}>
+            <View
+              style={{
+                marginLeft: 10,
+                width: width * 0.45,
+                height: height * 0.1,
+                borderRightWidth: 1,
+                borderColor: 'white',
+                borderBottomWidth: 2,
+                justifyContent: 'center',
+              }}>
+              <Text
+                style={{
+                  fontSize: width * 0.038,
+                  color: 'white',
+                  alignSelf: 'center',
+                  marginTop: 5,
+                }}>
+                Remaining Journeys
+              </Text>
+              <Text
+                style={{
+                  fontSize: width * 0.05,
+                  fontWeight: 'bold',
+                  color: 'white',
+                  alignSelf: 'center',
+                }}>
+                20
+              </Text>
+            </View>
+            <View
+              style={{
+                marginRight: 10,
+                width: width * 0.45,
+                height: height * 0.1,
+                borderLeftWidth: 1,
+                borderBottomWidth: 2,
+                borderColor: 'white',
+                justifyContent: 'center',
+              }}>
+              <Text
+                style={{
+                  fontSize: width * 0.038,
+                  color: 'white',
+                  alignSelf: 'center',
+                  marginTop: 5,
+                }}>
+                Gender
+              </Text>
+              <Text
+                style={{
+                  fontSize: width * 0.05,
+                  fontWeight: 'bold',
+                  color: 'white',
+                  alignSelf: 'center',
+                }}>
+                Male
               </Text>
             </View>
           </View>
@@ -115,11 +184,11 @@ const ProfileScreen = () => {
                   alignSelf: 'center',
                   marginTop: 5,
                 }}>
-                Parent ID
+                Pass ID
               </Text>
               <Text
                 style={{
-                  fontSize: width * 0.06,
+                  fontSize: width * 0.05,
                   fontWeight: 'bold',
                   color: 'white',
                   alignSelf: 'center',
@@ -144,42 +213,21 @@ const ProfileScreen = () => {
                   alignSelf: 'center',
                   marginTop: 5,
                 }}>
-                Username
+                Pass Expiry
               </Text>
               <Text
                 style={{
-                  fontSize: width * 0.028,
+                    fontSize: width * 0.05,
                   fontWeight: 'bold',
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                KhFaheem_12150@Biit.edu.pk
+                01/12/2023
               </Text>
             </View>
           </View>
         </View>
       </View>
-      <TouchableOpacity style={{marginTop: 15}} onPress={() => navigation.navigate('History')}>
-        <View style={styles.btn}>
-          <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
-            HISTORY
-          </Text>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity style={{marginTop: 15}} onPress={() => navigation.navigate('ChangePassword')}>
-        <View style={styles.btn}>
-          <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
-            CHANGE PASSWORD
-          </Text>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity style={{marginTop: 15}} onPress={() => navigation.replace('Login')}>
-        <View style={styles.btn}>
-          <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
-            LOG OUT
-          </Text>
-        </View>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -189,13 +237,14 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: '#168070',
+    justifyContent: 'center',
   },
   ContentContainer: {
     backgroundColor: '#168070',
     width: width * 0.95,
     borderRadius: 30,
     elevation: 20,
-    marginTop: 5,
+    marginBottom: 30,
   },
   btn: {
     alignSelf: 'center',
@@ -207,6 +256,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: width * 0.0125,
   },
+  btnText: {
+    fontSize: 25,
+    fontWeight: 'bold',
+    color: '#168070',
+  },
 });
 
-export default ProfileScreen;
+export default PassValidity;

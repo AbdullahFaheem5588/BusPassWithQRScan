@@ -26,7 +26,7 @@ const ProfileScreen = () => {
             marginTop: height * 0.001,
             alignSelf: 'center',
           }}>
-          Khawaja Faheem Akhter
+          Ahmed Shehbaz
         </Text>
         <View>
           <View
@@ -81,7 +81,7 @@ const ProfileScreen = () => {
                   alignSelf: 'center',
                   marginTop: 5,
                 }}>
-                Children Enrolled
+                Bus No
               </Text>
               <Text
                 style={{
@@ -90,7 +90,7 @@ const ProfileScreen = () => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                2
+                RWP-1122
               </Text>
             </View>
           </View>
@@ -115,7 +115,7 @@ const ProfileScreen = () => {
                   alignSelf: 'center',
                   marginTop: 5,
                 }}>
-                Parent ID
+                Conductor ID
               </Text>
               <Text
                 style={{
@@ -124,7 +124,7 @@ const ProfileScreen = () => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                1200
+                0001
               </Text>
             </View>
             <View
@@ -148,12 +148,12 @@ const ProfileScreen = () => {
               </Text>
               <Text
                 style={{
-                  fontSize: width * 0.028,
+                  fontSize: width * 0.027,
                   fontWeight: 'bold',
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                KhFaheem_12150@Biit.edu.pk
+                AhmedShehbaz_0001@Biit.edu.pk
               </Text>
             </View>
           </View>
@@ -189,6 +189,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: '#168070',
+    justifyContent: 'center',
   },
   ContentContainer: {
     backgroundColor: '#168070',

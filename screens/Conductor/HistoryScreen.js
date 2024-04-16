@@ -11,8 +11,8 @@ const HistoryScreen = () => {
   const [toDate, setToDate] = useState(new Date());
   const [showFromDatePicker, setShowFromDatePicker] = useState(false);
   const [showToDatePicker, setShowToDatePicker] = useState(false);
-  const arr = ['Abdullah Faheem', 'Adeel Shahid khan'];
-  const [selectedChild, setSelectedChild] = useState('');
+  const arr = ['Bus Arival', 'Bus Departure', 'Student Qr Code Scanned'];
+  const [selectedCategory, setSelectedCategory] = useState('');
 
   const handleFromDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || fromDate;
@@ -72,9 +72,9 @@ const HistoryScreen = () => {
           {marginLeft: width * 0.05, width: width * 0.9, justifyContent: 'center',},
         ]}>
         <Picker
-          selectedValue={selectedChild}
-          onValueChange={(itemValue, itemIndex) => setSelectedChild(itemValue)}>
-          <Picker.Item label="Select Child" value="" />
+          selectedValue={selectedCategory}
+          onValueChange={(itemValue, itemIndex) => setSelectedCategory(itemValue)}>
+          <Picker.Item label="Select Category" value="" />
           {arr.map((item, ind) => (
             <Picker.Item key={ind} label={item} value={item} />
           ))}
