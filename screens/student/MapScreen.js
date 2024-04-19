@@ -167,7 +167,7 @@ const MapScreen = () => {
                             alignSelf: 'center',
                           }}
                         >
-                          1111
+                          10
                         </Text>
                       </View>
                       <View
@@ -207,7 +207,7 @@ const MapScreen = () => {
                             alignSelf: 'center',
                           }}
                         >
-                          1111
+                          8:30
                         </Text>
                       </View>
                     </View>

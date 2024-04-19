@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   View,
   Text,
@@ -9,12 +9,16 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
-import MapView, { Marker, AnimatedRegion } from 'react-native-maps';
+import MapView, {Marker, AnimatedRegion} from 'react-native-maps';
 import GoogleMapKey from '../../GoogleMapKey';
 import MapViewDirections from 'react-native-maps-directions';
-import { locationPermission, getCurrentLocation } from '../../Helper/LocationTracker';
+import {SelectList} from 'react-native-dropdown-select-list';
+import {
+  locationPermission,
+  getCurrentLocation,
+} from '../../Helper/LocationTracker';
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 const MapScreen = () => {
   const arr = ['Abdullah', 'Adeel', 'Umer', 'Zia'];
@@ -22,8 +26,10 @@ const MapScreen = () => {
   const mapView = useRef();
   const markerRef = useRef();
   const [offset, setOffset] = useState(0);
-  const [scrollViewVisible, setScrollViewVisible] = useState(false);
-  const scaleAnim = useRef(new Animated.Value(0)).current;
+  const [stopPopupVisible, setStopPopupVisible] = useState(false);
+  const [journeyPopupVisible, setJourneyPopupVisible] = useState(false);
+  const StopPopupscaleAnim = useRef(new Animated.Value(0)).current;
+  const JourneyPopupscaleAnim = useRef(new Animated.Value(0)).current;
   const unicords = {
     latitude: 33.64340057674401,
     longitude: 73.0790521153456,
@@ -32,61 +38,71 @@ const MapScreen = () => {
     latitude: 0,
     longitude: 0,
   });
+  const Journeys = [
+    {key: '1', value: 'Uni - Saddar (8:30)'},
+    {key: '2', value: 'Uni - Chandni Chowk (6:30)'},
+  ];
+  const [selectedJourney, SetSelectedJourney] = useState('');
   const stops = [
-    { latitude: 33.62143941364173, longitude: 73.06649344534786 },
-    { latitude: 33.61580806175649, longitude: 73.06536334223695 },
-    { latitude: 33.61226103098687, longitude: 73.06514487798462 },
-    { latitude: 33.59934934614757, longitude: 73.06264830651558 },
-    { latitude: 33.592161870536664, longitude: 73.05439953778502 },
-    { latitude: 33.585168200292784, longitude: 73.0645131331935 },
-    { latitude: 33.59059836860913, longitude: 73.07861567925173 },
-    { latitude: 33.59545700923111, longitude: 73.07889345288326 },
+    {latitude: 33.62143941364173, longitude: 73.06649344534786},
+    {latitude: 33.61580806175649, longitude: 73.06536334223695},
+    {latitude: 33.61226103098687, longitude: 73.06514487798462},
+    {latitude: 33.59934934614757, longitude: 73.06264830651558},
+    {latitude: 33.592161870536664, longitude: 73.05439953778502},
+    {latitude: 33.585168200292784, longitude: 73.0645131331935},
+    {latitude: 33.59059836860913, longitude: 73.07861567925173},
+    {latitude: 33.59545700923111, longitude: 73.07889345288326},
   ];
 
   const getLiveLocation = async () => {
     const locPermissionDenied = await locationPermission();
-    console.log("Location Permission: ", locPermissionDenied);
+    console.log('Location Permission: ', locPermissionDenied);
     if (locPermissionDenied) {
-      const { latitude, longitude, heading } = await getCurrentLocation();
-      console.log("get live location after 4 second", latitude, longitude);
+      const {latitude, longitude, heading} = await getCurrentLocation();
+      console.log('get live location after 4 second', latitude, longitude);
       const loc = {
         latitude: latitude,
         longitude: longitude,
       };
       setUserLocation(loc);
-      console.log("User Location:", userLocation);
-      animate(latitude, longitude);
-      updateState({
-        heading: heading,
-        curLoc: { latitude, longitude },
-        coordinate: new AnimatedRegion({
-          latitude: latitude,
-          longitude: longitude,
-          latitudeDelta: LATITUDE_DELTA,
-          longitudeDelta: LONGITUDE_DELTA,
-        }),
-      });
+      console.log('User Location:', userLocation);
     }
   };
 
-  // useEffect(() => {
-  //     const interval = setInterval(() => {
-  //         getLiveLocation()
-  //     }, 6000);
-  //     return () => clearInterval(interval)
-  // }, [userLocation])
+  useEffect(() => {
+    // const interval = setInterval(() => {
+    //     getLiveLocation()
+    // }, 6000);
+    //return () => clearInterval(interval)
+  }, [userLocation]);
 
-  const handleScroll = (event) => {
+  const handleScroll = event => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(contentOffsetX / (width * 0.9));
     setOffset(index);
   };
 
   const handleStopPopupVisibility = () => {
-    setScrollViewVisible(!scrollViewVisible);
+    if (journeyPopupVisible) {
+      handleJourneyPopupVisibility();
+    }
+    setStopPopupVisible(!stopPopupVisible);
 
-    Animated.spring(scaleAnim, {
-      toValue: scrollViewVisible ? 0 : 1,
+    Animated.spring(StopPopupscaleAnim, {
+      toValue: stopPopupVisible ? 0 : 1,
+      friction: 5,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleJourneyPopupVisibility = () => {
+    if (stopPopupVisible) {
+      handleStopPopupVisibility();
+    }
+    setJourneyPopupVisible(!journeyPopupVisible);
+
+    Animated.spring(JourneyPopupscaleAnim, {
+      toValue: journeyPopupVisible ? 0 : 1,
       friction: 5,
       useNativeDriver: true,
     }).start();
@@ -102,8 +118,7 @@ const MapScreen = () => {
           longitude: 73.0790521153456,
           latitudeDelta: 0.02,
           longitudeDelta: 0.02,
-        }}
-      >
+        }}>
         <Marker
           coordinate={unicords}
           title="Barani Institute of Information Technology"
@@ -131,17 +146,28 @@ const MapScreen = () => {
           />
         ))}
       </MapView>
-      <Animated.View style={[{ transform: [{ scale: scaleAnim }] }]}>
-        {scrollViewVisible && (
-          <View style={[styles.StopPopup]}>
+      <TouchableOpacity onPress={handleJourneyPopupVisibility}>
+        <View style={styles.btn}>
+          <Text
+            style={{
+              fontSize: width * 0.055,
+              fontWeight: 'bold',
+              color: '#168070',
+            }}>
+            CHOOSE JOURNEY
+          </Text>
+        </View>
+      </TouchableOpacity>
+      <Animated.View style={[{transform: [{scale: StopPopupscaleAnim}]}]}>
+        {stopPopupVisible && (
+          <View style={[styles.Popup]}>
             <ScrollView
               ref={scrollViewRef}
               onScroll={handleScroll}
               horizontal={true}
               showsHorizontalScrollIndicator={false}
               pagingEnabled={true}
-              horizontalScrollEventThrottle={(width * 0.9)}
-            >
+              horizontalScrollEventThrottle={width * 0.9}>
               {arr &&
                 arr.map((item, ind) => (
                   <View
@@ -154,8 +180,7 @@ const MapScreen = () => {
                       margin: width * 0.025,
                       marginTop: width * 0.05,
                       borderRadius: width * 0.075,
-                    }}
-                  >
+                    }}>
                     <Text
                       style={{
                         fontSize: width * 0.055,
@@ -163,8 +188,7 @@ const MapScreen = () => {
                         color: 'white',
                         alignSelf: 'center',
                         marginTop: width * 0.025,
-                      }}
-                    >
+                      }}>
                       {/*favStops[0].Name*/}
                       Chandni Chowk
                     </Text>
@@ -174,8 +198,7 @@ const MapScreen = () => {
                         justifyContent: 'space-between',
                         marginTop: width * 0.05,
                         marginBottom: width * 0.05,
-                      }}
-                    >
+                      }}>
                       <View
                         style={{
                           marginLeft: width * 0.025,
@@ -184,8 +207,7 @@ const MapScreen = () => {
                           elevation: width * 0.025,
                           width: width * 0.4,
                           height: width * 0.4,
-                        }}
-                      >
+                        }}>
                         <Image
                           source={require('../../assets/RouteNo.png')}
                           style={{
@@ -201,8 +223,7 @@ const MapScreen = () => {
                             color: 'white',
                             alignSelf: 'center',
                             marginTop: width * 0.0125,
-                          }}
-                        >
+                          }}>
                           Route No
                         </Text>
                         <Text
@@ -211,8 +232,7 @@ const MapScreen = () => {
                             fontWeight: 'bold',
                             color: 'white',
                             alignSelf: 'center',
-                          }}
-                        >
+                          }}>
                           1111
                         </Text>
                       </View>
@@ -224,8 +244,7 @@ const MapScreen = () => {
                           backgroundColor: '#2FAA98',
                           borderRadius: width * 0.075,
                           elevation: width * 0.025,
-                        }}
-                      >
+                        }}>
                         <Image
                           source={require('../../assets/StopTiming.png')}
                           style={{
@@ -241,8 +260,7 @@ const MapScreen = () => {
                             color: 'white',
                             alignSelf: 'center',
                             marginTop: width * 0.0125,
-                          }}
-                        >
+                          }}>
                           Stop Timing
                         </Text>
                         <Text
@@ -251,8 +269,7 @@ const MapScreen = () => {
                             fontWeight: 'bold',
                             color: 'white',
                             alignSelf: 'center',
-                          }}
-                        >
+                          }}>
                           1111
                         </Text>
                       </View>
@@ -260,7 +277,7 @@ const MapScreen = () => {
                   </View>
                 ))}
             </ScrollView>
-            <View style={{ flexDirection: 'row', alignSelf: 'center' }}>
+            <View style={{flexDirection: 'row', alignSelf: 'center'}}>
               {arr &&
                 arr.map((item, ind) => (
                   <View
@@ -268,8 +285,7 @@ const MapScreen = () => {
                     style={{
                       flexDirection: 'row',
                       alignSelf: 'center',
-                    }}
-                  >
+                    }}>
                     <View
                       style={[
                         {
@@ -280,9 +296,8 @@ const MapScreen = () => {
                           borderWidth: 1,
                           marginHorizontal: width * 0.0125,
                         },
-                        ind === offset ? { backgroundColor: 'white' } : null,
-                      ]}
-                    ></View>
+                        ind === offset ? {backgroundColor: 'white'} : null,
+                      ]}></View>
                   </View>
                 ))}
             </View>
@@ -293,8 +308,7 @@ const MapScreen = () => {
                     fontSize: width * 0.055,
                     fontWeight: 'bold',
                     color: '#168070',
-                  }}
-                >
+                  }}>
                   ADD TO FAVOURITE STOPS
                 </Text>
               </View>
@@ -308,8 +322,56 @@ const MapScreen = () => {
                 fontSize: width * 0.055,
                 fontWeight: 'bold',
                 color: '#168070',
+              }}>
+              CLOSE
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </Animated.View>
+      <Animated.View style={[{transform: [{scale: JourneyPopupscaleAnim}]}]}>
+        {journeyPopupVisible && (
+          <View
+            style={{
+              backgroundColor: '#168070',
+              width: width * 0.95,
+              elevation: width * 0.025,
+              marginBottom: width * 0.075,
+              borderRadius: width * 0.033,
+            }}>
+            <SelectList
+              setSelected={val => SetSelectedJourney(val)}
+              data={Journeys}
+              save="value" // also set save to key.
+              onSelect={() => {
+                console.log(selectedJourney);
               }}
-            >
+              searchPlaceholder="Search"
+              dropdownTextStyles={{color: 'white'}}
+              placeholder="Select Here"
+              inputStyles={{color: 'white'}}
+            />
+          </View>
+        )}
+        <TouchableOpacity>
+          <View style={styles.btn}>
+            <Text
+              style={{
+                fontSize: width * 0.055,
+                fontWeight: 'bold',
+                color: '#168070',
+              }}>
+              START
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleJourneyPopupVisibility}>
+          <View style={styles.btn}>
+            <Text
+              style={{
+                fontSize: width * 0.055,
+                fontWeight: 'bold',
+                color: '#168070',
+              }}>
               CLOSE
             </Text>
           </View>
@@ -322,10 +384,9 @@ const MapScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
   },
-  StopPopup: {
+  Popup: {
     backgroundColor: '#168070',
     width: width * 0.95,
     borderRadius: width * 0.075,

@@ -2,7 +2,7 @@ import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createStackNavigator} from '@react-navigation/stack';
-import {Image} from 'react-native';
+import {Image, Text, TouchableOpacity} from 'react-native';
 import {default as StudentFavStops} from './Student/FavStops';
 import {default as StudentDashboard} from './Student/Dashboard';
 import {default as StudentMapScreen} from './Student/MapScreen';
@@ -23,6 +23,7 @@ import {default as ConductorQrCodeScanner} from './Conductor/QrCodeScanner';
 import {default as ConductorPassValidity} from './Conductor/PassValidity';
 import {default as ConductorProfileScreen} from './Conductor/ProfileScreen';
 import {default as ConductorHistoryScreen} from './Conductor/HistoryScreen';
+import {default as Announcement} from './Announcement';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();

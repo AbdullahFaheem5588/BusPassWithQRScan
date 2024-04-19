@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput, Dimensions, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
@@ -19,8 +19,9 @@ const Login = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Image source={require('../assets/ShadingPanel.png')} style={{ width: '100%', height: height * 0.5 }} />
+    <ScrollView style={styles.container}>
+    <View style={{alignItems:'center'}}>
+    <Image source={require('../assets/ShadingPanel.png')} style={{ width: '100%', height: height * 0.5 }} />
       <Image source={require('../assets/Logo.png')} style={{ marginTop: -(height * 0.4375) }} />
       <Text
         style={{
@@ -80,13 +81,13 @@ const Login = () => {
         </View>
       </TouchableOpacity>
     </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
     backgroundColor: '#168070',
   },
   btn: {
