@@ -17,9 +17,9 @@ const NotificationDetails = () => {
       <ScrollView style={styles.BottomContainer}>
         <View style={{ margin: width * 0.075 }}>
           <Text style={styles.NotificationDescriptionHeader}>Date</Text>
-          <Text style={styles.NotificationDescriptionDate}>11/11/2024</Text>
+          <Text style={styles.NotificationDescriptionData}>11/11/2024</Text>
           <Text style={styles.NotificationDescriptionHeader}>Time</Text>
-          <Text style={styles.NotificationDescriptionDate}>11:30 AM</Text>
+          <Text style={styles.NotificationDescriptionData}>11:30 AM</Text>
           <View
             style={{
               width: '100%',
@@ -30,7 +30,7 @@ const NotificationDetails = () => {
             }}
           />
           <Text style={styles.NotificationDescriptionHeader}>Description</Text>
-          <Text style={styles.NotificationDescriptionDate}>
+          <Text style={styles.NotificationDescriptionData}>
             Bus has Arrived at Chandni Chowk.Wait Time is 10 Minutes.
           </Text>
         </View>
@@ -56,16 +56,16 @@ const styles = StyleSheet.create({
   BottomContainer: {
     backgroundColor: 'white',
     width: '90%',
-    marginTop: width * 0.075,
+    marginTop: width * 0.03,
     elevation: width * 0.025,
     borderRadius: width * 0.075,
+    marginBottom:10,
   },
   NotificationType: {
     color: 'white',
     fontSize: width * 0.1,
     fontWeight: 'bold',
     marginTop: width * 0.05,
-    marginBottom: width * 0.05,
   },
   NotificationDescriptionHeader: {
     color: '#168070',
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     marginTop: width * 0.025,
   },
-  NotificationDescriptionDate: {
+  NotificationDescriptionData: {
     color: '#168070',
     fontSize: width * 0.045,
     fontWeight: 'bold',

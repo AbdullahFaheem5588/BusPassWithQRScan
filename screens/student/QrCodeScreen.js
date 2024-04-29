@@ -43,7 +43,7 @@ const QrCodeScreen = () => {
           marginTop:height * 0.03,
         }}>
         <QRCode
-          value="https://discountedbrandsbyzofshan.myshopify.com/"
+          value="2020-Arid-3587"
           size={width * 0.75}
         />
       </View>

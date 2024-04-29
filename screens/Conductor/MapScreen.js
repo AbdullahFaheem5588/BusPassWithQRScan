@@ -107,6 +107,11 @@ const MapScreen = () => {
       useNativeDriver: true,
     }).start();
   };
+  
+  const startJourney = () => {
+    //Start Journey Code Here
+    handleJourneyPopupVisibility();
+  }
 
   return (
     <View style={styles.container}>
@@ -341,7 +346,7 @@ const MapScreen = () => {
             <SelectList
               setSelected={val => SetSelectedJourney(val)}
               data={Journeys}
-              save="value" // also set save to key.
+              save="value"
               onSelect={() => {
                 console.log(selectedJourney);
               }}
@@ -352,7 +357,7 @@ const MapScreen = () => {
             />
           </View>
         )}
-        <TouchableOpacity>
+        <TouchableOpacity onPress={startJourney}>
           <View style={styles.btn}>
             <Text
               style={{

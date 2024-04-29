@@ -20,9 +20,9 @@ import {default as ParentHistoryScreen} from './Parent/HistoryScreen';
 import {default as ConductorDashboard} from './Conductor/Dashboard';
 import {default as ConductorMapScreen} from './Conductor/MapScreen';
 import {default as ConductorQrCodeScanner} from './Conductor/QrCodeScanner';
-import {default as ConductorPassValidity} from './Conductor/PassValidity';
 import {default as ConductorProfileScreen} from './Conductor/ProfileScreen';
 import {default as ConductorHistoryScreen} from './Conductor/HistoryScreen';
+import {useNavigation} from '@react-navigation/native';
 import {default as Announcement} from './Announcement';
 
 const Tab = createBottomTabNavigator();
@@ -62,7 +62,10 @@ const NotificationStack = () => {
       <Stack.Screen
         name="NotificationDetails"
         component={NotificationDetails}
-        options={{title: 'Notification Details'}}
+        options={{
+          title: 'Notification Details',
+          headerShadowVisible: false,
+        }}
       />
     </Stack.Navigator>
   );
@@ -157,28 +160,6 @@ const ParentProfileStack = () => {
     </Stack.Navigator>
   );
 };
-const ConductorPassValidationStack = () => {
-  return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: '#2FAA98',
-        },
-        headerTintColor: 'white',
-        tabBarStyle: {
-          backgroundColor: '#2FAA98',
-        },
-      }}
-      initialRouteName="Scan">
-      <Stack.Screen name="Scan" component={ConductorQrCodeScanner} />
-      <Stack.Screen
-        name="PassValidity"
-        component={ConductorPassValidity}
-        options={{title: 'Pass Status'}}
-      />
-    </Stack.Navigator>
-  );
-};
 const ConductorProfileStack = () => {
   return (
     <Stack.Navigator
@@ -206,6 +187,49 @@ const ConductorProfileStack = () => {
         name="History"
         component={ConductorHistoryScreen}
         options={{title: 'History'}}
+      />
+    </Stack.Navigator>
+  );
+};
+const ConductorDashboardStack = () => {
+  const navigation = useNavigation();
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#2FAA98',
+        },
+        headerTintColor: 'white',
+        tabBarStyle: {
+          backgroundColor: '#2FAA98',
+        },
+      }}
+      initialRouteName="DashboardScreen">
+      <Stack.Screen
+        name="DashboardScreen"
+        component={ConductorDashboard}
+        options={{
+          title: 'Dashboard',
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Announcement')}>
+              <Image
+                source={require('../assets/Announcement.png')}
+                style={{
+                  width: 30,
+                  height: 30,
+                  marginRight: 10,
+                  transform: [{rotate: '-20deg'}],
+                }}
+              />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="Announcement"
+        component={Announcement}
+        options={{title: '', headerShadowVisible: false}}
       />
     </Stack.Navigator>
   );
@@ -427,8 +451,9 @@ const ConductorTabs = () => {
       }}>
       <Tab.Screen
         name="Dashboard"
-        component={ConductorDashboard}
+        component={ConductorDashboardStack}
         options={{
+          headerShown: false,
           tabBarIcon: ({focused}) => (
             <Image
               source={
@@ -459,7 +484,7 @@ const ConductorTabs = () => {
       />
       <Tab.Screen
         name="Scan"
-        component={ConductorPassValidationStack}
+        component={ConductorQrCodeScanner}
         options={{
           headerShown: false,
           tabBarIcon: ({focused}) => (
