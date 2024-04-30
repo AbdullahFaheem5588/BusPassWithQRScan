@@ -70,10 +70,10 @@ const MapScreen = () => {
   };
 
   useEffect(() => {
-    // const interval = setInterval(() => {
-    //     getLiveLocation()
-    // }, 6000);
-    //return () => clearInterval(interval)
+    const interval = setInterval(() => {
+        getLiveLocation()
+    }, 6000);
+    return () => clearInterval(interval)
   }, [userLocation]);
 
   const handleScroll = event => {
