@@ -6,7 +6,6 @@ const {width, height} = Dimensions.get('window');
 const Announcement = () => {
   return (
     <View style={styles.container}>
-    <View></View>
       <View style={styles.TopContainer}>
       <Image
                 source={require('../assets/Announcement.png')}
