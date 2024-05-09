@@ -4,10 +4,10 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   Image,
   Animated,
   Dimensions,
+  Modal,
 } from 'react-native';
 import MapView, {Marker, AnimatedRegion} from 'react-native-maps';
 import GoogleMapKey from '../../GoogleMapKey';
@@ -21,15 +21,11 @@ import {
 const {width, height} = Dimensions.get('window');
 
 const MapScreen = () => {
-  const arr = ['Abdullah', 'Adeel', 'Umer', 'Zia'];
-  const scrollViewRef = useRef(null);
   const mapView = useRef();
   const markerRef = useRef();
-  const [offset, setOffset] = useState(0);
   const [stopPopupVisible, setStopPopupVisible] = useState(false);
   const [journeyPopupVisible, setJourneyPopupVisible] = useState(false);
-  const StopPopupscaleAnim = useRef(new Animated.Value(0)).current;
-  const JourneyPopupscaleAnim = useRef(new Animated.Value(0)).current;
+  const [selectedJourney, SetSelectedJourney] = useState('');
   const unicords = {
     latitude: 33.64340057674401,
     longitude: 73.0790521153456,
@@ -42,7 +38,6 @@ const MapScreen = () => {
     {key: '1', value: 'Uni - Saddar (8:30)'},
     {key: '2', value: 'Uni - Chandni Chowk (6:30)'},
   ];
-  const [selectedJourney, SetSelectedJourney] = useState('');
   const stops = [
     {latitude: 33.62143941364173, longitude: 73.06649344534786},
     {latitude: 33.61580806175649, longitude: 73.06536334223695},
@@ -71,47 +66,23 @@ const MapScreen = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-        getLiveLocation()
+      getLiveLocation();
     }, 6000);
-    return () => clearInterval(interval)
+    return () => clearInterval(interval);
   }, [userLocation]);
 
-  const handleScroll = event => {
-    const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const index = Math.round(contentOffsetX / (width * 0.9));
-    setOffset(index);
-  };
-
   const handleStopPopupVisibility = () => {
-    if (journeyPopupVisible) {
-      handleJourneyPopupVisibility();
-    }
     setStopPopupVisible(!stopPopupVisible);
-
-    Animated.spring(StopPopupscaleAnim, {
-      toValue: stopPopupVisible ? 0 : 1,
-      friction: 5,
-      useNativeDriver: true,
-    }).start();
   };
 
   const handleJourneyPopupVisibility = () => {
-    if (stopPopupVisible) {
-      handleStopPopupVisibility();
-    }
     setJourneyPopupVisible(!journeyPopupVisible);
-
-    Animated.spring(JourneyPopupscaleAnim, {
-      toValue: journeyPopupVisible ? 0 : 1,
-      friction: 5,
-      useNativeDriver: true,
-    }).start();
   };
-  
+
   const startJourney = () => {
     //Start Journey Code Here
     handleJourneyPopupVisibility();
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -151,7 +122,7 @@ const MapScreen = () => {
           />
         ))}
       </MapView>
-      <TouchableOpacity onPress={handleJourneyPopupVisibility}>
+      <TouchableOpacity onPress={handleJourneyPopupVisibility} style={{position: 'absolute', bottom: 10,}}>
         <View style={styles.btn}>
           <Text
             style={{
@@ -163,150 +134,120 @@ const MapScreen = () => {
           </Text>
         </View>
       </TouchableOpacity>
-      <Animated.View style={[{transform: [{scale: StopPopupscaleAnim}]}]}>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={stopPopupVisible}
+        onRequestClose={handleStopPopupVisibility}>
         {stopPopupVisible && (
-          <View style={[styles.Popup]}>
-            <ScrollView
-              ref={scrollViewRef}
-              onScroll={handleScroll}
-              horizontal={true}
-              showsHorizontalScrollIndicator={false}
-              pagingEnabled={true}
-              horizontalScrollEventThrottle={width * 0.9}>
-              {arr &&
-                arr.map((item, ind) => (
+          <View style={styles.modalContainer}>
+            <View style={[styles.StopPopup]}>
+              <View
+                style={{
+                  borderColor: 'white',
+                  borderStyle: 'solid',
+                  borderWidth: 1,
+                  width: width * 0.9,
+                  margin: width * 0.025,
+                  marginTop: width * 0.05,
+                  borderRadius: width * 0.075,
+                }}>
+                <Text
+                  style={{
+                    fontSize: width * 0.055,
+                    fontWeight: 'bold',
+                    color: 'white',
+                    alignSelf: 'center',
+                    marginTop: width * 0.025,
+                  }}>
+                  {/*favStops[0].Name*/}
+                  Chandni Chowk
+                </Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginTop: width * 0.05,
+                    marginBottom: width * 0.05,
+                  }}>
                   <View
-                    key={ind}
                     style={{
-                      borderColor: 'white',
-                      borderStyle: 'solid',
-                      borderWidth: 1,
-                      width: width * 0.9,
-                      margin: width * 0.025,
-                      marginTop: width * 0.05,
+                      marginLeft: width * 0.025,
+                      backgroundColor: '#2FAA98',
                       borderRadius: width * 0.075,
+                      elevation: width * 0.025,
+                      width: width * 0.4,
+                      height: width * 0.4,
                     }}>
+                    <Image
+                      source={require('../../assets/RouteNo.png')}
+                      style={{
+                        width: width * 0.05,
+                        height: width * 0.2,
+                        alignSelf: 'center',
+                        marginTop: width * 0.025,
+                      }}
+                    />
+                    <Text
+                      style={{
+                        fontSize: width * 0.035,
+                        color: 'white',
+                        alignSelf: 'center',
+                        marginTop: width * 0.0125,
+                      }}>
+                      Route No
+                    </Text>
                     <Text
                       style={{
                         fontSize: width * 0.055,
                         fontWeight: 'bold',
                         color: 'white',
                         alignSelf: 'center',
-                        marginTop: width * 0.025,
                       }}>
-                      {/*favStops[0].Name*/}
-                      Chandni Chowk
+                      10
                     </Text>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        marginTop: width * 0.05,
-                        marginBottom: width * 0.05,
-                      }}>
-                      <View
-                        style={{
-                          marginLeft: width * 0.025,
-                          backgroundColor: '#2FAA98',
-                          borderRadius: width * 0.075,
-                          elevation: width * 0.025,
-                          width: width * 0.4,
-                          height: width * 0.4,
-                        }}>
-                        <Image
-                          source={require('../../assets/RouteNo.png')}
-                          style={{
-                            width: width * 0.05,
-                            height: width * 0.2,
-                            alignSelf: 'center',
-                            marginTop: width * 0.025,
-                          }}
-                        />
-                        <Text
-                          style={{
-                            fontSize: width * 0.035,
-                            color: 'white',
-                            alignSelf: 'center',
-                            marginTop: width * 0.0125,
-                          }}>
-                          Route No
-                        </Text>
-                        <Text
-                          style={{
-                            fontSize: width * 0.055,
-                            fontWeight: 'bold',
-                            color: 'white',
-                            alignSelf: 'center',
-                          }}>
-                          1111
-                        </Text>
-                      </View>
-                      <View
-                        style={{
-                          marginRight: width * 0.025,
-                          width: width * 0.4,
-                          height: width * 0.4,
-                          backgroundColor: '#2FAA98',
-                          borderRadius: width * 0.075,
-                          elevation: width * 0.025,
-                        }}>
-                        <Image
-                          source={require('../../assets/StopTiming.png')}
-                          style={{
-                            width: width * 0.3,
-                            height: width * 0.2,
-                            alignSelf: 'center',
-                            marginTop: width * 0.025,
-                          }}
-                        />
-                        <Text
-                          style={{
-                            fontSize: width * 0.035,
-                            color: 'white',
-                            alignSelf: 'center',
-                            marginTop: width * 0.0125,
-                          }}>
-                          Stop Timing
-                        </Text>
-                        <Text
-                          style={{
-                            fontSize: width * 0.055,
-                            fontWeight: 'bold',
-                            color: 'white',
-                            alignSelf: 'center',
-                          }}>
-                          1111
-                        </Text>
-                      </View>
-                    </View>
                   </View>
-                ))}
-            </ScrollView>
-            <View style={{flexDirection: 'row', alignSelf: 'center'}}>
-              {arr &&
-                arr.map((item, ind) => (
                   <View
-                    key={ind}
                     style={{
-                      flexDirection: 'row',
-                      alignSelf: 'center',
+                      marginRight: width * 0.025,
+                      width: width * 0.4,
+                      height: width * 0.4,
+                      backgroundColor: '#2FAA98',
+                      borderRadius: width * 0.075,
+                      elevation: width * 0.025,
                     }}>
-                    <View
-                      style={[
-                        {
-                          width: width * 0.025,
-                          height: width * 0.025,
-                          borderRadius: width * 0.0125,
-                          borderColor: 'white',
-                          borderWidth: 1,
-                          marginHorizontal: width * 0.0125,
-                        },
-                        ind === offset ? {backgroundColor: 'white'} : null,
-                      ]}></View>
+                    <Image
+                      source={require('../../assets/StopTiming.png')}
+                      style={{
+                        width: width * 0.3,
+                        height: width * 0.2,
+                        alignSelf: 'center',
+                        marginTop: width * 0.025,
+                      }}
+                    />
+                    <Text
+                      style={{
+                        fontSize: width * 0.035,
+                        color: 'white',
+                        alignSelf: 'center',
+                        marginTop: width * 0.0125,
+                      }}>
+                      Stop Timing
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: width * 0.055,
+                        fontWeight: 'bold',
+                        color: 'white',
+                        alignSelf: 'center',
+                      }}>
+                      8:30
+                    </Text>
                   </View>
-                ))}
+                </View>
+              </View>
             </View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={handleStopPopupVisibility}>
               <View style={styles.btn}>
                 <Text
                   style={{
@@ -314,27 +255,20 @@ const MapScreen = () => {
                     fontWeight: 'bold',
                     color: '#168070',
                   }}>
-                  ADD TO FAVOURITE STOPS
+                  CLOSE
                 </Text>
               </View>
             </TouchableOpacity>
           </View>
         )}
-        <TouchableOpacity onPress={handleStopPopupVisibility}>
-          <View style={styles.btn}>
-            <Text
-              style={{
-                fontSize: width * 0.055,
-                fontWeight: 'bold',
-                color: '#168070',
-              }}>
-              CLOSE
-            </Text>
-          </View>
-        </TouchableOpacity>
-      </Animated.View>
-      <Animated.View style={[{transform: [{scale: JourneyPopupscaleAnim}]}]}>
+      </Modal>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={journeyPopupVisible}
+        onRequestClose={handleJourneyPopupVisibility}>
         {journeyPopupVisible && (
+          <View style={styles.modalContainer}>
           <View
             style={{
               backgroundColor: '#168070',
@@ -356,8 +290,7 @@ const MapScreen = () => {
               inputStyles={{color: 'white'}}
             />
           </View>
-        )}
-        <TouchableOpacity onPress={startJourney}>
+          <TouchableOpacity onPress={startJourney}>
           <View style={styles.btn}>
             <Text
               style={{
@@ -381,7 +314,9 @@ const MapScreen = () => {
             </Text>
           </View>
         </TouchableOpacity>
-      </Animated.View>
+          </View>
+        )}
+      </Modal>
     </View>
   );
 };
@@ -391,7 +326,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
-  Popup: {
+  StopPopup: {
     backgroundColor: '#168070',
     width: width * 0.95,
     borderRadius: width * 0.075,
@@ -407,8 +342,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: width * 0.0125,
-    marginBottom: width * 0.0625,
     marginTop: width * 0.025,
+  },
+  modalContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 });
 

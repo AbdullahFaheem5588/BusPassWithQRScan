@@ -40,11 +40,11 @@ const Dashboard = () => {
           borderColor="#2FAA98"
           formatText={() => `${59} / ${100}`}
         />
-        <Text style={styles.progressText}>Journeys Used</Text>
+        <Text style={styles.progressText}>Seats Booked</Text>
       </View>
       <View style={styles.MyFavStop}>
         <View style={styles.MyFavStopTitle}>
-          <Text style={styles.titleText}>Favourite Stops</Text>
+          <Text style={styles.titleText}>Buses Seating Capacity</Text>
         </View>
         <ScrollView
           ref={scrollViewRef}
@@ -56,23 +56,23 @@ const Dashboard = () => {
           {arr &&
             arr.map((item, ind) => (
               <View key={ind} style={styles.favoriteStopContainer}>
-                <Text style={styles.favoriteStopText}>Chandni Chowk</Text>
+                <Text style={styles.favoriteStopText}>Bus # {ind+1}</Text>
                 <View style={styles.infoContainer}>
                   <View style={styles.infoBox}>
                     <Image
-                      source={require('../../assets/RouteNo.png')}
-                      style={styles.infoImage}
+                      source={require('../../assets/CheckIn.png')}
+                      style={styles.CheckInImage}
                     />
-                    <Text style={styles.infoLabel}>Route No</Text>
-                    <Text style={styles.infoText}>1111</Text>
+                    <Text style={styles.infoLabel}>Students Checked-In</Text>
+                    <Text style={styles.infoText}>11</Text>
                   </View>
                   <View style={[styles.infoBox, {marginRight: 10}]}>
                     <Image
-                      source={require('../../assets/StopTiming.png')}
-                      style={styles.StopTimingImage}
+                      source={require('../../assets/Seats.png')}
+                      style={styles.SeatsImage}
                     />
-                    <Text style={styles.infoLabel}>Stop Timing</Text>
-                    <Text style={styles.infoText}>1111</Text>
+                    <Text style={styles.infoLabel}>Remaining Seats</Text>
+                    <Text style={styles.infoText}>39</Text>
                   </View>
                 </View>
               </View>
@@ -91,10 +91,10 @@ const Dashboard = () => {
         </View>
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate('FavStops');
+            navigation.navigate('Map');
           }}>
           <View style={styles.btn}>
-            <Text style={styles.btnText}>EDIT FAVOURITE STOPS</Text>
+            <Text style={styles.btnText}>TRACK BUSES</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -176,14 +176,14 @@ const styles = StyleSheet.create({
     width: width * 0.4,
     height: height * 0.175,
   },
-  infoImage: {
-    width: width * 0.04,
+  CheckInImage: {
+    width: width * 0.25,
     height: height * 0.1,
     alignSelf: 'center',
     marginTop: width * 0.01,
   },
-  StopTimingImage: {
-    width: width * 0.27,
+  SeatsImage: {
+    width: width * 0.140,
     height: height * 0.1,
     alignSelf: 'center',
     marginTop: height * 0.005,

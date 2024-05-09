@@ -7,7 +7,8 @@ import {
   ScrollView,
   Image,
   Animated,
-  Dimensions
+  Dimensions,
+  Modal,
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import GoogleMapKey from '../../GoogleMapKey';
@@ -20,12 +21,26 @@ const MapScreen = () => {
   const scrollViewRef = useRef(null);
   const mapView = useRef();
   const [offset, setOffset] = useState(0);
-  const [scrollViewVisible, setScrollViewVisible] = useState(false);
-  const scaleAnim = useRef(new Animated.Value(0)).current;
+  const [stopPopupVisible, setStopPopupVisible] = useState(false);
   const unicords = {
     latitude: 33.64340057674401,
     longitude: 73.0790521153456,
   };
+  const busesCords = [
+    { Id: 1,
+      Cords: {
+        latitude: 33.60626103098687,
+        longitude: 73.06594487798462
+      }
+    },
+    {
+      Id: 2,
+      Cords: {
+        latitude: 33.58619836860913,
+      longitude: 73.07261567925178
+    }
+    }
+  ];
   const stops = [
     {latitude: 33.62143941364173, longitude: 73.06649344534786},
     {latitude: 33.61580806175649, longitude: 73.06536334223695},
@@ -44,13 +59,7 @@ const MapScreen = () => {
   };
 
   const handleStopPopupVisibility = () => {
-    setScrollViewVisible(!scrollViewVisible);
-
-    Animated.spring(scaleAnim, {
-      toValue: scrollViewVisible ? 0 : 1,
-      friction: 5,
-      useNativeDriver: true,
-    }).start();
+    setStopPopupVisible(!stopPopupVisible);
   };
 
   return (
@@ -84,9 +93,22 @@ const MapScreen = () => {
             onPress={handleStopPopupVisibility}
           />
         ))}
+        {busesCords.map((location, index) => (
+          <Marker
+            key={index}
+            coordinate={location.Cords}
+            image={require('../../assets/BusMapMarker.png')}
+            title={`Bus No: ${location.Id}`}
+          />
+        ))}
       </MapView>
-      <Animated.View style={[{ transform: [{ scale: scaleAnim }] }]}>
-        {scrollViewVisible && (
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={stopPopupVisible}
+        onRequestClose={handleStopPopupVisibility}>
+        {stopPopupVisible && (
+          <View style={styles.modalContainer}>
           <View style={[styles.StopPopup]}>
             <ScrollView
               ref={scrollViewRef}
@@ -254,8 +276,7 @@ const MapScreen = () => {
               </View>
             </TouchableOpacity>
           </View>
-        )}
-        <TouchableOpacity onPress={handleStopPopupVisibility}>
+          <TouchableOpacity onPress={handleStopPopupVisibility}>
           <View style={styles.btn}>
             <Text
               style={{
@@ -268,7 +289,9 @@ const MapScreen = () => {
             </Text>
           </View>
         </TouchableOpacity>
-      </Animated.View>
+          </View>
+        )}
+      </Modal>
     </View>
   );
 };
@@ -297,6 +320,12 @@ const styles = StyleSheet.create({
     elevation: width * 0.0125,
     marginBottom: width * 0.0625,
     marginTop: width * 0.025,
+  },
+  modalContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 });
 
