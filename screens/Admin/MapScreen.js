@@ -20,6 +20,7 @@ const {width, height} = Dimensions.get('window');
 const MapScreen = () => {
   const arr = ['Abdullah', 'Adeel', 'Umer', 'Zia'];
   const [stopName, setStopName] = useState('');
+  const [routeName, setRouteName] = useState('');
   const scrollViewRef = useRef(null);
   const mapView = useRef();
   const [offset, setOffset] = useState(0);
@@ -58,7 +59,7 @@ const MapScreen = () => {
       },
     },
   ];
-  const stops = [
+  const stopsCords = [
     {latitude: 33.62143941364173, longitude: 73.06649344534786},
     {latitude: 33.61580806175649, longitude: 73.06536334223695},
     {latitude: 33.61226103098687, longitude: 73.06514487798462},
@@ -102,11 +103,11 @@ const MapScreen = () => {
   const addNewStop = () => {
     //Adding New Stop Code
     handleAddStopPopupVisibility();
-  }
+  };
   const addNewRoute = () => {
     //Adding New Route Code
     handleAddRoutePopupVisibility();
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -128,12 +129,12 @@ const MapScreen = () => {
         <MapViewDirections
           origin={unicords}
           destination={unicords}
-          waypoints={stops}
+          waypoints={stopsCords}
           apikey={GoogleMapKey}
           strokeColor="#d883ff"
           strokeWidth={5}
         />
-        {stops.map((waypoint, index) => (
+        {stopsCords.map((waypoint, index) => (
           <Marker
             key={index}
             coordinate={waypoint}
@@ -156,7 +157,7 @@ const MapScreen = () => {
         onRequestClose={handleStopPopupVisibility}>
         {stopPopupVisible && (
           <View style={styles.modalContainer}>
-            <View style={[styles.StopPopup]}>
+            <View style={[styles.Popup]}>
               <ScrollView
                 ref={scrollViewRef}
                 onScroll={handleScroll}
@@ -273,7 +274,12 @@ const MapScreen = () => {
                     </View>
                   ))}
               </ScrollView>
-              <View style={{flexDirection: 'row', alignSelf: 'center', marginBottom:10,}}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignSelf: 'center',
+                  marginBottom: 10,
+                }}>
                 {arr &&
                   arr.map((item, ind) => (
                     <View
@@ -320,7 +326,7 @@ const MapScreen = () => {
         onRequestClose={handleBusPopupVisibility}>
         {BusPopupVisible && (
           <View style={styles.modalContainer}>
-            <View style={[styles.StopPopup]}>
+            <View style={[styles.Popup]}>
               <View
                 style={{
                   borderColor: 'white',
@@ -329,7 +335,7 @@ const MapScreen = () => {
                   width: width * 0.9,
                   margin: width * 0.025,
                   marginTop: width * 0.05,
-                  marginBottom:width * 0.05,
+                  marginBottom: width * 0.05,
                   borderRadius: width * 0.075,
                 }}>
                 <Text
@@ -449,7 +455,7 @@ const MapScreen = () => {
         {AddOptionsVisible && (
           <View style={styles.modalContainer}>
             <View>
-              <View style={[styles.StopPopup]}>
+              <View style={[styles.Popup]}>
                 <View
                   style={{
                     borderColor: 'white',
@@ -510,7 +516,7 @@ const MapScreen = () => {
         {AddStopVisible && (
           <View style={styles.modalContainer}>
             <View>
-              <View style={[styles.StopPopup]}>
+              <View style={[styles.Popup]}>
                 <View
                   style={{
                     borderColor: 'white',
@@ -527,7 +533,7 @@ const MapScreen = () => {
                       fontWeight: 'bold',
                       alignSelf: 'center',
                     }}>
-                    Stop Information
+                    Stop Details
                   </Text>
                   <TextInput
                     style={styles.input}
@@ -575,7 +581,7 @@ const MapScreen = () => {
         {AddRouteVisible && (
           <View style={styles.modalContainer}>
             <View>
-              <View style={[styles.StopPopup]}>
+              <View style={[styles.Popup]}>
                 <View
                   style={{
                     borderColor: 'white',
@@ -592,12 +598,12 @@ const MapScreen = () => {
                       fontWeight: 'bold',
                       alignSelf: 'center',
                     }}>
-                    Route Information
+                    Route Details
                   </Text>
                   <TextInput
                     style={styles.input}
-                    onChangeText={setStopName}
-                    value={stopName}
+                    onChangeText={setRouteName}
+                    value={routeName}
                     placeholder="Name"
                     placeholderTextColor="white"
                     fontSize={width * 0.04}
@@ -612,28 +618,28 @@ const MapScreen = () => {
                       borderWidth: 1,
                       borderColor: 'white',
                       borderRadius: 5,
-                      width:width * 0.8,
-                      alignSelf:'center',
-                      color:'white',
+                      width: width * 0.8,
+                      alignSelf: 'center',
+                      color: 'white',
                     }}
                     dropdownStyles={{
                       borderWidth: 1,
                       borderColor: 'white',
                       borderRadius: 5,
-                      width:width * 0.8,
-                      alignSelf:'center',
-                      color:'white',
-                      maxHeight:height * 0.24,
+                      width: width * 0.8,
+                      alignSelf: 'center',
+                      color: 'white',
+                      maxHeight: height * 0.24,
                     }}
-                    checkBoxStyles={{borderColor:'white',}}
+                    checkBoxStyles={{borderColor: 'white'}}
                     labelStyles={{color: 'white'}}
-                    dropdownItemStyles={{justifyContent:'center', color:'white',}}
-                    dropdownTextStyles={{color: 'white'}}
-                    inputStyles={{color:'white',}}
-                    placeholder="Select Here"
-                    onSelect={() => {
-                      console.log(selectedStops);
+                    dropdownItemStyles={{
+                      justifyContent: 'center',
+                      color: 'white',
                     }}
+                    dropdownTextStyles={{color: 'white'}}
+                    inputStyles={{color: 'white'}}
+                    placeholder="Select Stops Here"
                   />
                 </View>
               </View>
@@ -675,7 +681,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  StopPopup: {
+  Popup: {
     backgroundColor: '#168070',
     width: width * 0.95,
     borderRadius: width * 0.075,

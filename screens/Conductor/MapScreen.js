@@ -122,7 +122,9 @@ const MapScreen = () => {
           />
         ))}
       </MapView>
-      <TouchableOpacity onPress={handleJourneyPopupVisibility} style={{position: 'absolute', bottom: 10,}}>
+      <TouchableOpacity
+        onPress={handleJourneyPopupVisibility}
+        style={{position: 'absolute', bottom: 10}}>
         <View style={styles.btn}>
           <Text
             style={{
@@ -269,51 +271,65 @@ const MapScreen = () => {
         onRequestClose={handleJourneyPopupVisibility}>
         {journeyPopupVisible && (
           <View style={styles.modalContainer}>
-          <View
-            style={{
-              backgroundColor: '#168070',
-              width: width * 0.95,
-              elevation: width * 0.025,
-              marginBottom: width * 0.075,
-              borderRadius: width * 0.033,
-            }}>
-            <SelectList
-              setSelected={val => SetSelectedJourney(val)}
-              data={Journeys}
-              save="value"
-              onSelect={() => {
-                console.log(selectedJourney);
-              }}
-              searchPlaceholder="Search"
-              dropdownTextStyles={{color: 'white'}}
-              placeholder="Select Here"
-              inputStyles={{color: 'white'}}
-            />
-          </View>
-          <TouchableOpacity onPress={startJourney}>
-          <View style={styles.btn}>
-            <Text
+            <View
               style={{
-                fontSize: width * 0.055,
-                fontWeight: 'bold',
-                color: '#168070',
+                backgroundColor: '#168070',
+                width: width * 0.95,
+                elevation: width * 0.025,
+                marginBottom: width * 0.075,
+                borderRadius: width * 0.033,
               }}>
-              START
-            </Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleJourneyPopupVisibility}>
-          <View style={styles.btn}>
-            <Text
-              style={{
-                fontSize: width * 0.055,
-                fontWeight: 'bold',
-                color: '#168070',
-              }}>
-              CLOSE
-            </Text>
-          </View>
-        </TouchableOpacity>
+              <SelectList
+                setSelected={val => SetSelectedJourney(val)}
+                data={Journeys}
+                save="value"
+                search={false}
+                placeholder="Select Journey"
+                inputStyles={{color: 'white'}}
+                dropdownTextStyles={{color: 'white'}}
+                dropdownStyles={{
+                  borderWidth: 1,
+                  borderColor: 'white',
+                  borderRadius: 5,
+                  width: width * 0.8,
+                  alignSelf: 'center',
+                  color: 'white',
+                  alignItems: 'center',
+                }}
+                boxStyles={{
+                  borderWidth: 1,
+                  borderColor: 'white',
+                  borderRadius: 5,
+                  width: width * 0.8,
+                  alignSelf: 'center',
+                  color: 'white',
+                }}
+              />
+            </View>
+            <TouchableOpacity onPress={startJourney}>
+              <View style={styles.btn}>
+                <Text
+                  style={{
+                    fontSize: width * 0.055,
+                    fontWeight: 'bold',
+                    color: '#168070',
+                  }}>
+                  START
+                </Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleJourneyPopupVisibility}>
+              <View style={styles.btn}>
+                <Text
+                  style={{
+                    fontSize: width * 0.055,
+                    fontWeight: 'bold',
+                    color: '#168070',
+                  }}>
+                  CLOSE
+                </Text>
+              </View>
+            </TouchableOpacity>
           </View>
         )}
       </Modal>

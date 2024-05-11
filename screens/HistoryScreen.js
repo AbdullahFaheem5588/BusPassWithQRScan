@@ -1,9 +1,16 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {Picker} from '@react-native-picker/picker';
+import {SelectList} from 'react-native-dropdown-select-list';
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 const HistoryScreen = () => {
   const data = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -11,7 +18,11 @@ const HistoryScreen = () => {
   const [toDate, setToDate] = useState(new Date());
   const [showFromDatePicker, setShowFromDatePicker] = useState(false);
   const [showToDatePicker, setShowToDatePicker] = useState(false);
-  const arr = ['Bus Arival', 'Bus Departure', 'Student Qr Code Scanned'];
+  const searchingCategory = [
+    'Bus Arival',
+    'Bus Departure',
+    'Student Qr Code Scanned',
+  ];
   const [selectedCategory, setSelectedCategory] = useState('');
 
   const handleFromDateChange = (event, selectedDate) => {
@@ -66,20 +77,39 @@ const HistoryScreen = () => {
           )}
         </View>
       </View>
-      <View
-        style={[
-          styles.picker,
-          {marginLeft: width * 0.05, width: width * 0.9, justifyContent: 'center',},
-        ]}>
-        <Picker
-          selectedValue={selectedCategory}
-          onValueChange={(itemValue, itemIndex) => setSelectedCategory(itemValue)}>
-          <Picker.Item label="Select Category" value="" />
-          {arr.map((item, ind) => (
-            <Picker.Item key={ind} label={item} value={item} />
-          ))}
-        </Picker>
-      </View>
+      <SelectList
+        setSelected={setSelectedCategory}
+        data={searchingCategory}
+        save="key"
+        search={false}
+        placeholder="Select Category"
+        inputStyles={{color: 'white'}}
+        dropdownTextStyles={{
+          color: 'white',
+          textAlign: 'center',
+          width: width * 0.8,
+        }}
+        dropdownStyles={{
+          borderWidth: 1,
+          borderColor: 'white',
+          borderRadius: 5,
+          width: width * 0.9,
+          alignSelf: 'center',
+          color: 'white',
+          alignItems: 'center',
+          marginBottom: height * 0.02,
+        }}
+        boxStyles={{
+          borderWidth: 1,
+          borderColor: 'white',
+          borderRadius: 5,
+          width: width * 0.9,
+          alignSelf: 'center',
+          color: 'white',
+          marginTop: height * 0.02,
+          marginBottom: height * 0.02,
+        }}
+      />
       <FlatList
         data={data}
         renderItem={({item, index}) => {
