@@ -1,77 +1,122 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Dimensions } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  Dimensions,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import Api_url from '../Helper/URL';
+import convertToAMPM from '../Helper/convertToAMPM';
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
-const NotificationScreen = () => {
+const NotificationScreen = ({route}) => {
+  const userDetails = route.params.userDetails;
+  const [notifications, setNotifications] = useState([]);
   const navigation = useNavigation();
-  const data = [
-    'Check Out!',
-    'Check In!',
-    'QR-Code Scanned!',
-    'Bus Arrived!',
-    'Bus En-route!',
-    'Announcement!',
-    'Announcement!',
-    'Announcement!',
-    'Announcement!',
-    'Announcement!',
-  ];
 
   const Images = {
     'Announcement!': require('../assets/Announcement.png'),
     'Check Out!': require('../assets/CheckOut.png'),
     'Check In!': require('../assets/CheckIn.png'),
-    'QR-Code Scanned!': require('../assets/QR-CodeScanned.png'),
     'Bus Arrived!': require('../assets/BusArrived.png'),
     'Bus En-route!': require('../assets/BusEn-route.png'),
   };
+  const markAllAsRead = async () => {
+    try {
+      const response = await fetch(
+        `${Api_url}Users/MarkAllNotificationAsRead?userId=${userDetails.UserId}`,
+        {
+          method: 'PUT',
+        },
+      );
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+  const getUserNotifations = async () => {
+    try {
+      const response = await fetch(
+        `${Api_url}Users/GetUserNotification?id=${userDetails.UserId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const data = await response.json();
+      setNotifications(data);
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
+  };
+
+  useEffect(() => {
+    getUserNotifations();
+    const interval = setInterval(() => {}, 6000);
+    return () => clearInterval(interval);
+  }, [notifications]);
 
   return (
     <View style={styles.container}>
       <TouchableOpacity
+        onPress={markAllAsRead}
         style={{
           backgroundColor: 'white',
           alignSelf: 'flex-end',
           margin: width * 0.0125,
           width: width * 0.5,
           borderRadius: width * 0.025,
-        }}
-      >
-        <Text style={{ color: '#168070', textAlign: 'center', fontSize: width * 0.045 }}>
+        }}>
+        <Text
+          style={{
+            color: '#168070',
+            textAlign: 'center',
+            fontSize: width * 0.045,
+          }}>
           ✓✓ Mark All as Read
         </Text>
       </TouchableOpacity>
       <FlatList
-        data={data}
-        renderItem={({ item, index }) => {
+        data={notifications}
+        renderItem={({item, index}) => {
           return (
             <TouchableOpacity
               onPress={() =>
                 navigation.navigate('NotificationDetails', {
-                  NotificationType: item,
-                  ImagePath: Images[item],
+                  NotificationDetails: item,
+                  ImagePath: Images[item.Type],
                 })
               }
-              style={{ margin: width * 0.0175 }}
-            >
+              style={{margin: width * 0.0175}}>
               <View
                 style={[
                   styles.flatListRow,
-                  index === 0 && {
+                  item.NotificationRead === 0 && {
                     backgroundColor: '#2FAA98',
                     borderWidth: 0,
                     elevation: 10,
                   },
-                ]}
-              >
-                <View style={{ width: '20%', justifyContent: 'center' }}>
-                  <Image source={Images[item]} style={{ height: '95%', width: '80%' }} />
+                ]}>
+                <View style={{width: '20%', justifyContent: 'center'}}>
+                  <Image
+                    source={Images[item.Type]}
+                    style={{height: '95%', width: '90%'}}
+                  />
                 </View>
-                <View style={{ width: '80%' }}>
-                  <Text style={styles.DateTime}>Today, 11:30 AM</Text>
-                  <Text style={styles.NotificationType}>{item}</Text>
+                <View style={{width: '80%'}}>
+                  <Text style={styles.DateTime}>
+                    {item.Date.substring(0, 10)} , {convertToAMPM(item.Time)}
+                  </Text>
+                  <Text style={styles.NotificationType}>{item.Type}</Text>
                 </View>
               </View>
             </TouchableOpacity>

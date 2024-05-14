@@ -1,74 +1,86 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, FlatList, TouchableOpacity, Dimensions} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Dimensions,
+  ToastAndroid,
+} from 'react-native';
+import Api_url from '../../Helper/URL';
+import {useNavigation} from '@react-navigation/native';
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
-const FavStops = () => {
+const FavStops = ({route}) => {
+  const {studentId, favStops} = route.params;
+  const [stops, setStops] = useState(favStops);
+  const [checkedStates, setCheckedStates] = useState(
+    new Array(stops.length).fill(false),
+  );
 
-  const data = [
-    {
-      Name: 'Stop',
-      Route: 'Route #',
-    },
-    {
-      Name: 'Stop',
-      Route: 'Route #',
-    },
-    {
-      Name: 'Stop',
-      Route: 'Route #',
-    },
-    {
-      Name: 'Stop',
-      Route: 'Route #',
-    },
-    {
-      Name: 'Stop',
-      Route: 'Route #',
-    },
-    {
-      Name: 'Stop',
-      Route: 'Route #',
-    },
-    {
-      Name: 'Stop',
-      Route: 'Route #',
-    },
-    {
-      Name: 'Stop',
-      Route: 'Route #',
-    },
-  ];
-  const [checkedStates, setCheckedStates] = useState(new Array(data.length).fill(false));
-
-  const handleCheckboxPress = (index) => {
+  const handleCheckboxPress = index => {
     const newCheckedStates = [...checkedStates];
     newCheckedStates[index] = !newCheckedStates[index];
     setCheckedStates(newCheckedStates);
   };
 
+  const RemovefromDB = async () => {
+    try {
+      for (let i = 0; i < stops.length; i++) {
+        if (checkedStates[i]) {
+          const response = await fetch(
+            `${Api_url}Student/RemoveFavStop?studentId=${studentId}&stopId=${stops[i].Id}`,
+            {
+              method: 'DELETE',
+            },
+          );
+          if (!response.ok) {
+            ToastAndroid.show(
+              'Failed to remove favorite stop ' + stops[i].Name,
+              ToastAndroid.SHORT,
+            );
+          }
+          const data = await response.json();
+          ToastAndroid.show(data, ToastAndroid.SHORT);
+          setStops(stops.filter(item => item.Id !== stops[i].Id));
+        }
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
+  };
+
   const handleRemove = () => {
-    const newData = data.filter((item, index) => !checkedStates[index]);
+    RemovefromDB();
+    const newData = stops.filter((item, index) => !checkedStates[index]);
     setCheckedStates(new Array(newData.length).fill(false));
   };
 
   return (
     <View style={styles.container}>
       <FlatList
-        data={data}
+        data={stops}
         renderItem={({item, index}) => {
           return (
             <View style={styles.flatListRow}>
               <View>
-                <Text style={styles.StopNametextStyle}>
-                  Stop Name {index + 1}
+                <Text style={styles.StopNametextStyle}>{item.Name}</Text>
+                <Text style={styles.RouteNotextStyle}>
+                  Route # {item.Route}
                 </Text>
-                <Text style={styles.RouteNotextStyle}>Route # {index + 1}</Text>
               </View>
               <TouchableOpacity
-                style={[styles.checkBox, checkedStates[index] && styles.checkedBox]}
+                style={[
+                  styles.checkBox,
+                  checkedStates[index] && styles.checkedBox,
+                ]}
                 onPress={() => handleCheckboxPress(index)}>
-                {checkedStates[index] && <Text style={styles.checkIcon}>✓</Text>}
+                {checkedStates[index] && (
+                  <Text style={styles.checkIcon}>✓</Text>
+                )}
               </TouchableOpacity>
             </View>
           );
@@ -110,7 +122,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: width * 0.0125,
     marginBottom: width * 0.01,
-    marginTop: - width * 0.05,
+    marginTop: -width * 0.05,
   },
   StopNametextStyle: {
     color: 'white',

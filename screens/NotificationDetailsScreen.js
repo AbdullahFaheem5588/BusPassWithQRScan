@@ -1,25 +1,64 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Dimensions, ScrollView } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  Dimensions,
+  ScrollView,
+} from 'react-native';
+import {useRoute} from '@react-navigation/native';
+import convertToAMPM from '../Helper/convertToAMPM';
+import Api_url from '../Helper/URL';
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 const NotificationDetails = () => {
   const route = useRoute();
-  const { NotificationType, ImagePath } = route.params;
+  const {NotificationDetails, ImagePath} = route.params;
+
+  const markAsRead = async () => {
+    try {
+      const response = await fetch(
+        `${Api_url}Users/MarkNotificationAsRead?id=${NotificationDetails.Id}`,
+        {
+          method: 'PUT',
+        },
+      );
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  useEffect(() => {
+    markAsRead();
+  }, []);
 
   return (
     <View style={styles.container}>
       <View style={styles.TopContainer}>
-        <Image source={ImagePath} style={{ width: width * 0.5, height: height * 0.2 }} />
-        <Text style={styles.NotificationType}>{NotificationType}</Text>
+        <Image
+          source={ImagePath}
+          style={{width: width * 0.5, height: height * 0.2}}
+        />
+        <Text style={styles.NotificationType}>
+          {NotificationDetails.NotificationType}
+        </Text>
       </View>
       <ScrollView style={styles.BottomContainer}>
-        <View style={{ margin: width * 0.075 }}>
+        <View style={{margin: width * 0.075}}>
           <Text style={styles.NotificationDescriptionHeader}>Date</Text>
-          <Text style={styles.NotificationDescriptionData}>11/11/2024</Text>
+          <Text style={styles.NotificationDescriptionData}>
+            {NotificationDetails.Date.substring(0, 10)}
+          </Text>
           <Text style={styles.NotificationDescriptionHeader}>Time</Text>
-          <Text style={styles.NotificationDescriptionData}>11:30 AM</Text>
+          <Text style={styles.NotificationDescriptionData}>
+            {convertToAMPM(NotificationDetails.Time)}
+          </Text>
           <View
             style={{
               width: '100%',
@@ -31,7 +70,7 @@ const NotificationDetails = () => {
           />
           <Text style={styles.NotificationDescriptionHeader}>Description</Text>
           <Text style={styles.NotificationDescriptionData}>
-            Bus has Arrived at Chandni Chowk.Wait Time is 10 Minutes.
+            {NotificationDetails.Description}
           </Text>
         </View>
       </ScrollView>
@@ -59,7 +98,7 @@ const styles = StyleSheet.create({
     marginTop: width * 0.03,
     elevation: width * 0.025,
     borderRadius: width * 0.075,
-    marginBottom:10,
+    marginBottom: 10,
   },
   NotificationType: {
     color: 'white',

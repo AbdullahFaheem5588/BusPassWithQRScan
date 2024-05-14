@@ -8,22 +8,16 @@ import {
   Dimensions,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {SelectList} from 'react-native-dropdown-select-list';
 
 const {width, height} = Dimensions.get('window');
 
-const HistoryScreen = () => {
+const HistoryScreen = ({route}) => {
+  const UserId = route.params.UserId;
   const data = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   const [fromDate, setFromDate] = useState(new Date());
   const [toDate, setToDate] = useState(new Date());
   const [showFromDatePicker, setShowFromDatePicker] = useState(false);
   const [showToDatePicker, setShowToDatePicker] = useState(false);
-  const searchingCategory = [
-    'Bus Arival',
-    'Bus Departure',
-    'Student Qr Code Scanned',
-  ];
-  const [selectedCategory, setSelectedCategory] = useState('');
 
   const handleFromDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || fromDate;
@@ -59,6 +53,7 @@ const HistoryScreen = () => {
               mode="date"
               display="default"
               onChange={handleFromDateChange}
+              maximumDate={new Date()}
             />
           )}
         </View>
@@ -73,43 +68,11 @@ const HistoryScreen = () => {
               mode="date"
               display="default"
               onChange={handleToDateChange}
+              maximumDate={new Date()}
             />
           )}
         </View>
       </View>
-      <SelectList
-        setSelected={setSelectedCategory}
-        data={searchingCategory}
-        save="key"
-        search={false}
-        placeholder="Select Category"
-        inputStyles={{color: 'white'}}
-        dropdownTextStyles={{
-          color: 'white',
-          textAlign: 'center',
-          width: width * 0.8,
-        }}
-        dropdownStyles={{
-          borderWidth: 1,
-          borderColor: 'white',
-          borderRadius: 5,
-          width: width * 0.9,
-          alignSelf: 'center',
-          color: 'white',
-          alignItems: 'center',
-          marginBottom: height * 0.02,
-        }}
-        boxStyles={{
-          borderWidth: 1,
-          borderColor: 'white',
-          borderRadius: 5,
-          width: width * 0.9,
-          alignSelf: 'center',
-          color: 'white',
-          marginTop: height * 0.02,
-          marginBottom: height * 0.02,
-        }}
-      />
       <FlatList
         data={data}
         renderItem={({item, index}) => {
@@ -154,7 +117,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   firstPicker: {
-    marginRight: 30,
+    marginRight: width * 0.03,
   },
   picker: {
     borderColor: '#2FAA98',
@@ -163,7 +126,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 20,
     height: 50,
-    width: width * 0.45,
+    width: width * 0.47,
     textAlign: 'center',
     textAlignVertical: 'center',
   },

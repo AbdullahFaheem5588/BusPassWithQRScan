@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   Text,
   View,
@@ -10,17 +10,40 @@ import {
 } from 'react-native';
 import * as Progress from 'react-native-progress';
 import {useNavigation} from '@react-navigation/native';
+import Api_url from '../../Helper/URL';
+import convertToAMPM from '../../Helper/convertToAMPM';
 
 const {width, height} = Dimensions.get('window');
 
-const Dashboard = () => {
+const Dashboard = ({route}) => {
+  const userDetails = route.params.userDetails;
   const [offset, setOffset] = useState(0);
-  const arr = ['Abdullah', 'Adeel', 'Umer', 'Zia'];
+  const [favStops, setfavStops] = useState([]);
   const navigation = useNavigation();
   const scrollViewRef = useRef(null);
-  const [notificationIcon, setNotificationIcon] = useState(
-    require('../../assets/Notification-Focused.png'),
-  );
+
+  const getFavStops = async () => {
+    try {
+      const response = await fetch(
+        `${Api_url}/Student/GetFavStops?id=${userDetails.Id}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const data = await response.json();
+      setfavStops(data);
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
+  };
+
+  useEffect(() => {
+    getFavStops();
+  }, [favStops]);
 
   const handleScroll = event => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
@@ -32,13 +55,15 @@ const Dashboard = () => {
     <View style={styles.container}>
       <View style={styles.progress}>
         <Progress.Circle
-          progress={59 / 100}
+          progress={userDetails.RemainingJourneys / userDetails.TotalJourneys}
           size={200}
           showsText={true}
           color="white"
           borderWidth={7}
           borderColor="#2FAA98"
-          formatText={() => `${59} / ${100}`}
+          formatText={() =>
+            `${userDetails.RemainingJourneys} / ${userDetails.TotalJourneys}`
+          }
         />
         <Text style={styles.progressText}>Journeys Used</Text>
       </View>
@@ -53,10 +78,10 @@ const Dashboard = () => {
           showsHorizontalScrollIndicator={false}
           pagingEnabled={true}
           horizontalScrollEventThrottle={360}>
-          {arr &&
-            arr.map((item, ind) => (
+          {favStops &&
+            favStops.map((item, ind) => (
               <View key={ind} style={styles.favoriteStopContainer}>
-                <Text style={styles.favoriteStopText}>Chandni Chowk</Text>
+                <Text style={styles.favoriteStopText}>{item.Name}</Text>
                 <View style={styles.infoContainer}>
                   <View style={styles.infoBox}>
                     <Image
@@ -64,7 +89,7 @@ const Dashboard = () => {
                       style={styles.infoImage}
                     />
                     <Text style={styles.infoLabel}>Route No</Text>
-                    <Text style={styles.infoText}>1111</Text>
+                    <Text style={styles.infoText}>{item.Route}</Text>
                   </View>
                   <View style={[styles.infoBox, {marginRight: 10}]}>
                     <Image
@@ -72,15 +97,17 @@ const Dashboard = () => {
                       style={styles.StopTimingImage}
                     />
                     <Text style={styles.infoLabel}>Stop Timing</Text>
-                    <Text style={styles.infoText}>1111</Text>
+                    <Text style={styles.infoText}>
+                      {convertToAMPM(item.Timing)}
+                    </Text>
                   </View>
                 </View>
               </View>
             ))}
         </ScrollView>
         <View style={styles.pageIndicatorContainer}>
-          {arr &&
-            arr.map((item, ind) => (
+          {favStops &&
+            favStops.map((item, ind) => (
               <View
                 key={ind}
                 style={[
@@ -91,7 +118,10 @@ const Dashboard = () => {
         </View>
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate('FavStops');
+            navigation.navigate('FavStops', {
+              studentId: userDetails.Id,
+              favStops: favStops,
+            });
           }}>
           <View style={styles.btn}>
             <Text style={styles.btnText}>EDIT FAVOURITE STOPS</Text>

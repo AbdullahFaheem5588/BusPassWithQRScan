@@ -2,9 +2,11 @@ import React from 'react';
 import {View, Text, StyleSheet, Image, Dimensions} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
-const QrCodeScreen = () => {
+const QrCodeScreen = ({route}) => {
+  const userDetails = route.params.userDetails;
+  const QrCodeValue = 'BusPassWithQrScan/' + userDetails.PassId.toString();
   return (
     <View style={styles.container}>
       <Image
@@ -22,7 +24,7 @@ const QrCodeScreen = () => {
           color: 'white',
           marginTop: height * 0.001,
         }}>
-        Abdullah Faheem
+        {userDetails.Name}
       </Text>
       <Text
         style={{
@@ -30,7 +32,7 @@ const QrCodeScreen = () => {
           fontWeight: 'bold',
           color: 'white',
         }}>
-        2020-Arid-3587
+        {userDetails.RegNo}
       </Text>
       <View
         style={{
@@ -39,13 +41,10 @@ const QrCodeScreen = () => {
           height: height * 0.45,
           justifyContent: 'center',
           alignItems: 'center',
-          borderRadius:50,
-          marginTop:height * 0.03,
+          borderRadius: 50,
+          marginTop: height * 0.03,
         }}>
-        <QRCode
-          value="2020-Arid-3587"
-          size={width * 0.75}
-        />
+        <QRCode value={QrCodeValue} size={width * 0.75} />
       </View>
     </View>
   );

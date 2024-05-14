@@ -11,7 +11,8 @@ import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
-const ProfileScreen = () => {
+const ProfileScreen = ({route}) => {
+  const userDetails = route.params.userDetails;
   const navigation = useNavigation();
   return (
     <View style={styles.container}>
@@ -33,7 +34,7 @@ const ProfileScreen = () => {
             marginTop: height * 0.001,
             alignSelf: 'center',
           }}>
-          Abdullah Faheem
+          {userDetails.Name}
         </Text>
         <Text
           style={{
@@ -42,14 +43,14 @@ const ProfileScreen = () => {
             color: 'white',
             alignSelf: 'center',
           }}>
-          2020-Arid-3587
+          {userDetails.RegNo}
         </Text>
         <View>
           <View
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
-              marginTop:height * 0.03,
+              marginTop: height * 0.03,
             }}>
             <View
               style={{
@@ -77,7 +78,7 @@ const ProfileScreen = () => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                03345207788
+                {userDetails.Contact}
               </Text>
             </View>
             <View
@@ -106,7 +107,7 @@ const ProfileScreen = () => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                Male
+                {userDetails.Gender}
               </Text>
             </View>
           </View>
@@ -140,7 +141,7 @@ const ProfileScreen = () => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                1200
+                {userDetails.PassId}
               </Text>
             </View>
             <View
@@ -169,7 +170,7 @@ const ProfileScreen = () => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                10/11/2024
+                {userDetails.PassExpiry.substring(0, 10)}
               </Text>
             </View>
           </View>
@@ -177,7 +178,9 @@ const ProfileScreen = () => {
       </View>
       <TouchableOpacity
         style={{marginTop: 15}}
-        onPress={() => navigation.navigate('History')}>
+        onPress={() =>
+          navigation.navigate('History', {userId: userDetails.UserId})
+        }>
         <View style={styles.btn}>
           <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
             HISTORY
@@ -186,7 +189,9 @@ const ProfileScreen = () => {
       </TouchableOpacity>
       <TouchableOpacity
         style={{marginTop: 15}}
-        onPress={() => navigation.navigate('ChangePassword')}>
+        onPress={() =>
+          navigation.navigate('ChangePassword', {userId: userDetails.UserId})
+        }>
         <View style={styles.btn}>
           <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
             CHANGE PASSWORD

@@ -30,7 +30,10 @@ import {default as AdminAddNewBus} from './Admin/AddNewBus';
 import {default as AdminAddNewAdmin} from './Admin/AddNewAdmin';
 import {default as AdminSearchAndUpdate} from './Admin/SearchAndUpdate';
 import {default as AdminProfileScreen} from './Admin/ProfileScreen';
-import {default as HistoryScreen} from './HistoryScreen';
+import {default as StudentHistoryScreen} from './Student/HistoryScreen';
+import {default as ConductorHistoryScreen} from './Conductor/HistoryScreen';
+import {default as ParentHistoryScreen} from './Parent/HistoryScreen';
+import {default as AdminHistoryScreen} from './Admin/HistoryScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -49,7 +52,7 @@ const MainStack = () => {
   );
 };
 
-const NotificationStack = () => {
+const NotificationStack = ({route}) => {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -65,6 +68,7 @@ const NotificationStack = () => {
       <Stack.Screen
         name="NotificationScreen"
         component={NotificationScreen}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{title: 'Notification'}}
       />
       <Stack.Screen
@@ -79,7 +83,7 @@ const NotificationStack = () => {
   );
 };
 
-const StudentDashboardStack = () => {
+const StudentDashboardStack = ({route}) => {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -95,6 +99,7 @@ const StudentDashboardStack = () => {
       <Stack.Screen
         name="DashboardScreen"
         component={StudentDashboard}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{title: 'Dashboard'}}
       />
       <Stack.Screen
@@ -105,7 +110,7 @@ const StudentDashboardStack = () => {
     </Stack.Navigator>
   );
 };
-const StudentProfileStack = () => {
+const StudentProfileStack = ({route}) => {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -121,6 +126,7 @@ const StudentProfileStack = () => {
       <Stack.Screen
         name="ProfileScreen"
         component={StudentProfileScreen}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{title: 'Profile'}}
       />
       <Stack.Screen
@@ -130,7 +136,7 @@ const StudentProfileStack = () => {
       />
       <Stack.Screen
         name="History"
-        component={HistoryScreen}
+        component={StudentHistoryScreen}
         options={{title: 'History'}}
       />
     </Stack.Navigator>
@@ -162,7 +168,7 @@ const ParentProfileStack = () => {
       />
       <Stack.Screen
         name="History"
-        component={HistoryScreen}
+        component={ParentHistoryScreen}
         options={{title: 'History'}}
       />
     </Stack.Navigator>
@@ -193,7 +199,7 @@ const ConductorProfileStack = () => {
       />
       <Stack.Screen
         name="History"
-        component={HistoryScreen}
+        component={ConductorHistoryScreen}
         options={{title: 'History'}}
       />
     </Stack.Navigator>
@@ -356,14 +362,14 @@ const AdminProfileStack = () => {
       />
       <Stack.Screen
         name="History"
-        component={HistoryScreen}
+        component={AdminHistoryScreen}
         options={{title: 'History'}}
       />
     </Stack.Navigator>
   );
 };
 
-const StudentTabs = () => {
+const StudentTabs = ({route}) => {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -385,6 +391,7 @@ const StudentTabs = () => {
       <Tab.Screen
         name="Dashboard"
         component={StudentDashboardStack}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{
           headerShown: false,
           tabBarIcon: ({focused}) => (
@@ -402,6 +409,7 @@ const StudentTabs = () => {
       <Tab.Screen
         name="Map"
         component={StudentMapScreen}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{
           tabBarIcon: ({focused}) => (
             <Image
@@ -418,6 +426,7 @@ const StudentTabs = () => {
       <Tab.Screen
         name="QR Code"
         component={StudentQrCodeScreen}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{
           tabBarIcon: ({focused}) => (
             <Image
@@ -434,6 +443,7 @@ const StudentTabs = () => {
       <Tab.Screen
         name="Notification"
         component={NotificationStack}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{
           headerShown: false,
           tabBarIcon: ({focused}) => (
@@ -451,6 +461,7 @@ const StudentTabs = () => {
       <Tab.Screen
         name="Profile"
         component={StudentProfileStack}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{
           headerShown: false,
           tabBarIcon: ({focused}) => (

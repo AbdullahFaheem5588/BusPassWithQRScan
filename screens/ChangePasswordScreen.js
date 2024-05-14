@@ -7,21 +7,58 @@ import {
   Image,
   TextInput,
   Dimensions,
+  ToastAndroid,
 } from 'react-native';
+import Api_url from '../Helper/URL';
+import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
-const ChangePasswordScreen = () => {
-  const [currentPassword, setCurrentPassword] = useState('');
+const ChangePasswordScreen = ({route}) => {
+  const UserId = route.params.userId;
+  const navigation = useNavigation();
+  const [oldPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
-  const [error, setError] = useState('');
 
   const HandleConfirm = () => {
     if (newPassword !== confirmNewPassword) {
-      setError('New Password not Matched!');
+      ToastAndroid.show(
+        'New Password and Confirm New Password not matched!',
+        ToastAndroid.SHORT,
+      );
+    } else if (newPassword.length < 3) {
+      ToastAndroid.show(
+        'New Password should atleast consists of 8 letters!',
+        ToastAndroid.SHORT,
+      );
     } else {
-      setError('');
+      changePassword();
+      navigation.goBack();
+    }
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmNewPassword('');
+  };
+
+  const changePassword = async () => {
+    const dataToSend = {
+      id: UserId,
+      oldPassword: oldPassword,
+      newPassword: newPassword,
+    };
+    try {
+      const response = await fetch(`${Api_url}/Users/ChangePassword`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSend),
+      });
+      const data = await response.json();
+      ToastAndroid.show(data, ToastAndroid.SHORT);
+    } catch (error) {
+      console.error('Error:', error);
     }
   };
 
@@ -41,9 +78,10 @@ const ChangePasswordScreen = () => {
         <TextInput
           style={styles.input}
           onChangeText={setCurrentPassword}
-          value={currentPassword}
+          value={oldPassword}
           placeholder="Current Password"
           placeholderTextColor="white"
+          secureTextEntry={true}
           fontSize={16}
         />
         <TextInput
@@ -56,7 +94,7 @@ const ChangePasswordScreen = () => {
           fontSize={16}
         />
         <TextInput
-          style={styles.input}
+          style={[styles.input, {marginBottom: height * 0.05}]}
           onChangeText={setConfirmNewPassword}
           value={confirmNewPassword}
           placeholder="Confirm New Password"
@@ -64,17 +102,6 @@ const ChangePasswordScreen = () => {
           secureTextEntry={true}
           fontSize={16}
         />
-        <Text
-          style={{
-            marginTop: 10,
-            color: 'red',
-            fontSize: 15,
-            fontWeight: 'bold',
-            marginLeft: 15,
-            marginBottom: 10,
-          }}>
-          {error}
-        </Text>
       </View>
       <TouchableOpacity onPress={HandleConfirm} style={{marginTop: 30}}>
         <View style={styles.btn}>
