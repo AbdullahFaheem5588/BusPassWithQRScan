@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -8,27 +8,46 @@ import {
   Dimensions,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import Api_url from '../../Helper/URL';
+import convertToAMPM from '../../Helper/convertToAMPM';
 
 const {width, height} = Dimensions.get('window');
 
 const HistoryScreen = ({route}) => {
   const UserId = route.params.UserId;
-  const data = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-  const [fromDate, setFromDate] = useState(new Date());
-  const [toDate, setToDate] = useState(new Date());
+  const [History, setHistory] = useState([]);
+  date = new Date();
+  const [fromDate, setFromDate] = useState(
+    date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate(),
+  );
+  const [toDate, setToDate] = useState(
+    date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate(),
+  );
   const [showFromDatePicker, setShowFromDatePicker] = useState(false);
   const [showToDatePicker, setShowToDatePicker] = useState(false);
 
   const handleFromDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || fromDate;
     setShowFromDatePicker(false);
-    setFromDate(currentDate);
+    formattedDate =
+      currentDate.getFullYear() +
+      '-' +
+      (currentDate.getMonth() + 1) +
+      '-' +
+      currentDate.getDate();
+    setFromDate(formattedDate);
   };
 
   const handleToDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || toDate;
     setShowToDatePicker(false);
-    setToDate(currentDate);
+    formattedDate =
+      currentDate.getFullYear() +
+      '-' +
+      (currentDate.getMonth() + 1) +
+      '-' +
+      currentDate.getDate();
+    setToDate(formattedDate);
   };
 
   const showFromDatepicker = () => {
@@ -39,17 +58,39 @@ const HistoryScreen = ({route}) => {
     setShowToDatePicker(true);
   };
 
+  const getUserHistory = async () => {
+    try {
+      const response = await fetch(
+        `${Api_url}/Users/GetUserHistory?id=${UserId}&fDate=${fromDate}&tDate=${toDate}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const data = await response.json();
+      setHistory(data);
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
+  };
+
+  useEffect(() => {
+    getUserHistory();
+  }, [fromDate, toDate]);
   return (
     <View style={styles.container}>
       <View style={styles.pickerContainer}>
         <View style={styles.firstPicker}>
           <Text style={styles.pickerText}>From</Text>
           <TouchableOpacity onPress={showFromDatepicker}>
-            <Text style={styles.picker}>{fromDate.toDateString()}</Text>
+            <Text style={styles.picker}>{fromDate}</Text>
           </TouchableOpacity>
           {showFromDatePicker && (
             <DateTimePicker
-              value={fromDate}
+              value={new Date(fromDate)}
               mode="date"
               display="default"
               onChange={handleFromDateChange}
@@ -60,11 +101,11 @@ const HistoryScreen = ({route}) => {
         <View>
           <Text style={styles.pickerText}>To</Text>
           <TouchableOpacity onPress={showToDatepicker}>
-            <Text style={styles.picker}>{toDate.toDateString()}</Text>
+            <Text style={styles.picker}>{toDate}</Text>
           </TouchableOpacity>
           {showToDatePicker && (
             <DateTimePicker
-              value={toDate}
+              value={new Date(toDate)}
               mode="date"
               display="default"
               onChange={handleToDateChange}
@@ -74,13 +115,26 @@ const HistoryScreen = ({route}) => {
         </View>
       </View>
       <FlatList
-        data={data}
+        data={History.flat()}
         renderItem={({item, index}) => {
           return (
             <View style={styles.flatListRow}>
-              <Text style={styles.DateTime}>Today, 11:30 AM</Text>
-              <Text style={styles.HistoryType}>History Type</Text>
-              <Text style={styles.HistoryDescription}>Description</Text>
+              <Text style={styles.DateTime}>
+                {item.Date.substring(0, 10)} , {convertToAMPM(item.Time)}
+              </Text>
+              <Text style={styles.HistoryType}>{item.Type}</Text>
+              <Text style={styles.HistoryDescription}>
+                Child StudentName: {item.StudentName}
+              </Text>
+              <Text style={styles.HistoryDescription}>
+                Bus No: {item.BusId}
+              </Text>
+              <Text style={styles.HistoryDescription}>
+                Route No: {item.RouteId}
+              </Text>
+              <Text style={styles.HistoryDescription}>
+                Stop No: {item.StopId}
+              </Text>
             </View>
           );
         }}

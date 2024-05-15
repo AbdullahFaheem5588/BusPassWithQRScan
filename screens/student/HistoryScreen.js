@@ -14,7 +14,7 @@ import convertToAMPM from '../../Helper/convertToAMPM';
 const {width, height} = Dimensions.get('window');
 
 const HistoryScreen = ({route}) => {
-  const UserId = route.params;
+  const UserId = route.params.UserId;
   const [History, setHistory] = useState([]);
   date = new Date();
   const [fromDate, setFromDate] = useState(
@@ -61,7 +61,7 @@ const HistoryScreen = ({route}) => {
   const getUserHistory = async () => {
     try {
       const response = await fetch(
-        `${Api_url}/Users/GetUserHistory?id=3&fDate=${fromDate}&tDate=${toDate}`,
+        `${Api_url}/Users/GetUserHistory?id=${UserId}&fDate=${fromDate}&tDate=${toDate}`,
         {
           method: 'GET',
           headers: {

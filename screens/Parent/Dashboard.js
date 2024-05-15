@@ -1,16 +1,24 @@
-import React, { useState, useRef } from 'react';
-import { Text, View, StyleSheet, Image, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import React, {useState, useRef, useEffect} from 'react';
+import {
+  Text,
+  View,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  Dimensions,
+} from 'react-native';
 import * as Progress from 'react-native-progress';
-import { enableScreens } from 'react-native-screens';
-import { useNavigation } from '@react-navigation/native';
-
-enableScreens();
+import {useNavigation} from '@react-navigation/native';
+import Api_url from '../../Helper/URL';
+import convertToAMPM from '../../Helper/convertToAMPM';
 
 const {width, height} = Dimensions.get('window');
 
-const Dashboard = () => {
+const Dashboard = ({route}) => {
+  const userDetails = route.params.userDetails;
+  const [childrenDetails, setChildrenDetails] = useState([]);
   const [offset, setOffset] = useState(0);
-  const arr = ['Abdullah Faheem', 'Adeel Shahid khan'];
   const navigation = useNavigation();
   const scrollViewRef = useRef(null);
 
@@ -19,6 +27,30 @@ const Dashboard = () => {
     const index = Math.round(contentOffsetX / width);
     setOffset(index);
   };
+
+  const getChildren = async () => {
+    try {
+      const response = await fetch(
+        `${Api_url}/Parent/GetChildren/?id=${userDetails.Id}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const data = await response.json();
+      setChildrenDetails(data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  useEffect(() => {
+    getChildren();
+    const interval = setInterval(() => {}, 6000);
+    return () => clearInterval(interval);
+  }, [childrenDetails]);
 
   return (
     <View style={styles.container}>
@@ -33,53 +65,83 @@ const Dashboard = () => {
           showsHorizontalScrollIndicator={false}
           pagingEnabled={true}
           horizontalScrollEventThrottle={360}>
-          {arr.map((item, ind) => (
+          {childrenDetails.map((item, ind) => (
             <View key={ind} style={styles.childContainer}>
               <View style={styles.progress}>
                 <Progress.Circle
-                  progress={0.59}
-                  size={width * 0.3}
+                  progress={
+                    item.childDetails.RemainingJourneys /
+                    item.childDetails.TotalJourneys
+                  }
+                  size={width * 0.35}
                   showsText={true}
                   color="white"
                   borderWidth={7}
                   borderColor="#2FAA98"
-                  formatText={() => `59 / 100`}
+                  formatText={() =>
+                    `${item.childDetails.RemainingJourneys} / ${item.childDetails.TotalJourneys}`
+                  }
                 />
                 <Text style={styles.progressText}>Journeys Used</Text>
               </View>
-              <Text style={styles.childName}>{item}</Text>
+              <Text style={styles.childName}>{item.childDetails.Name}</Text>
               <Text style={styles.timings}>Pick up Timings</Text>
               <View style={styles.timingContainer}>
-                <View style={[styles.timingBox ,{marginLeft:10}]}>
-                  <Image source={require('../../assets/CheckIn.png')} style={styles.timingImage} />
+                <View style={[styles.timingBox, {marginLeft: 10}]}>
+                  <Image
+                    source={require('../../assets/CheckIn.png')}
+                    style={styles.timingImage}
+                  />
                   <Text style={styles.timingImageText}>Check In</Text>
-                  <Text style={styles.timingValue}>8:00 AM</Text>
+                  <Text style={styles.timingValue}>
+                    {convertToAMPM(item.childTimings.Pickup_Checkin)}
+                  </Text>
                 </View>
-                <View style={[styles.timingBox ,{marginRight:10}]}>
-                  <Image source={require('../../assets/CheckOut.png')} style={styles.timingImage} />
+                <View style={[styles.timingBox, {marginRight: 10}]}>
+                  <Image
+                    source={require('../../assets/CheckOut.png')}
+                    style={styles.timingImage}
+                  />
                   <Text style={styles.timingImageText}>Check Out</Text>
-                  <Text style={styles.timingValue}>8:30 AM</Text>
+                  <Text style={styles.timingValue}>
+                    {convertToAMPM(item.childTimings.Pickup_Checkout)}
+                  </Text>
                 </View>
               </View>
               <Text style={styles.timings}>Drop off Timings</Text>
-              <View style={[styles.timingContainer, {marginBottom:10}]}>
-                <View style={[styles.timingBox ,{marginLeft:10}]}>
-                  <Image source={require('../../assets/CheckIn.png')} style={styles.timingImage} />
+              <View style={[styles.timingContainer, {marginBottom: 10}]}>
+                <View style={[styles.timingBox, {marginLeft: 10}]}>
+                  <Image
+                    source={require('../../assets/CheckIn.png')}
+                    style={styles.timingImage}
+                  />
                   <Text style={styles.timingImageText}>Check In</Text>
-                  <Text style={styles.timingValue}>4:30 PM</Text>
+                  <Text style={styles.timingValue}>
+                    {convertToAMPM(item.childTimings.Dropup_Checkin)}
+                  </Text>
                 </View>
-                <View style={[styles.timingBox ,{marginRight:10}]}>
-                  <Image source={require('../../assets/CheckOut.png')} style={styles.timingImage} />
+                <View style={[styles.timingBox, {marginRight: 10}]}>
+                  <Image
+                    source={require('../../assets/CheckOut.png')}
+                    style={styles.timingImage}
+                  />
                   <Text style={styles.timingImageText}>Check Out</Text>
-                  <Text style={styles.timingValue}>5:00 PM</Text>
+                  <Text style={styles.timingValue}>
+                    {convertToAMPM(item.childTimings.Dropup_Checkout)}
+                  </Text>
                 </View>
               </View>
             </View>
           ))}
         </ScrollView>
         <View style={styles.dotContainer}>
-          {arr.map((item, ind) => (
-            <View key={ind} style={[styles.dot, ind === offset ? styles.activeDot : null]}></View>
+          {childrenDetails.map((item, ind) => (
+            <View
+              key={ind}
+              style={[
+                styles.dot,
+                ind === offset ? styles.activeDot : null,
+              ]}></View>
           ))}
         </View>
         <TouchableOpacity onPress={() => navigation.navigate('Map')}>
@@ -160,7 +222,7 @@ const styles = StyleSheet.create({
     borderRadius: width * 0.075,
     elevation: width * 0.025,
     width: width * 0.38,
-    height: height * 0.160,
+    height: height * 0.16,
   },
   timingImage: {
     width: width * 0.2,
@@ -203,7 +265,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: width * 0.0125,
-    marginBottom: width * 0.0625,
+    marginBottom: width * 0.03,
     marginTop: width * 0.025,
   },
   btnText: {

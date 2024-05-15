@@ -17,7 +17,7 @@ const {width, height} = Dimensions.get('window');
 
 const Login = () => {
   const navigation = useNavigation();
-  const [username, setUsername] = useState('Student');
+  const [username, setUsername] = useState('Parent');
   const [password, setPassword] = useState('123');
 
   const handleLoginPress = async () => {
@@ -44,11 +44,11 @@ const Login = () => {
       if (data.userRole === 'Student') {
         navigation.replace('StudentTabs', {userDetails: data.Students});
       } else if (data.userRole === 'Parent') {
-        navigation.replace('ParentTabs');
+        navigation.replace('ParentTabs', {userDetails: data.Parents});
       } else if (data.userRole === 'Conductor') {
-        navigation.replace('ConductorTabs');
+        navigation.replace('ConductorTabs', {userDetails: data.Conductors});
       } else if (data.userRole === 'Admin') {
-        navigation.replace('AdminTabs');
+        navigation.replace('AdminTabs', {userDetails: data.Admins});
       } else {
         ToastAndroid.show(data, ToastAndroid.SHORT);
       }

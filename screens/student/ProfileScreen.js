@@ -179,7 +179,7 @@ const ProfileScreen = ({route}) => {
       <TouchableOpacity
         style={{marginTop: 15}}
         onPress={() =>
-          navigation.navigate('History', {userId: userDetails.UserId})
+          navigation.navigate('History', {UserId: userDetails.UserId})
         }>
         <View style={styles.btn}>
           <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
@@ -190,7 +190,7 @@ const ProfileScreen = ({route}) => {
       <TouchableOpacity
         style={{marginTop: 15}}
         onPress={() =>
-          navigation.navigate('ChangePassword', {userId: userDetails.UserId})
+          navigation.navigate('ChangePassword', {UserId: userDetails.UserId})
         }>
         <View style={styles.btn}>
           <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>

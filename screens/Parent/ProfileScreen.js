@@ -1,10 +1,18 @@
 import React from 'react';
-import {View, Text, StyleSheet, Image, TouchableOpacity, Dimensions} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
-const ProfileScreen = () => {
+const ProfileScreen = ({route}) => {
+  const userDetails = route.params.userDetails;
   const navigation = useNavigation();
   return (
     <View style={styles.container}>
@@ -26,14 +34,14 @@ const ProfileScreen = () => {
             marginTop: height * 0.001,
             alignSelf: 'center',
           }}>
-          Khawaja Faheem Akhter
+          {userDetails.Name}
         </Text>
         <View>
           <View
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
-              marginTop:height * 0.03,
+              marginTop: height * 0.03,
             }}>
             <View
               style={{
@@ -61,7 +69,7 @@ const ProfileScreen = () => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                03345207788
+                {userDetails.Contact}
               </Text>
             </View>
             <View
@@ -90,7 +98,7 @@ const ProfileScreen = () => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                2
+                {userDetails.ChildrenEnroll}
               </Text>
             </View>
           </View>
@@ -124,7 +132,7 @@ const ProfileScreen = () => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                1200
+                {userDetails.Id}
               </Text>
             </View>
             <View
@@ -153,27 +161,37 @@ const ProfileScreen = () => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                KhFaheem_12150@Biit.edu.pk
+                {userDetails.UserName}
               </Text>
             </View>
           </View>
         </View>
       </View>
-      <TouchableOpacity style={{marginTop: 15}} onPress={() => navigation.navigate('History')}>
+      <TouchableOpacity
+        style={{marginTop: 15}}
+        onPress={() =>
+          navigation.navigate('History', {UserId: userDetails.UserId})
+        }>
         <View style={styles.btn}>
           <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
             HISTORY
           </Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity style={{marginTop: 15}} onPress={() => navigation.navigate('ChangePassword')}>
+      <TouchableOpacity
+        style={{marginTop: 15}}
+        onPress={() =>
+          navigation.navigate('ChangePassword', {UserId: userDetails.UserId})
+        }>
         <View style={styles.btn}>
           <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
             CHANGE PASSWORD
           </Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity style={{marginTop: 15}} onPress={() => navigation.replace('Login')}>
+      <TouchableOpacity
+        style={{marginTop: 15}}
+        onPress={() => navigation.replace('Login')}>
         <View style={styles.btn}>
           <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
             LOG OUT

@@ -143,7 +143,7 @@ const StudentProfileStack = ({route}) => {
   );
 };
 
-const ParentProfileStack = () => {
+const ParentProfileStack = ({route}) => {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -159,6 +159,7 @@ const ParentProfileStack = () => {
       <Stack.Screen
         name="ProfileScreen"
         component={ParentProfileScreen}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{title: 'Profile'}}
       />
       <Stack.Screen
@@ -174,7 +175,7 @@ const ParentProfileStack = () => {
     </Stack.Navigator>
   );
 };
-const ConductorProfileStack = () => {
+const ConductorProfileStack = ({route}) => {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -205,7 +206,7 @@ const ConductorProfileStack = () => {
     </Stack.Navigator>
   );
 };
-const ConductorDashboardStack = () => {
+const ConductorDashboardStack = ({route}) => {
   const navigation = useNavigation();
   return (
     <Stack.Navigator
@@ -248,7 +249,7 @@ const ConductorDashboardStack = () => {
     </Stack.Navigator>
   );
 };
-const AdminDashboardStack = () => {
+const AdminDashboardStack = ({route}) => {
   const navigation = useNavigation();
   return (
     <Stack.Navigator
@@ -291,7 +292,7 @@ const AdminDashboardStack = () => {
     </Stack.Navigator>
   );
 };
-const AdminAddStack = () => {
+const AdminAddStack = ({route}) => {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -337,7 +338,7 @@ const AdminAddStack = () => {
     </Stack.Navigator>
   );
 };
-const AdminProfileStack = () => {
+const AdminProfileStack = ({route}) => {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -480,7 +481,7 @@ const StudentTabs = ({route}) => {
   );
 };
 
-const ParentTabs = () => {
+const ParentTabs = ({route}) => {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -502,6 +503,7 @@ const ParentTabs = () => {
       <Tab.Screen
         name="Dashboard"
         component={ParentDashboard}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{
           tabBarIcon: ({focused}) => (
             <Image
@@ -518,6 +520,7 @@ const ParentTabs = () => {
       <Tab.Screen
         name="Map"
         component={ParentMapScreen}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{
           tabBarIcon: ({focused}) => (
             <Image
@@ -534,6 +537,7 @@ const ParentTabs = () => {
       <Tab.Screen
         name="Notification"
         component={NotificationStack}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{
           headerShown: false,
           tabBarIcon: ({focused}) => (
@@ -551,6 +555,7 @@ const ParentTabs = () => {
       <Tab.Screen
         name="Profile"
         component={ParentProfileStack}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{
           headerShown: false,
           tabBarIcon: ({focused}) => (
@@ -569,7 +574,7 @@ const ParentTabs = () => {
   );
 };
 
-const ConductorTabs = () => {
+const ConductorTabs = ({route}) => {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -675,7 +680,7 @@ const ConductorTabs = () => {
     </Tab.Navigator>
   );
 };
-const AdminTabs = () => {
+const AdminTabs = ({route}) => {
   return (
     <Tab.Navigator
       screenOptions={{

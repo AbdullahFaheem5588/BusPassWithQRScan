@@ -15,7 +15,7 @@ import {useNavigation} from '@react-navigation/native';
 const {width, height} = Dimensions.get('window');
 
 const ChangePasswordScreen = ({route}) => {
-  const UserId = route.params.userId;
+  const UserId = route.params.UserId;
   const navigation = useNavigation();
   const [oldPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');

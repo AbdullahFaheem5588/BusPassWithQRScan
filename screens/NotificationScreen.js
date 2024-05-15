@@ -61,68 +61,77 @@ const NotificationScreen = ({route}) => {
 
   useEffect(() => {
     getUserNotifations();
-    const interval = setInterval(() => {}, 6000);
-    return () => clearInterval(interval);
   }, [notifications]);
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        onPress={markAllAsRead}
-        style={{
-          backgroundColor: 'white',
-          alignSelf: 'flex-end',
-          margin: width * 0.0125,
-          width: width * 0.5,
-          borderRadius: width * 0.025,
-        }}>
-        <Text
-          style={{
-            color: '#168070',
-            textAlign: 'center',
-            fontSize: width * 0.045,
-          }}>
-          ✓✓ Mark All as Read
-        </Text>
-      </TouchableOpacity>
-      <FlatList
-        data={notifications}
-        renderItem={({item, index}) => {
-          return (
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate('NotificationDetails', {
-                  NotificationDetails: item,
-                  ImagePath: Images[item.Type],
-                })
-              }
-              style={{margin: width * 0.0175}}>
-              <View
-                style={[
-                  styles.flatListRow,
-                  item.NotificationRead === 0 && {
-                    backgroundColor: '#2FAA98',
-                    borderWidth: 0,
-                    elevation: 10,
-                  },
-                ]}>
-                <View style={{width: '20%', justifyContent: 'center'}}>
-                  <Image
-                    source={Images[item.Type]}
-                    style={{height: '95%', width: '90%'}}
-                  />
-                </View>
-                <View style={{width: '80%'}}>
-                  <Text style={styles.DateTime}>
-                    {item.Date.substring(0, 10)} , {convertToAMPM(item.Time)}
-                  </Text>
-                  <Text style={styles.NotificationType}>{item.Type}</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          );
-        }}
-      />
+      {Array.isArray(notifications) ? (
+        <View style={{height: height * 0.8}}>
+          <TouchableOpacity
+            onPress={markAllAsRead}
+            style={{
+              backgroundColor: 'white',
+              alignSelf: 'flex-end',
+              margin: width * 0.0125,
+              width: width * 0.5,
+              borderRadius: width * 0.025,
+            }}>
+            <Text
+              style={{
+                color: '#168070',
+                textAlign: 'center',
+                fontSize: width * 0.045,
+              }}>
+              ✓✓ Mark All as Read
+            </Text>
+          </TouchableOpacity>
+          <FlatList
+            data={notifications}
+            renderItem={({item, index}) => {
+              return (
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('NotificationDetails', {
+                      NotificationDetails: item,
+                      ImagePath: Images[item.Type],
+                    })
+                  }
+                  style={{margin: width * 0.0175}}>
+                  <View
+                    style={[
+                      styles.flatListRow,
+                      item.NotificationRead === 0 && {
+                        backgroundColor: '#2FAA98',
+                        borderWidth: 0,
+                        elevation: 10,
+                      },
+                    ]}>
+                    <View style={{width: '20%', justifyContent: 'center'}}>
+                      <Image
+                        source={Images[item.Type]}
+                        style={{height: '95%', width: '90%'}}
+                      />
+                    </View>
+                    <View style={{width: '80%'}}>
+                      <Text style={styles.DateTime}>
+                        {item.Date.substring(0, 10)} ,{' '}
+                        {convertToAMPM(item.Time)}
+                      </Text>
+                      <Text style={styles.NotificationType}>{item.Type}</Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              );
+            }}
+          />
+        </View>
+      ) : (
+        <View>
+          <Text style={[styles.NotificationType, {textAlign: 'center'}]}>
+            No Notifications Found!
+          </Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -131,6 +140,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#168070',
+    justifyContent: 'center',
   },
   flatListRow: {
     borderColor: 'white',
