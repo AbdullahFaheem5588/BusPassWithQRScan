@@ -70,3 +70,6 @@ GoogleMapKey.js
 
 # Ignore Android manifest file
 android/app/src/main/AndroidManifest.xml
+
+# Ignore ApiUrl
+Helper/URL.js
