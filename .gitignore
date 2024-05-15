@@ -72,4 +72,4 @@ GoogleMapKey.js
 android/app/src/main/AndroidManifest.xml
 
 # Ignore ApiUrl
-Helper/URL.js
+/Helper/URL.js
