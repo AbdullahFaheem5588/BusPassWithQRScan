@@ -9,18 +9,21 @@ import {
   Dimensions,
   Modal,
   ToastAndroid,
+  ActivityIndicator,
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import GoogleMapKey from '../../GoogleMapKey';
 import MapViewDirections from 'react-native-maps-directions';
 import Api_url from '../../Helper/URL';
 import convertToAMPM from '../../Helper/convertToAMPM';
+import {Stop} from 'react-native-svg';
 
 const {width, height} = Dimensions.get('window');
 
 const MapScreen = ({route}) => {
   const userDetails = route.params.userDetails;
-  const [stops, setStops] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [Stops, setStops] = useState([]);
   const [busesCords, SetBusesCords] = useState([]);
   const [selectedStopId, setSelectedStopId] = useState([]);
   const [selectedStopsList, setSelectedStopsList] = useState([]);
@@ -81,12 +84,15 @@ const MapScreen = ({route}) => {
     } catch (error) {
       console.error('Error:', error);
       Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     getAllStops();
   }, []);
+
   useEffect(() => {
     const interval = setInterval(() => {
       getAllBusesCords();
@@ -103,8 +109,8 @@ const MapScreen = ({route}) => {
   const handleStopPopupVisibility = id => {
     setSelectedStopId(id);
     setSelectedStopsList([]);
-    for (i = 0; i < stops.length; i++) {
-      const stop = stops[i].find(stop => stop.Id === id);
+    for (i = 0; i < Stops.length; i++) {
+      const stop = Stops[i].find(stop => stop.Id === id);
       if (stop) {
         setSelectedStopsList(prevSelectedStopsList => [
           ...prevSelectedStopsList,
@@ -114,6 +120,14 @@ const MapScreen = ({route}) => {
     }
     setStopPopupVisible(!stopPopupVisible);
   };
+
+  if (loading) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -131,29 +145,27 @@ const MapScreen = ({route}) => {
           title="Barani Institute of Information Technology"
           image={require('../../assets/UniMapMarker.png')}
         />
-        {stops.map((routeStops, routeIndex) => (
+        {Stops.map((routeStops, routeIndex) => (
           <MapViewDirections
             key={routeIndex}
             origin={unicords}
             destination={unicords}
             waypoints={routeStops.map(stop => ({
               latitude: parseFloat(stop.Latitude),
-              longitude: parseFloat(stop.Logitude),
+              longitude: parseFloat(stop.Longitude),
             }))}
-            optimizeWaypoints={true}
             apikey={GoogleMapKey}
             strokeColor="#d883ff"
             strokeWidth={5}
           />
         ))}
-
-        {stops.map((routeStops, routeIndex) =>
+        {Stops.map((routeStops, routeIndex) =>
           routeStops.map((stop, stopIndex) => (
             <Marker
               key={stopIndex}
               coordinate={{
                 latitude: parseFloat(stop.Latitude),
-                longitude: parseFloat(stop.Logitude),
+                longitude: parseFloat(stop.Longitude),
               }}
               onPress={() => handleStopPopupVisibility(stop.Id)}
             />

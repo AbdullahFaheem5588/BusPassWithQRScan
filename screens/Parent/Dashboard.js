@@ -70,7 +70,8 @@ const Dashboard = ({route}) => {
               <View style={styles.progress}>
                 <Progress.Circle
                   progress={
-                    item.childDetails.RemainingJourneys /
+                    (item.childDetails.TotalJourneys -
+                      item.childDetails.RemainingJourneys) /
                     item.childDetails.TotalJourneys
                   }
                   size={width * 0.35}
@@ -79,7 +80,10 @@ const Dashboard = ({route}) => {
                   borderWidth={7}
                   borderColor="#2FAA98"
                   formatText={() =>
-                    `${item.childDetails.RemainingJourneys} / ${item.childDetails.TotalJourneys}`
+                    `${
+                      item.childDetails.TotalJourneys -
+                      item.childDetails.RemainingJourneys
+                    } / ${item.childDetails.TotalJourneys}`
                   }
                 />
                 <Text style={styles.progressText}>Journeys Used</Text>

@@ -9,7 +9,7 @@ import {
   Dimensions,
   Modal,
 } from 'react-native';
-import MapView, {Marker, AnimatedRegion} from 'react-native-maps';
+import MapView, {Marker} from 'react-native-maps';
 import GoogleMapKey from '../../GoogleMapKey';
 import MapViewDirections from 'react-native-maps-directions';
 import {SelectList} from 'react-native-dropdown-select-list';
@@ -17,6 +17,7 @@ import {
   locationPermission,
   getCurrentLocation,
 } from '../../Helper/LocationTracker';
+import {isPointWithinRadius} from 'geolib';
 
 const {width, height} = Dimensions.get('window');
 
@@ -48,13 +49,10 @@ const MapScreen = () => {
     {latitude: 33.59059836860913, longitude: 73.07861567925173},
     {latitude: 33.59545700923111, longitude: 73.07889345288326},
   ];
-
   const getLiveLocation = async () => {
     const locPermissionDenied = await locationPermission();
-    console.log('Location Permission: ', locPermissionDenied);
     if (locPermissionDenied) {
       const {latitude, longitude, heading} = await getCurrentLocation();
-      console.log('get live location after 4 second', latitude, longitude);
       const loc = {
         latitude: latitude,
         longitude: longitude,
@@ -67,6 +65,12 @@ const MapScreen = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       getLiveLocation();
+      const temp = isPointWithinRadius(
+        {latitude: 51.5175, longitude: 7.4678},
+        {latitude: 51.5175, longitude: 7.4678},
+        50,
+      );
+      console.log(temp);
     }, 6000);
     return () => clearInterval(interval);
   }, [userLocation]);
@@ -109,7 +113,6 @@ const MapScreen = () => {
           origin={unicords}
           destination={unicords}
           waypoints={stops}
-          optimizeWaypoints={true}
           apikey={GoogleMapKey}
           strokeColor="#d883ff"
           strokeWidth={5}

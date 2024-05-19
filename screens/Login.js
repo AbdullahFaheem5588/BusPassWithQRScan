@@ -17,7 +17,7 @@ const {width, height} = Dimensions.get('window');
 
 const Login = () => {
   const navigation = useNavigation();
-  const [username, setUsername] = useState('Parent');
+  const [username, setUsername] = useState('Conductor');
   const [password, setPassword] = useState('123');
 
   const handleLoginPress = async () => {

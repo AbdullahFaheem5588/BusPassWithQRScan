@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, {useState, useRef} from 'react';
 import {
   Text,
   View,
@@ -9,25 +9,25 @@ import {
   Dimensions,
 } from 'react-native';
 import * as Progress from 'react-native-progress';
-import { enableScreens } from 'react-native-screens';
-import { useNavigation } from '@react-navigation/native';
+import {enableScreens} from 'react-native-screens';
 
 enableScreens();
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 const Dashboard = () => {
   const [offset, setOffset] = useState(0);
-  const [notificationIcon, setNotificationIcon] = useState(require('../../assets/Notification-Focused.png'));
+  const [notificationIcon, setNotificationIcon] = useState(
+    require('../../assets/Notification-Focused.png'),
+  );
 
   const handleNotificartionIcon = () => {
     if (notificationIcon === require('../../assets/Notification-Focused.png'))
       setNotificationIcon(require('../../assets/Notification-On.png'));
-    else
-      setNotificationIcon(require('../../assets/Notification-Focused.png'));
+    else setNotificationIcon(require('../../assets/Notification-Focused.png'));
   };
 
-  const handleScroll = (event) => {
+  const handleScroll = event => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(contentOffsetX / (width * 0.9));
     setOffset(index);
@@ -48,11 +48,11 @@ const Dashboard = () => {
           />
           <Text
             style={{
-              fontSize: width * 0.025,
+              fontSize: width * 0.035,
               color: 'white',
               alignSelf: 'center',
-              marginTop: -(width * 0.1),
-              marginBottom: width * 0.08,
+              marginTop: -(width * 0.12),
+              marginBottom: width * 0.09,
             }}>
             Seats Booked
           </Text>
@@ -173,7 +173,7 @@ const Dashboard = () => {
           </View>
         </View>
       </View>
-      <View style={[styles.MainContainer, { marginTop: height * 0.015 }]}>
+      <View style={[styles.MainContainer, {marginTop: height * 0.015}]}>
         <View style={styles.Title}>
           <Text
             style={{
@@ -181,7 +181,7 @@ const Dashboard = () => {
               fontWeight: 'bold',
               color: '#168070',
             }}>
-            Bus Seat Availability
+            Journey Details
           </Text>
         </View>
         <View
@@ -211,9 +211,9 @@ const Dashboard = () => {
                 height: height * 0.175,
               }}>
               <Image
-                source={require('../../assets/CheckIn.png')}
+                source={require('../../assets/RouteNo.png')}
                 style={{
-                  width: width * 0.25,
+                  width: width * 0.04,
                   height: height * 0.1,
                   alignSelf: 'center',
                   marginTop: width * 0.01,
@@ -226,7 +226,7 @@ const Dashboard = () => {
                   alignSelf: 'center',
                   marginTop: width * 0.0125,
                 }}>
-                Route No
+                Total Stops
               </Text>
               <Text
                 style={{
@@ -235,7 +235,7 @@ const Dashboard = () => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                1111
+                15
               </Text>
             </View>
             <View
@@ -248,12 +248,12 @@ const Dashboard = () => {
                 elevation: width * 0.025,
               }}>
               <Image
-                source={require('../../assets/Seats.png')}
+                source={require('../../assets/RouteNo.png')}
                 style={{
-                  width: width * 0.129,
-                  height: height * 0.09,
+                  width: width * 0.04,
+                  height: height * 0.1,
                   alignSelf: 'center',
-                  marginTop: height * 0.005,
+                  marginTop: width * 0.01,
                 }}
               />
               <Text
@@ -263,7 +263,7 @@ const Dashboard = () => {
                   alignSelf: 'center',
                   marginTop: width * 0.0125,
                 }}>
-                Stop Timing
+                Remaining Stops
               </Text>
               <Text
                 style={{
@@ -272,7 +272,7 @@ const Dashboard = () => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                1111
+                5
               </Text>
             </View>
           </View>
