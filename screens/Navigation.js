@@ -3,6 +3,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createStackNavigator} from '@react-navigation/stack';
 import {Image, TouchableOpacity} from 'react-native';
+import {LocationServiceProvider} from '../Helper/LocationTracker';
 import {default as Login} from './Login';
 import {useNavigation} from '@react-navigation/native';
 import {default as StudentFavStops} from './Student/FavStops';
@@ -191,6 +192,7 @@ const ConductorProfileStack = ({route}) => {
       <Stack.Screen
         name="ProfileScreen"
         component={ConductorProfileScreen}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{title: 'Profile'}}
       />
       <Stack.Screen
@@ -223,6 +225,7 @@ const ConductorDashboardStack = ({route}) => {
       <Stack.Screen
         name="DashboardScreen"
         component={ConductorDashboard}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{
           title: 'Dashboard',
           headerRight: () => (
@@ -354,6 +357,7 @@ const AdminProfileStack = ({route}) => {
       <Stack.Screen
         name="ProfileScreen"
         component={AdminProfileScreen}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{title: 'Profile'}}
       />
       <Stack.Screen
@@ -576,108 +580,115 @@ const ParentTabs = ({route}) => {
 
 const ConductorTabs = ({route}) => {
   return (
-    <Tab.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: '#2FAA98',
-        },
-        headerTintColor: 'white',
-        tabBarStyle: {
-          backgroundColor: '#2FAA98',
-          height: 60,
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          marginBottom: 3,
-        },
-        tabBarActiveTintColor: 'white',
-        tabBarInactiveTintColor: 'transparent',
-      }}>
-      <Tab.Screen
-        name="Dashboard"
-        component={ConductorDashboardStack}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({focused}) => (
-            <Image
-              source={
-                focused
-                  ? require('../assets/Home-Focused.png')
-                  : require('../assets/Home-UnFocused.png')
-              }
-              style={{width: 25, height: 25}}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Map"
-        component={ConductorMapScreen}
-        options={{
-          tabBarIcon: ({focused}) => (
-            <Image
-              source={
-                focused
-                  ? require('../assets/Map-Focused.png')
-                  : require('../assets/Map-UnFocused.png')
-              }
-              style={{width: 25, height: 25}}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Scan"
-        component={ConductorQrCodeScanner}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({focused}) => (
-            <Image
-              source={
-                focused
-                  ? require('../assets/QrCodeScanner-Focused.png')
-                  : require('../assets/QrCodeScanner-UnFocused.png')
-              }
-              style={{width: 25, height: 30}}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Notification"
-        component={NotificationStack}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({focused}) => (
-            <Image
-              source={
-                focused
-                  ? require('../assets/Notification-Focused.png')
-                  : require('../assets/Notification-UnFocused.png')
-              }
-              style={{width: 25, height: 25}}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={ConductorProfileStack}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({focused}) => (
-            <Image
-              source={
-                focused
-                  ? require('../assets/Profile-Focused.png')
-                  : require('../assets/Profile-UnFocused.png')
-              }
-              style={{width: 25, height: 30}}
-            />
-          ),
-        }}
-      />
-    </Tab.Navigator>
+    <LocationServiceProvider>
+      <Tab.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: '#2FAA98',
+          },
+          headerTintColor: 'white',
+          tabBarStyle: {
+            backgroundColor: '#2FAA98',
+            height: 60,
+          },
+          tabBarLabelStyle: {
+            fontSize: 12,
+            marginBottom: 3,
+          },
+          tabBarActiveTintColor: 'white',
+          tabBarInactiveTintColor: 'transparent',
+        }}>
+        <Tab.Screen
+          name="Dashboard"
+          component={ConductorDashboardStack}
+          initialParams={{userDetails: route.params.userDetails}}
+          options={{
+            headerShown: false,
+            tabBarIcon: ({focused}) => (
+              <Image
+                source={
+                  focused
+                    ? require('../assets/Home-Focused.png')
+                    : require('../assets/Home-UnFocused.png')
+                }
+                style={{width: 25, height: 25}}
+              />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Map"
+          component={ConductorMapScreen}
+          initialParams={{userDetails: route.params.userDetails}}
+          options={{
+            tabBarIcon: ({focused}) => (
+              <Image
+                source={
+                  focused
+                    ? require('../assets/Map-Focused.png')
+                    : require('../assets/Map-UnFocused.png')
+                }
+                style={{width: 25, height: 25}}
+              />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Scan"
+          component={ConductorQrCodeScanner}
+          initialParams={{userDetails: route.params.userDetails}}
+          options={{
+            headerShown: false,
+            tabBarIcon: ({focused}) => (
+              <Image
+                source={
+                  focused
+                    ? require('../assets/QrCodeScanner-Focused.png')
+                    : require('../assets/QrCodeScanner-UnFocused.png')
+                }
+                style={{width: 25, height: 30}}
+              />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Notification"
+          component={NotificationStack}
+          initialParams={{userDetails: route.params.userDetails}}
+          options={{
+            headerShown: false,
+            tabBarIcon: ({focused}) => (
+              <Image
+                source={
+                  focused
+                    ? require('../assets/Notification-Focused.png')
+                    : require('../assets/Notification-UnFocused.png')
+                }
+                style={{width: 25, height: 25}}
+              />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Profile"
+          component={ConductorProfileStack}
+          initialParams={{userDetails: route.params.userDetails}}
+          options={{
+            headerShown: false,
+            tabBarIcon: ({focused}) => (
+              <Image
+                source={
+                  focused
+                    ? require('../assets/Profile-Focused.png')
+                    : require('../assets/Profile-UnFocused.png')
+                }
+                style={{width: 25, height: 30}}
+              />
+            ),
+          }}
+        />
+      </Tab.Navigator>
+    </LocationServiceProvider>
   );
 };
 const AdminTabs = ({route}) => {
@@ -702,6 +713,7 @@ const AdminTabs = ({route}) => {
       <Tab.Screen
         name="Dashboard"
         component={AdminDashboardStack}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{
           headerShown: false,
           tabBarIcon: ({focused}) => (
@@ -719,6 +731,7 @@ const AdminTabs = ({route}) => {
       <Tab.Screen
         name="Map"
         component={AdminMapScreen}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{
           tabBarIcon: ({focused}) => (
             <Image
@@ -735,6 +748,7 @@ const AdminTabs = ({route}) => {
       <Tab.Screen
         name="Add"
         component={AdminAddStack}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{
           headerShown: false,
           tabBarIcon: ({focused}) => (
@@ -751,6 +765,7 @@ const AdminTabs = ({route}) => {
       <Tab.Screen
         name="Notification"
         component={NotificationStack}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{
           headerShown: false,
           tabBarIcon: ({focused}) => (
@@ -768,6 +783,7 @@ const AdminTabs = ({route}) => {
       <Tab.Screen
         name="Profile"
         component={AdminProfileStack}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{
           headerShown: false,
           tabBarIcon: ({focused}) => (

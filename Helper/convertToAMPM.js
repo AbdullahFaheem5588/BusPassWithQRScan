@@ -1,5 +1,5 @@
 const convertToAMPM = timeString => {
-  if (timeString === null) {
+  if (timeString === null || timeString === '') {
     return '';
   } else {
     const [hours, minutes] = timeString.split(':').map(Number);

@@ -53,7 +53,7 @@ const RechargeJourneys = () => {
     console.warn(journeyDetails);
     setModalVisible(false);
     navigation.goBack();
-  }
+  };
 
   const handleShowExpiryDateOPicker = () => {
     setShowExpiryDatePicker(true);
@@ -73,9 +73,9 @@ const RechargeJourneys = () => {
   const onSuccess = e => {
     console.log('Scanned');
     setJourneyDetials(prevState => ({
-        ...prevState,
-        PassId: e.data,
-      }));
+      ...prevState,
+      PassId: e.data,
+    }));
     setPassStatus(e.data);
     setModalVisible(true);
   };
@@ -157,12 +157,6 @@ const RechargeJourneys = () => {
               <Text style={styles.passStatusText}>Pass Status: In-Valid</Text>
             </View>
           )}
-          <TouchableOpacity
-            onPress={addJourneys}>
-            <View style={styles.btn}>
-              <Text style={styles.btnText}>Add</Text>
-            </View>
-          </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
               setModalVisible(false);

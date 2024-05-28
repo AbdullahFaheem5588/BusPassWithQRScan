@@ -12,7 +12,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 const {width, height} = Dimensions.get('window');
 
 const HistoryScreen = ({route}) => {
-  const UserId = route.params.UserId;
+  //const UserId = route.params.UserId;
   const data = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   const [fromDate, setFromDate] = useState(new Date());
   const [toDate, setToDate] = useState(new Date());

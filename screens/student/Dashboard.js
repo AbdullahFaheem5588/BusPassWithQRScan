@@ -129,7 +129,7 @@ const Dashboard = ({route}) => {
             });
           }}>
           <View style={styles.btn}>
-            <Text style={styles.btnText}>EDIT FAVOURITE STOPS</Text>
+            <Text style={styles.btnText}>EDIT FAVORITE STOPS</Text>
           </View>
         </TouchableOpacity>
       </View>

@@ -16,7 +16,6 @@ import GoogleMapKey from '../../GoogleMapKey';
 import MapViewDirections from 'react-native-maps-directions';
 import Api_url from '../../Helper/URL';
 import convertToAMPM from '../../Helper/convertToAMPM';
-import {Stop} from 'react-native-svg';
 
 const {width, height} = Dimensions.get('window');
 
@@ -162,6 +161,7 @@ const MapScreen = ({route}) => {
         {Stops.map((routeStops, routeIndex) =>
           routeStops.map((stop, stopIndex) => (
             <Marker
+              image={require('../../assets/BusStopMapMarker.png')}
               key={stopIndex}
               coordinate={{
                 latitude: parseFloat(stop.Latitude),

@@ -45,9 +45,7 @@ const NotificationDetails = () => {
           source={ImagePath}
           style={{width: width * 0.5, height: height * 0.2}}
         />
-        <Text style={styles.NotificationType}>
-          {NotificationDetails.NotificationType}
-        </Text>
+        <Text style={styles.NotificationType}>{NotificationDetails.Type}</Text>
       </View>
       <ScrollView style={styles.BottomContainer}>
         <View style={{margin: width * 0.075}}>

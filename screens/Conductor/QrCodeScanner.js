@@ -508,7 +508,7 @@ const styles = StyleSheet.create({
   ScanText: {
     fontSize: 21,
     color: 'white',
-    marginTop:-20,
+    marginTop: -20,
   },
   modalContainer: {
     flex: 1,

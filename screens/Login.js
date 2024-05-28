@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -9,8 +9,9 @@ import {
   Dimensions,
   ScrollView,
   ToastAndroid,
+  ActivityIndicator,
 } from 'react-native';
-import {useNavigation, CommonActions} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import Api_url from '../Helper/URL';
 
 const {width, height} = Dimensions.get('window');
@@ -19,6 +20,7 @@ const Login = () => {
   const navigation = useNavigation();
   const [username, setUsername] = useState('Conductor');
   const [password, setPassword] = useState('123');
+  const [loading, setLoading] = useState(false); // State to manage loading
 
   const handleLoginPress = async () => {
     try {
@@ -29,6 +31,8 @@ const Login = () => {
         );
         return;
       }
+
+      setLoading(true); // Start loading
 
       const response = await fetch(
         `${Api_url}/Users/Login?username=${username.trim()}&password=${password.trim()}`,
@@ -41,6 +45,8 @@ const Login = () => {
       );
 
       const data = await response.json();
+      setLoading(false); // Stop loading
+
       if (data.userRole === 'Student') {
         navigation.replace('StudentTabs', {userDetails: data.Students});
       } else if (data.userRole === 'Parent') {
@@ -55,6 +61,7 @@ const Login = () => {
       setUsername('');
       setPassword('');
     } catch (error) {
+      setLoading(false); // Stop loading in case of error
       console.error('Error occurred during login:', error);
     }
   };
@@ -107,16 +114,22 @@ const Login = () => {
         />
         <TouchableOpacity
           style={{marginTop: width * 0.05, marginBottom: width * 0.0625}}
-          onPress={handleLoginPress}>
+          onPress={handleLoginPress}
+          disabled={loading} // Disable button when loading
+        >
           <View style={styles.btn}>
-            <Text
-              style={{
-                fontSize: width * 0.0625,
-                fontWeight: 'bold',
-                color: '#168070',
-              }}>
-              LOG IN
-            </Text>
+            {loading ? (
+              <ActivityIndicator size="large" color="#168070" />
+            ) : (
+              <Text
+                style={{
+                  fontSize: width * 0.0625,
+                  fontWeight: 'bold',
+                  color: '#168070',
+                }}>
+                LOG IN
+              </Text>
+            )}
           </View>
         </TouchableOpacity>
       </View>

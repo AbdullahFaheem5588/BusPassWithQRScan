@@ -1,50 +1,129 @@
-import React, {useState, useRef} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import {
   Text,
   View,
   StyleSheet,
   Image,
-  TouchableOpacity,
-  ScrollView,
   Dimensions,
+  ToastAndroid,
+  Alert,
 } from 'react-native';
 import * as Progress from 'react-native-progress';
 import {enableScreens} from 'react-native-screens';
+import Api_url from '../../Helper/URL';
+import convertToAMPM from '../../Helper/convertToAMPM';
 
 enableScreens();
 
 const {width, height} = Dimensions.get('window');
 
-const Dashboard = () => {
-  const [offset, setOffset] = useState(0);
-  const [notificationIcon, setNotificationIcon] = useState(
-    require('../../assets/Notification-Focused.png'),
-  );
+const Dashboard = ({route}) => {
+  const userDetails = route.params.userDetails;
+  const [nextStop, setNextStop] = useState({
+    Id: Number,
+    Name: '',
+    Timing: '',
+    Route: Number,
+  });
+  const [routeDetails, setRouteDetails] = useState({
+    TotalStops: Number,
+    RemainingStops: Number,
+  });
+  const [bookedSeats, setBookedSeats] = useState(0);
 
-  const handleNotificartionIcon = () => {
-    if (notificationIcon === require('../../assets/Notification-Focused.png'))
-      setNotificationIcon(require('../../assets/Notification-On.png'));
-    else setNotificationIcon(require('../../assets/Notification-Focused.png'));
+  const getBookedSeats = async () => {
+    try {
+      const response = await fetch(
+        `${Api_url}/Conductor/GetBookedSeats/?conductorId=${userDetails.Id}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const data = await response.json();
+      if (response.ok) {
+        setBookedSeats(data || 0);
+      } else {
+        setBookedSeats(0);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
   };
 
-  const handleScroll = event => {
-    const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const index = Math.round(contentOffsetX / (width * 0.9));
-    setOffset(index);
+  const getRemainingStops = async () => {
+    try {
+      const response = await fetch(
+        `${Api_url}/Conductor/GetRemainingStops/?conductorId=${userDetails.Id}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const data = await response.json();
+      if (response.ok) {
+        setRouteDetails(data || {TotalStops: Number, RemainingStops: Number});
+      } else {
+        setRouteDetails({TotalStops: Number, RemainingStops: Number});
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
   };
+
+  const getNextStop = async () => {
+    try {
+      const response = await fetch(
+        `${Api_url}/Conductor/GetNextStop/?conductorId=${userDetails.Id}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const data = await response.json();
+      if (response.ok) {
+        setNextStop(data || {Id: Number, Name: '', Timing: '', Route: Number});
+      } else {
+        setNextStop({Id: Number, Name: '', Timing: '', Route: Number});
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
+  };
+
+  useEffect(() => {
+    getNextStop();
+  }, [nextStop]);
+
+  useEffect(() => {
+    getRemainingStops();
+  }, [routeDetails]);
+
+  useEffect(() => {
+    getBookedSeats();
+  }, [bookedSeats]);
 
   return (
     <View style={styles.container}>
       <View style={styles.progress}>
         <>
           <Progress.Circle
-            progress={25 / 50}
+            progress={bookedSeats / userDetails.TotalSeats}
             size={width * 0.35}
             showsText={true}
             color="white"
             borderWidth={width * 0.015}
             borderColor="#2FAA98"
-            formatText={() => `${25} / ${50}`}
+            formatText={() => `${bookedSeats} / ${userDetails.TotalSeats}`}
           />
           <Text
             style={{
@@ -86,8 +165,7 @@ const Dashboard = () => {
               color: 'white',
               alignSelf: 'center',
             }}>
-            {/*favStops[0].Name*/}
-            Chandni Chowk
+            {nextStop.Name}
           </Text>
           <View
             style={{
@@ -130,7 +208,7 @@ const Dashboard = () => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                1111
+                {nextStop.Route}
               </Text>
             </View>
             <View
@@ -167,7 +245,7 @@ const Dashboard = () => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                1111
+                {convertToAMPM(nextStop.Timing)}
               </Text>
             </View>
           </View>
@@ -181,7 +259,7 @@ const Dashboard = () => {
               fontWeight: 'bold',
               color: '#168070',
             }}>
-            Journey Details
+            Route Details
           </Text>
         </View>
         <View
@@ -235,7 +313,7 @@ const Dashboard = () => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                15
+                {routeDetails.TotalStops}
               </Text>
             </View>
             <View
@@ -272,7 +350,7 @@ const Dashboard = () => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                5
+                {routeDetails.RemainingStops}
               </Text>
             </View>
           </View>

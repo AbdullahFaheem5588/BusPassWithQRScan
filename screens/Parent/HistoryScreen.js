@@ -124,7 +124,7 @@ const HistoryScreen = ({route}) => {
               </Text>
               <Text style={styles.HistoryType}>{item.Type}</Text>
               <Text style={styles.HistoryDescription}>
-                Child StudentName: {item.StudentName}
+                Child Name: {item.StudentName}
               </Text>
               <Text style={styles.HistoryDescription}>
                 Bus No: {item.BusId}

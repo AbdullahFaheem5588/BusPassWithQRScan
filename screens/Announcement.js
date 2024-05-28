@@ -1,20 +1,52 @@
-import React from 'react';
-import {View, Text, StyleSheet, Dimensions, TextInput, TouchableOpacity, Image} from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  TextInput,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import Api_url from '../Helper/URL';
 
 const {width, height} = Dimensions.get('window');
 
 const Announcement = () => {
+  const [description, setDescription] = useState('');
+  const navigation = useNavigation();
+
+  const makeAnnouncement = async () => {
+    try {
+      const response = await fetch(
+        `${Api_url}/Users/MakeAnnouncement?Description=${description}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const data = await response.json();
+      ToastAndroid.show(data, ToastAndroid.SHORT);
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.TopContainer}>
-      <Image
-                source={require('../assets/Announcement.png')}
-                style={{
-                  width: 100,
-                  height: 100,
-                  transform: [{rotate: '-20deg'}],
-                }}
-              />
+        <Image
+          source={require('../assets/Announcement.png')}
+          style={{
+            width: 100,
+            height: 100,
+            transform: [{rotate: '-20deg'}],
+          }}
+        />
         <Text style={styles.HeaderText}>Make an Announcement</Text>
       </View>
       <View style={styles.textAreaContainer}>
@@ -27,9 +59,16 @@ const Announcement = () => {
           multiline={true}
           textAlignVertical="top"
           textAlign="left"
+          onChangeText={setDescription}
+          value={description}
         />
       </View>
-      <TouchableOpacity style={{marginTop: 30}}>
+      <TouchableOpacity
+        style={{marginTop: 30}}
+        onPress={() => {
+          makeAnnouncement();
+          navigation.goBack();
+        }}>
         <View style={styles.btn}>
           <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
             SEND

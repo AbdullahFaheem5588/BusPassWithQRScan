@@ -1,91 +1,257 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useContext, useState, useRef, useEffect} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Image,
-  Animated,
   Dimensions,
   Modal,
+  Alert,
+  ToastAndroid,
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import GoogleMapKey from '../../GoogleMapKey';
 import MapViewDirections from 'react-native-maps-directions';
 import {SelectList} from 'react-native-dropdown-select-list';
-import {
-  locationPermission,
-  getCurrentLocation,
-} from '../../Helper/LocationTracker';
+import Api_url from '../../Helper/URL';
+import convertToAMPM from '../../Helper/convertToAMPM';
 import {isPointWithinRadius} from 'geolib';
+import {LocationServiceContext} from '../../Helper/LocationTracker';
 
 const {width, height} = Dimensions.get('window');
 
-const MapScreen = () => {
+const MapScreen = ({route}) => {
+  const userDetails = route.params.userDetails;
+  const {userLocation} = useContext(LocationServiceContext);
   const mapView = useRef();
-  const markerRef = useRef();
   const [stopPopupVisible, setStopPopupVisible] = useState(false);
   const [journeyPopupVisible, setJourneyPopupVisible] = useState(false);
-  const [selectedJourney, SetSelectedJourney] = useState('');
+  const [routes, setRoutes] = useState([]);
+  const [routesDetails, setRoutesDetails] = useState([]);
+  const [selectedRoute, setSelectedRoute] = useState(Number);
+  const [selectedRouteStops, setSelectedRouteStops] = useState([]);
+  const [selectedStopDetails, setSelectedStopDetails] = useState({});
+  const [isJourneyCompleted, setIsJourneyCompleted] = useState(Boolean);
   const unicords = {
     latitude: 33.64340057674401,
     longitude: 73.0790521153456,
   };
-  const [userLocation, setUserLocation] = useState({
-    latitude: 0,
-    longitude: 0,
-  });
-  const Journeys = [
-    {key: '1', value: 'Uni - Saddar (8:30)'},
-    {key: '2', value: 'Uni - Chandni Chowk (6:30)'},
-  ];
-  const stops = [
-    {latitude: 33.62143941364173, longitude: 73.06649344534786},
-    {latitude: 33.61580806175649, longitude: 73.06536334223695},
-    {latitude: 33.61226103098687, longitude: 73.06514487798462},
-    {latitude: 33.59934934614757, longitude: 73.06264830651558},
-    {latitude: 33.592161870536664, longitude: 73.05439953778502},
-    {latitude: 33.585168200292784, longitude: 73.0645131331935},
-    {latitude: 33.59059836860913, longitude: 73.07861567925173},
-    {latitude: 33.59545700923111, longitude: 73.07889345288326},
-  ];
-  const getLiveLocation = async () => {
-    const locPermissionDenied = await locationPermission();
-    if (locPermissionDenied) {
-      const {latitude, longitude, heading} = await getCurrentLocation();
-      const loc = {
-        latitude: latitude,
-        longitude: longitude,
-      };
-      setUserLocation(loc);
-      console.log('User Location:', userLocation);
+
+  const handleStopPopupVisibility = id => {
+    const stop = selectedRouteStops.find(stop => stop.Id === id);
+    setSelectedStopDetails(stop);
+    setStopPopupVisible(!stopPopupVisible);
+  };
+
+  const reachedAtStop = async (stopId, routeId) => {
+    try {
+      const response = await fetch(
+        `${Api_url}/Conductor/ReachedAtStop/?busId=${userDetails.BusId}&routeId=${routeId}&stopId=${stopId}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+      } else {
+        console.error('An unexpected error occurred. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
     }
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      getLiveLocation();
-      const temp = isPointWithinRadius(
-        {latitude: 51.5175, longitude: 7.4678},
-        {latitude: 51.5175, longitude: 7.4678},
-        50,
-      );
-      console.log(temp);
-    }, 6000);
-    return () => clearInterval(interval);
+    const updateBusLocation = async () => {
+      try {
+        const userLocationDetails = {
+          BusId: userDetails.BusId,
+          Cords: {
+            latitude: userLocation.latitude,
+            longitude: userLocation.longitude,
+          },
+        };
+        const response = await fetch(`${Api_url}/Conductor/UpdateBusLocation`, {
+          method: 'POST',
+          body: JSON.stringify(userLocationDetails),
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(data);
+
+          const stopsWithinRadius = selectedRouteStops
+            .map(stop => {
+              const withinRadius = isPointWithinRadius(
+                {
+                  latitude: userLocation.latitude,
+                  longitude: userLocation.longitude,
+                },
+                {
+                  latitude: parseFloat(stop.Latitude),
+                  longitude: parseFloat(stop.Longitude),
+                },
+                100,
+              );
+              return withinRadius ? stop : null;
+            })
+            .filter(stop => stop !== null);
+          console.log(stopsWithinRadius);
+          if (stopsWithinRadius.length > 0) {
+            stopsWithinRadius.forEach(stop => {
+              reachedAtStop(stop.Id, stop.Route);
+            });
+          }
+        } else {
+          console.log('Error updating bus location!');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      }
+    };
+
+    if (!isJourneyCompleted) updateBusLocation();
   }, [userLocation]);
 
-  const handleStopPopupVisibility = () => {
-    setStopPopupVisible(!stopPopupVisible);
+  const GetStartedRoute = async () => {
+    try {
+      const response = await fetch(
+        `${Api_url}/Conductor/GetStartedRoute/?conductorId=${userDetails.Id}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setSelectedRoute(data.RouteId);
+        setSelectedRouteStops(data.Stops);
+      } else {
+        console.log('Error!');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
   };
 
-  const handleJourneyPopupVisibility = () => {
-    setJourneyPopupVisible(!journeyPopupVisible);
+  useEffect(() => {
+    const checkJourneyCompletion = async () => {
+      try {
+        const response = await fetch(
+          `${Api_url}/Conductor/IsJourneyCompleted/?conductorId=${userDetails.Id}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setIsJourneyCompleted(data);
+        } else {
+          console.log('Error!');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      }
+    };
+
+    if (selectedRoute === 0) GetStartedRoute();
+
+    const intervalId = setInterval(() => {
+      checkJourneyCompletion();
+      if (isJourneyCompleted) {
+        setSelectedRoute(Number);
+        setSelectedRouteStops([]);
+        setSelectedStopDetails({});
+      }
+    }, 6000);
+    return () => clearInterval(intervalId);
+  }, [isJourneyCompleted]);
+
+  const handleJourneyPopupVisibility = async () => {
+    try {
+      const response = await fetch(
+        `${Api_url}/Conductor/GetAssignedRoutes/?conductorId=${userDetails.Id}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setRoutesDetails(data);
+        const journeysArray = data.map(item => ({
+          key: item.RouteId,
+          value: item.RouteTitle,
+        }));
+        setRoutes(journeysArray);
+        setJourneyPopupVisible(true);
+      } else {
+        console.error('Failed to fetch journeys');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
   };
 
-  const startJourney = () => {
-    //Start Journey Code Here
-    handleJourneyPopupVisibility();
+  const startJourney = async () => {
+    const selectedRouteDetails = routesDetails.find(
+      journey => journey.RouteId === selectedRoute,
+    );
+    if (selectedRouteDetails && selectedRouteDetails.Stops) {
+      setSelectedRouteStops(selectedRouteDetails.Stops);
+    } else {
+      ToastAndroid.show(
+        'No stops found for the selected journey.',
+        ToastAndroid.SHORT,
+      );
+    }
+    try {
+      const response = await fetch(
+        `${Api_url}/Conductor/StartJourney/?busId=${userDetails.BusId}&routeId=${selectedRoute}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+      } else {
+        console.error('An unexpected error occurred. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
+    setJourneyPopupVisible(false);
   };
 
   return (
@@ -93,9 +259,10 @@ const MapScreen = () => {
       <MapView
         ref={mapView}
         style={StyleSheet.absoluteFill}
+        showsUserLocation={true}
         initialRegion={{
-          latitude: 33.64340057674401,
-          longitude: 73.0790521153456,
+          latitude: unicords.latitude,
+          longitude: unicords.longitude,
           latitudeDelta: 0.02,
           longitudeDelta: 0.02,
         }}>
@@ -104,41 +271,49 @@ const MapScreen = () => {
           title="Barani Institute of Information Technology"
           image={require('../../assets/UniMapMarker.png')}
         />
-        <Marker
-          coordinate={userLocation}
-          image={require('../../assets/BusMapMarker.png')}
-          ref={markerRef}
-        />
-        <MapViewDirections
-          origin={unicords}
-          destination={unicords}
-          waypoints={stops}
-          apikey={GoogleMapKey}
-          strokeColor="#d883ff"
-          strokeWidth={5}
-        />
-        {stops.map((waypoint, index) => (
-          <Marker
-            key={index}
-            coordinate={waypoint}
-            onPress={handleStopPopupVisibility}
-          />
-        ))}
+        {selectedRouteStops.length > 0 && (
+          <>
+            <MapViewDirections
+              origin={userLocation}
+              destination={unicords}
+              waypoints={selectedRouteStops.map(stop => ({
+                latitude: parseFloat(stop.Latitude),
+                longitude: parseFloat(stop.Longitude),
+              }))}
+              apikey={GoogleMapKey}
+              strokeColor="#d883ff"
+              strokeWidth={5}
+            />
+            {selectedRouteStops.map((stop, index) => (
+              <Marker
+                key={index}
+                coordinate={{
+                  latitude: parseFloat(stop.Latitude),
+                  longitude: parseFloat(stop.Longitude),
+                }}
+                onPress={() => handleStopPopupVisibility(stop.Id)}
+                image={require('../../assets/BusStopMapMarker.png')}
+              />
+            ))}
+          </>
+        )}
       </MapView>
-      <TouchableOpacity
-        onPress={handleJourneyPopupVisibility}
-        style={{position: 'absolute', bottom: 10}}>
-        <View style={styles.btn}>
-          <Text
-            style={{
-              fontSize: width * 0.055,
-              fontWeight: 'bold',
-              color: '#168070',
-            }}>
-            CHOOSE JOURNEY
-          </Text>
-        </View>
-      </TouchableOpacity>
+      {isJourneyCompleted && (
+        <TouchableOpacity
+          onPress={handleJourneyPopupVisibility}
+          style={{position: 'absolute', bottom: 10}}>
+          <View style={styles.btn}>
+            <Text
+              style={{
+                fontSize: width * 0.055,
+                fontWeight: 'bold',
+                color: '#168070',
+              }}>
+              CHOOSE JOURNEY
+            </Text>
+          </View>
+        </TouchableOpacity>
+      )}
       <Modal
         animationType="fade"
         transparent={true}
@@ -165,8 +340,7 @@ const MapScreen = () => {
                     alignSelf: 'center',
                     marginTop: width * 0.025,
                   }}>
-                  {/*favStops[0].Name*/}
-                  Chandni Chowk
+                  {selectedStopDetails.Name}
                 </Text>
                 <View
                   style={{
@@ -209,7 +383,7 @@ const MapScreen = () => {
                         color: 'white',
                         alignSelf: 'center',
                       }}>
-                      10
+                      {selectedStopDetails.Route}
                     </Text>
                   </View>
                   <View
@@ -246,7 +420,7 @@ const MapScreen = () => {
                         color: 'white',
                         alignSelf: 'center',
                       }}>
-                      8:30
+                      {convertToAMPM(selectedStopDetails.Timing)}
                     </Text>
                   </View>
                 </View>
@@ -283,11 +457,11 @@ const MapScreen = () => {
                 borderRadius: width * 0.033,
               }}>
               <SelectList
-                setSelected={val => SetSelectedJourney(val)}
-                data={Journeys}
-                save="value"
+                setSelected={key => setSelectedRoute(key)}
+                data={routes}
+                save="key"
                 search={false}
-                placeholder="Select Journey"
+                placeholder="Select Route"
                 inputStyles={{color: 'white'}}
                 dropdownTextStyles={{color: 'white'}}
                 dropdownStyles={{
@@ -321,7 +495,10 @@ const MapScreen = () => {
                 </Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity onPress={handleJourneyPopupVisibility}>
+            <TouchableOpacity
+              onPress={() => {
+                setJourneyPopupVisible(false);
+              }}>
               <View style={styles.btn}>
                 <Text
                   style={{

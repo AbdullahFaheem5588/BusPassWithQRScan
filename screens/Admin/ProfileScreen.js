@@ -11,7 +11,8 @@ import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
-const ProfileScreen = () => {
+const ProfileScreen = ({route}) => {
+  const userDetails = route.params.userDetails;
   const navigation = useNavigation();
   return (
     <View style={styles.container}>
@@ -168,7 +169,9 @@ const ProfileScreen = () => {
       </View>
       <TouchableOpacity
         style={{marginTop: 15}}
-        onPress={() => navigation.navigate('History')}>
+        onPress={() =>
+          navigation.navigate('History', {UserId: userDetails.UserId})
+        }>
         <View style={styles.btn}>
           <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
             HISTORY
@@ -177,7 +180,9 @@ const ProfileScreen = () => {
       </TouchableOpacity>
       <TouchableOpacity
         style={{marginTop: 15}}
-        onPress={() => navigation.navigate('ChangePassword')}>
+        onPress={() =>
+          navigation.navigate('ChangePassword', {UserId: userDetails.UserId})
+        }>
         <View style={styles.btn}>
           <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
             CHANGE PASSWORD

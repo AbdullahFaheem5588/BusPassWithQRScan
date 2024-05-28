@@ -51,7 +51,6 @@ const Dashboard = ({route}) => {
     const interval = setInterval(() => {}, 6000);
     return () => clearInterval(interval);
   }, [childrenDetails]);
-
   return (
     <View style={styles.container}>
       <View style={styles.MyChildren}>
@@ -121,7 +120,7 @@ const Dashboard = ({route}) => {
                   />
                   <Text style={styles.timingImageText}>Check In</Text>
                   <Text style={styles.timingValue}>
-                    {convertToAMPM(item.childTimings.Dropup_Checkin)}
+                    {convertToAMPM(item.childTimings.Dropoff_Checkin)}
                   </Text>
                 </View>
                 <View style={[styles.timingBox, {marginRight: 10}]}>
@@ -131,7 +130,7 @@ const Dashboard = ({route}) => {
                   />
                   <Text style={styles.timingImageText}>Check Out</Text>
                   <Text style={styles.timingValue}>
-                    {convertToAMPM(item.childTimings.Dropup_Checkout)}
+                    {convertToAMPM(item.childTimings.Dropoff_Checkout)}
                   </Text>
                 </View>
               </View>
