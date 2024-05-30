@@ -83,7 +83,8 @@ const Dashboard = ({route}) => {
           showsHorizontalScrollIndicator={false}
           pagingEnabled={true}
           horizontalScrollEventThrottle={360}>
-          {favStops &&
+          {Array.isArray(favStops) &&
+            favStops.length > 0 &&
             favStops.map((item, ind) => (
               <View key={ind} style={styles.favoriteStopContainer}>
                 <Text style={styles.favoriteStopText}>{item.Name}</Text>
@@ -110,28 +111,31 @@ const Dashboard = ({route}) => {
               </View>
             ))}
         </ScrollView>
-        <View style={styles.pageIndicatorContainer}>
-          {favStops &&
-            favStops.map((item, ind) => (
-              <View
-                key={ind}
-                style={[
-                  styles.pageIndicator,
-                  ind === offset ? styles.activePageIndicator : null,
-                ]}></View>
-            ))}
-        </View>
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('FavStops', {
-              studentId: userDetails.Id,
-              favStops: favStops,
-            });
-          }}>
-          <View style={styles.btn}>
-            <Text style={styles.btnText}>EDIT FAVORITE STOPS</Text>
+        {Array.isArray(favStops) && favStops.length > 0 && (
+          <View>
+            <View style={styles.pageIndicatorContainer}>
+              {favStops.map((item, ind) => (
+                <View
+                  key={ind}
+                  style={[
+                    styles.pageIndicator,
+                    ind === offset ? styles.activePageIndicator : null,
+                  ]}></View>
+              ))}
+            </View>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('FavStops', {
+                  studentId: userDetails.Id,
+                  favStops: favStops,
+                });
+              }}>
+              <View style={styles.btn}>
+                <Text style={styles.btnText}>EDIT FAVORITE STOPS</Text>
+              </View>
+            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
+        )}
       </View>
     </View>
   );

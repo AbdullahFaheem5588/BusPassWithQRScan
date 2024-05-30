@@ -24,7 +24,6 @@ const NotificationScreen = ({route}) => {
     'Check Out!': require('../assets/CheckOut.png'),
     'Check In!': require('../assets/CheckIn.png'),
     'Bus Arrived!': require('../assets/BusArrived.png'),
-    'Bus En-route!': require('../assets/BusEn-route.png'),
   };
   const markAllAsRead = async () => {
     try {

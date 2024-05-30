@@ -638,7 +638,6 @@ const ConductorTabs = ({route}) => {
           component={ConductorQrCodeScanner}
           initialParams={{userDetails: route.params.userDetails}}
           options={{
-            headerShown: false,
             tabBarIcon: ({focused}) => (
               <Image
                 source={

@@ -66,14 +66,6 @@ export const LocationServiceProvider = ({children}) => {
         const {latitude, longitude} = await getCurrentLocation();
         const loc = {latitude, longitude};
         setUserLocation(loc);
-
-        // const temp = isPointWithinRadius(
-        //   {latitude: 51.5175, longitude: 7.4678},
-        //   {latitude: 51.5175, longitude: 7.4678},
-        //   50,
-        // );
-        // console.log(temp);
-        // console.log(userLocation);
       }
     } catch (error) {
       console.error('Error obtaining user location:', error);

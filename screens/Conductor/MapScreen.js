@@ -113,6 +113,18 @@ const MapScreen = ({route}) => {
               reachedAtStop(stop.Id, stop.Route);
             });
           }
+          const uniWithinRadius = isPointWithinRadius(
+            {
+              latitude: userLocation.latitude,
+              longitude: userLocation.longitude,
+            },
+            {
+              latitude: unicords.latitude,
+              longitude: unicords.longitude,
+            },
+            500,
+          );
+          if (uniWithinRadius) reachedAtStop(0, selectedRoute);
         } else {
           console.log('Error updating bus location!');
         }
@@ -141,8 +153,6 @@ const MapScreen = ({route}) => {
         const data = await response.json();
         setSelectedRoute(data.RouteId);
         setSelectedRouteStops(data.Stops);
-      } else {
-        console.log('Error!');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -175,12 +185,12 @@ const MapScreen = ({route}) => {
       }
     };
 
-    if (selectedRoute === 0) GetStartedRoute();
-
     const intervalId = setInterval(() => {
       checkJourneyCompletion();
+      if (selectedRoute === 0) GetStartedRoute();
+      console.log('Is Journey Completed: ', isJourneyCompleted);
       if (isJourneyCompleted) {
-        setSelectedRoute(Number);
+        setSelectedRoute(0);
         setSelectedRouteStops([]);
         setSelectedStopDetails({});
       }
@@ -244,6 +254,7 @@ const MapScreen = ({route}) => {
       if (response.ok) {
         const data = await response.json();
         console.log(data);
+        setJourneyPopupVisible(false); // Move this line here to ensure the modal closes after successful journey start
       } else {
         console.error('An unexpected error occurred. Please try again.');
       }
@@ -251,7 +262,6 @@ const MapScreen = ({route}) => {
       console.error('Error:', error);
       Alert.alert('Error', 'An unexpected error occurred. Please try again.');
     }
-    setJourneyPopupVisible(false);
   };
 
   return (
@@ -281,16 +291,31 @@ const MapScreen = ({route}) => {
                 longitude: parseFloat(stop.Longitude),
               }))}
               apikey={GoogleMapKey}
-              strokeColor="#d883ff"
-              strokeWidth={5}
+              strokeWidth={3}
+              strokeColor="hotpink"
+              optimizeWaypoints={true}
+              onReady={result => {
+                mapView.current.fitToCoordinates(result.coordinates, {
+                  edgePadding: {
+                    right: width / 20,
+                    bottom: height / 20,
+                    left: width / 20,
+                    top: height / 20,
+                  },
+                });
+              }}
+              onError={errorMessage => {
+                console.error('GOT AN ERROR', errorMessage);
+              }}
             />
-            {selectedRouteStops.map((stop, index) => (
+            {selectedRouteStops.map(stop => (
               <Marker
-                key={index}
+                key={stop.Id}
                 coordinate={{
                   latitude: parseFloat(stop.Latitude),
                   longitude: parseFloat(stop.Longitude),
                 }}
+                title={stop.StopTitle}
                 onPress={() => handleStopPopupVisibility(stop.Id)}
                 image={require('../../assets/BusStopMapMarker.png')}
               />

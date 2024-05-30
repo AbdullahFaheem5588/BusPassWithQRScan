@@ -7,9 +7,11 @@ import {
   Dimensions,
   Image,
   TouchableOpacity,
+  ToastAndroid,
 } from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import {PermissionsAndroid} from 'react-native';
+import Api_url from '../../Helper/URL';
 
 const {width, height} = Dimensions.get('window');
 
@@ -33,8 +35,10 @@ async function requestCameraPermission() {
   }
 }
 
-const QrCodeScanner = () => {
+const QrCodeScanner = ({route}) => {
+  const userDetails = route.params.userDetails;
   const [modalVisible, setModalVisible] = useState(false);
+  const [studentDetails, setStudentDetails] = useState({});
   const [PassStatus, setPassStatus] = useState('');
   const scannerRef = useRef(null);
 
@@ -42,10 +46,47 @@ const QrCodeScanner = () => {
     requestCameraPermission();
   }, []);
 
-  const onSuccess = e => {
-    console.log('Scanned');
-    setPassStatus(e.data);
-    setModalVisible(true);
+  const onSuccess = async e => {
+    try {
+      let passId;
+      if (typeof e.data === 'string' && e.data.length >= 18) {
+        const passIdString = e.data.substring(18);
+
+        if (!isNaN(passIdString)) {
+          passId = parseInt(passIdString);
+          const response = await fetch(
+            `${Api_url}/Conductor/ScanQrCode?passId=${passId}&busId=${userDetails.BusId}`,
+            {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            },
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log(data);
+            setStudentDetails(data);
+            setModalVisible(true);
+          } else {
+            const data = await response.json();
+            ToastAndroid.show(data, ToastAndroid.SHORT);
+            reactivateScanner();
+          }
+        } else {
+          ToastAndroid.show('Invalid Pass!', ToastAndroid.SHORT);
+          reactivateScanner();
+        }
+      } else {
+        ToastAndroid.show('Invalid Pass!', ToastAndroid.SHORT);
+        reactivateScanner();
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      reactivateScanner();
+    }
   };
 
   const reactivateScanner = () => {
@@ -70,419 +111,424 @@ const QrCodeScanner = () => {
           reactivateScanner();
         }}>
         <View style={styles.modalContainer}>
-          {PassStatus === 'Active' ? (
-            <View style={styles.ContentContainer}>
-              <Image
-                source={require('../../assets/ActivePass.png')}
-                style={styles.passImage}
-              />
-              <Text style={styles.passStatusText}>Pass Status: Active</Text>
-              <View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginTop: height * 0.03,
-                  }}>
+          {!studentDetails || typeof studentDetails === 'object' ? (
+            studentDetails.PassStatus === 'Active' ? (
+              <View style={styles.ContentContainer}>
+                <Image
+                  source={require('../../assets/ActivePass.png')}
+                  style={styles.passImage}
+                />
+                <Text style={styles.passStatusText}>
+                  Pass Status: {studentDetails.PassStatus}
+                </Text>
+                <View>
                   <View
                     style={{
-                      marginLeft: 10,
-                      width: width * 0.45,
-                      height: height * 0.1,
-                      borderRightWidth: 1,
-                      borderColor: 'white',
-                      borderBottomWidth: 2,
-                      justifyContent: 'center',
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      marginTop: height * 0.03,
                     }}>
-                    <Text
+                    <View
                       style={{
-                        fontSize: width * 0.038,
-                        color: 'white',
-                        alignSelf: 'center',
-                        marginTop: 5,
+                        marginLeft: 10,
+                        width: width * 0.45,
+                        height: height * 0.1,
+                        borderRightWidth: 1,
+                        borderColor: 'white',
+                        borderBottomWidth: 2,
+                        justifyContent: 'center',
                       }}>
-                      Student Name
-                    </Text>
-                    <Text
+                      <Text
+                        style={{
+                          fontSize: width * 0.038,
+                          color: 'white',
+                          alignSelf: 'center',
+                          marginTop: 5,
+                        }}>
+                        Student Name
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: width * 0.05,
+                          fontWeight: 'bold',
+                          color: 'white',
+                          alignSelf: 'center',
+                        }}>
+                        {studentDetails.Name || 'N/A'}
+                      </Text>
+                    </View>
+                    <View
                       style={{
-                        fontSize: width * 0.05,
-                        fontWeight: 'bold',
-                        color: 'white',
-                        alignSelf: 'center',
+                        marginRight: 10,
+                        width: width * 0.45,
+                        height: height * 0.1,
+                        borderLeftWidth: 1,
+                        borderBottomWidth: 2,
+                        borderColor: 'white',
+                        justifyContent: 'center',
                       }}>
-                      Abdullah Faheem
-                    </Text>
+                      <Text
+                        style={{
+                          fontSize: width * 0.038,
+                          color: 'white',
+                          alignSelf: 'center',
+                          marginTop: 5,
+                        }}>
+                        Registration No
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: width * 0.05,
+                          fontWeight: 'bold',
+                          color: 'white',
+                          alignSelf: 'center',
+                        }}>
+                        {studentDetails.RegNo || 'N/A'}
+                      </Text>
+                    </View>
                   </View>
                   <View
                     style={{
-                      marginRight: 10,
-                      width: width * 0.45,
-                      height: height * 0.1,
-                      borderLeftWidth: 1,
-                      borderBottomWidth: 2,
-                      borderColor: 'white',
-                      justifyContent: 'center',
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
                     }}>
-                    <Text
+                    <View
                       style={{
-                        fontSize: width * 0.038,
-                        color: 'white',
-                        alignSelf: 'center',
-                        marginTop: 5,
+                        marginLeft: 10,
+                        width: width * 0.45,
+                        height: height * 0.1,
+                        borderRightWidth: 1,
+                        borderColor: 'white',
+                        borderBottomWidth: 2,
+                        justifyContent: 'center',
                       }}>
-                      Registration No
-                    </Text>
-                    <Text
+                      <Text
+                        style={{
+                          fontSize: width * 0.038,
+                          color: 'white',
+                          alignSelf: 'center',
+                          marginTop: 5,
+                        }}>
+                        Remaining Journeys
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: width * 0.05,
+                          fontWeight: 'bold',
+                          color: 'white',
+                          alignSelf: 'center',
+                        }}>
+                        {studentDetails.RemainingJourneys || 'N/A'}
+                      </Text>
+                    </View>
+                    <View
                       style={{
-                        fontSize: width * 0.05,
-                        fontWeight: 'bold',
-                        color: 'white',
-                        alignSelf: 'center',
+                        marginRight: 10,
+                        width: width * 0.45,
+                        height: height * 0.1,
+                        borderLeftWidth: 1,
+                        borderBottomWidth: 2,
+                        borderColor: 'white',
+                        justifyContent: 'center',
                       }}>
-                      2020-Arid-3587
-                    </Text>
-                  </View>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <View
-                    style={{
-                      marginLeft: 10,
-                      width: width * 0.45,
-                      height: height * 0.1,
-                      borderRightWidth: 1,
-                      borderColor: 'white',
-                      borderBottomWidth: 2,
-                      justifyContent: 'center',
-                    }}>
-                    <Text
-                      style={{
-                        fontSize: width * 0.038,
-                        color: 'white',
-                        alignSelf: 'center',
-                        marginTop: 5,
-                      }}>
-                      Remaining Journeys
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: width * 0.05,
-                        fontWeight: 'bold',
-                        color: 'white',
-                        alignSelf: 'center',
-                      }}>
-                      20
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      marginRight: 10,
-                      width: width * 0.45,
-                      height: height * 0.1,
-                      borderLeftWidth: 1,
-                      borderBottomWidth: 2,
-                      borderColor: 'white',
-                      justifyContent: 'center',
-                    }}>
-                    <Text
-                      style={{
-                        fontSize: width * 0.038,
-                        color: 'white',
-                        alignSelf: 'center',
-                        marginTop: 5,
-                      }}>
-                      Gender
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: width * 0.05,
-                        fontWeight: 'bold',
-                        color: 'white',
-                        alignSelf: 'center',
-                      }}>
-                      Male
-                    </Text>
-                  </View>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <View
-                    style={{
-                      marginLeft: 10,
-                      width: width * 0.45,
-                      height: height * 0.1,
-                      borderRightWidth: 1,
-                      borderColor: 'white',
-                      justifyContent: 'center',
-                    }}>
-                    <Text
-                      style={{
-                        fontSize: width * 0.038,
-                        color: 'white',
-                        alignSelf: 'center',
-                        marginTop: 5,
-                      }}>
-                      Pass ID
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: width * 0.05,
-                        fontWeight: 'bold',
-                        color: 'white',
-                        alignSelf: 'center',
-                      }}>
-                      1200
-                    </Text>
+                      <Text
+                        style={{
+                          fontSize: width * 0.038,
+                          color: 'white',
+                          alignSelf: 'center',
+                          marginTop: 5,
+                        }}>
+                        Gender
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: width * 0.05,
+                          fontWeight: 'bold',
+                          color: 'white',
+                          alignSelf: 'center',
+                        }}>
+                        {studentDetails.Gender || 'N/A'}
+                      </Text>
+                    </View>
                   </View>
                   <View
                     style={{
-                      marginRight: 10,
-                      width: width * 0.45,
-                      height: height * 0.1,
-                      borderLeftWidth: 1,
-                      borderColor: 'white',
-                      justifyContent: 'center',
-                      marginBottom: 20,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
                     }}>
-                    <Text
+                    <View
                       style={{
-                        fontSize: width * 0.038,
-                        color: 'white',
-                        alignSelf: 'center',
-                        marginTop: 5,
+                        marginLeft: 10,
+                        width: width * 0.45,
+                        height: height * 0.1,
+                        borderRightWidth: 1,
+                        borderColor: 'white',
+                        justifyContent: 'center',
                       }}>
-                      Pass Expiry
-                    </Text>
-                    <Text
+                      <Text
+                        style={{
+                          fontSize: width * 0.038,
+                          color: 'white',
+                          alignSelf: 'center',
+                          marginTop: 5,
+                        }}>
+                        Pass ID
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: width * 0.05,
+                          fontWeight: 'bold',
+                          color: 'white',
+                          alignSelf: 'center',
+                        }}>
+                        {studentDetails.PassId || 'N/A'}
+                      </Text>
+                    </View>
+                    <View
                       style={{
-                        fontSize: width * 0.05,
-                        fontWeight: 'bold',
-                        color: 'white',
-                        alignSelf: 'center',
+                        marginRight: 10,
+                        width: width * 0.45,
+                        height: height * 0.1,
+                        borderLeftWidth: 1,
+                        borderColor: 'white',
+                        justifyContent: 'center',
+                        marginBottom: 20,
                       }}>
-                      01/12/2025
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-          ) : PassStatus === 'In-Active' ? (
-            <View style={styles.ContentContainer}>
-              <Image
-                source={require('../../assets/InActivePass.png')}
-                style={styles.passImage}
-              />
-              <Text style={styles.passStatusText}>Pass Status: In-Active</Text>
-              <View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginTop: height * 0.03,
-                  }}>
-                  <View
-                    style={{
-                      marginLeft: 10,
-                      width: width * 0.45,
-                      height: height * 0.1,
-                      borderRightWidth: 1,
-                      borderColor: 'white',
-                      borderBottomWidth: 2,
-                      justifyContent: 'center',
-                    }}>
-                    <Text
-                      style={{
-                        fontSize: width * 0.038,
-                        color: 'white',
-                        alignSelf: 'center',
-                        marginTop: 5,
-                      }}>
-                      Student Name
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: width * 0.05,
-                        fontWeight: 'bold',
-                        color: 'white',
-                        alignSelf: 'center',
-                      }}>
-                      Abdullah Faheem
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      marginRight: 10,
-                      width: width * 0.45,
-                      height: height * 0.1,
-                      borderLeftWidth: 1,
-                      borderBottomWidth: 2,
-                      borderColor: 'white',
-                      justifyContent: 'center',
-                    }}>
-                    <Text
-                      style={{
-                        fontSize: width * 0.038,
-                        color: 'white',
-                        alignSelf: 'center',
-                        marginTop: 5,
-                      }}>
-                      Registration No
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: width * 0.05,
-                        fontWeight: 'bold',
-                        color: 'white',
-                        alignSelf: 'center',
-                      }}>
-                      2020-Arid-3587
-                    </Text>
-                  </View>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <View
-                    style={{
-                      marginLeft: 10,
-                      width: width * 0.45,
-                      height: height * 0.1,
-                      borderRightWidth: 1,
-                      borderColor: 'white',
-                      borderBottomWidth: 2,
-                      justifyContent: 'center',
-                    }}>
-                    <Text
-                      style={{
-                        fontSize: width * 0.038,
-                        color: 'white',
-                        alignSelf: 'center',
-                        marginTop: 5,
-                      }}>
-                      Remaining Journeys
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: width * 0.05,
-                        fontWeight: 'bold',
-                        color: 'white',
-                        alignSelf: 'center',
-                      }}>
-                      0
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      marginRight: 10,
-                      width: width * 0.45,
-                      height: height * 0.1,
-                      borderLeftWidth: 1,
-                      borderBottomWidth: 2,
-                      borderColor: 'white',
-                      justifyContent: 'center',
-                    }}>
-                    <Text
-                      style={{
-                        fontSize: width * 0.038,
-                        color: 'white',
-                        alignSelf: 'center',
-                        marginTop: 5,
-                      }}>
-                      Gender
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: width * 0.05,
-                        fontWeight: 'bold',
-                        color: 'white',
-                        alignSelf: 'center',
-                      }}>
-                      Male
-                    </Text>
-                  </View>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <View
-                    style={{
-                      marginLeft: 10,
-                      width: width * 0.45,
-                      height: height * 0.1,
-                      borderRightWidth: 1,
-                      borderColor: 'white',
-                      justifyContent: 'center',
-                    }}>
-                    <Text
-                      style={{
-                        fontSize: width * 0.038,
-                        color: 'white',
-                        alignSelf: 'center',
-                        marginTop: 5,
-                      }}>
-                      Pass ID
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: width * 0.05,
-                        fontWeight: 'bold',
-                        color: 'white',
-                        alignSelf: 'center',
-                      }}>
-                      1200
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      marginRight: 10,
-                      width: width * 0.45,
-                      height: height * 0.1,
-                      borderLeftWidth: 1,
-                      borderColor: 'white',
-                      justifyContent: 'center',
-                      marginBottom: 20,
-                    }}>
-                    <Text
-                      style={{
-                        fontSize: width * 0.038,
-                        color: 'white',
-                        alignSelf: 'center',
-                        marginTop: 5,
-                      }}>
-                      Pass Expiry
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: width * 0.05,
-                        fontWeight: 'bold',
-                        color: 'white',
-                        alignSelf: 'center',
-                      }}>
-                      01/12/2023
-                    </Text>
+                      <Text
+                        style={{
+                          fontSize: width * 0.038,
+                          color: 'white',
+                          alignSelf: 'center',
+                          marginTop: 5,
+                        }}>
+                        Pass Expiry
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: width * 0.05,
+                          fontWeight: 'bold',
+                          color: 'white',
+                          alignSelf: 'center',
+                        }}>
+                        {studentDetails.PassExpiry
+                          ? studentDetails.PassExpiry.substring(0, 10)
+                          : 'N/A'}
+                      </Text>
+                    </View>
                   </View>
                 </View>
               </View>
-            </View>
+            ) : (
+              <View style={styles.ContentContainer}>
+                <Image
+                  source={require('../../assets/InActivePass.png')}
+                  style={styles.passImage}
+                />
+                <Text style={styles.passStatusText}>
+                  Pass Status: {studentDetails.PassStatus}
+                </Text>
+                <View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      marginTop: height * 0.03,
+                    }}>
+                    <View
+                      style={{
+                        marginLeft: 10,
+                        width: width * 0.45,
+                        height: height * 0.1,
+                        borderRightWidth: 1,
+                        borderColor: 'white',
+                        borderBottomWidth: 2,
+                        justifyContent: 'center',
+                      }}>
+                      <Text
+                        style={{
+                          fontSize: width * 0.038,
+                          color: 'white',
+                          alignSelf: 'center',
+                          marginTop: 5,
+                        }}>
+                        Student Name
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: width * 0.05,
+                          fontWeight: 'bold',
+                          color: 'white',
+                          alignSelf: 'center',
+                        }}>
+                        {studentDetails.Name || 'N/A'}
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        marginRight: 10,
+                        width: width * 0.45,
+                        height: height * 0.1,
+                        borderLeftWidth: 1,
+                        borderBottomWidth: 2,
+                        borderColor: 'white',
+                        justifyContent: 'center',
+                      }}>
+                      <Text
+                        style={{
+                          fontSize: width * 0.038,
+                          color: 'white',
+                          alignSelf: 'center',
+                          marginTop: 5,
+                        }}>
+                        Registration No
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: width * 0.05,
+                          fontWeight: 'bold',
+                          color: 'white',
+                          alignSelf: 'center',
+                        }}>
+                        {studentDetails.RegNo || 'N/A'}
+                      </Text>
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <View
+                      style={{
+                        marginLeft: 10,
+                        width: width * 0.45,
+                        height: height * 0.1,
+                        borderRightWidth: 1,
+                        borderColor: 'white',
+                        borderBottomWidth: 2,
+                        justifyContent: 'center',
+                      }}>
+                      <Text
+                        style={{
+                          fontSize: width * 0.038,
+                          color: 'white',
+                          alignSelf: 'center',
+                          marginTop: 5,
+                        }}>
+                        Remaining Journeys
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: width * 0.05,
+                          fontWeight: 'bold',
+                          color: 'white',
+                          alignSelf: 'center',
+                        }}>
+                        {studentDetails.RemainingJourneys || 'N/A'}
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        marginRight: 10,
+                        width: width * 0.45,
+                        height: height * 0.1,
+                        borderLeftWidth: 1,
+                        borderBottomWidth: 2,
+                        borderColor: 'white',
+                        justifyContent: 'center',
+                      }}>
+                      <Text
+                        style={{
+                          fontSize: width * 0.038,
+                          color: 'white',
+                          alignSelf: 'center',
+                          marginTop: 5,
+                        }}>
+                        Gender
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: width * 0.05,
+                          fontWeight: 'bold',
+                          color: 'white',
+                          alignSelf: 'center',
+                        }}>
+                        {studentDetails.Gender || 'N/A'}
+                      </Text>
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <View
+                      style={{
+                        marginLeft: 10,
+                        width: width * 0.45,
+                        height: height * 0.1,
+                        borderRightWidth: 1,
+                        borderColor: 'white',
+                        justifyContent: 'center',
+                      }}>
+                      <Text
+                        style={{
+                          fontSize: width * 0.038,
+                          color: 'white',
+                          alignSelf: 'center',
+                          marginTop: 5,
+                        }}>
+                        Pass ID
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: width * 0.05,
+                          fontWeight: 'bold',
+                          color: 'white',
+                          alignSelf: 'center',
+                        }}>
+                        {studentDetails.PassId || 'N/A'}
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        marginRight: 10,
+                        width: width * 0.45,
+                        height: height * 0.1,
+                        borderLeftWidth: 1,
+                        borderColor: 'white',
+                        justifyContent: 'center',
+                        marginBottom: 20,
+                      }}>
+                      <Text
+                        style={{
+                          fontSize: width * 0.038,
+                          color: 'white',
+                          alignSelf: 'center',
+                          marginTop: 5,
+                        }}>
+                        Pass Expiry
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: width * 0.05,
+                          fontWeight: 'bold',
+                          color: 'white',
+                          alignSelf: 'center',
+                        }}>
+                        {studentDetails.PassExpiry
+                          ? studentDetails.PassExpiry.substring(0, 10)
+                          : 'N/A'}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            )
           ) : (
-            <View style={styles.ContentContainer}>
-              <Image
-                source={require('../../assets/InActivePass.png')}
-                style={styles.passImage}
-              />
-              <Text style={styles.passStatusText}>Pass Status: In-Valid</Text>
-            </View>
+            <View></View>
           )}
+
           <TouchableOpacity
             onPress={() => {
               setModalVisible(false);
