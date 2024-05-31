@@ -34,7 +34,7 @@ const ProfileScreen = ({route}) => {
             marginTop: height * 0.001,
             alignSelf: 'center',
           }}>
-          Ahmed Shehbaz
+          {userDetails.Name}
         </Text>
         <View>
           <View
@@ -69,7 +69,7 @@ const ProfileScreen = ({route}) => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                03345207788
+                {userDetails.Contact}
               </Text>
             </View>
             <View
@@ -89,7 +89,7 @@ const ProfileScreen = ({route}) => {
                   alignSelf: 'center',
                   marginTop: 5,
                 }}>
-                Bus No
+                Bus Registration No
               </Text>
               <Text
                 style={{
@@ -98,7 +98,7 @@ const ProfileScreen = ({route}) => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                RWP-1122
+                {userDetails.BusRegNo}
               </Text>
             </View>
           </View>
@@ -132,7 +132,7 @@ const ProfileScreen = ({route}) => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                0001
+                {userDetails.Id}
               </Text>
             </View>
             <View
@@ -161,7 +161,7 @@ const ProfileScreen = ({route}) => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                AhmedShehbaz_0001@Biit.edu.pk
+                {userDetails.UserName}
               </Text>
             </View>
           </View>
@@ -169,7 +169,9 @@ const ProfileScreen = ({route}) => {
       </View>
       <TouchableOpacity
         style={{marginTop: 15}}
-        onPress={() => navigation.navigate('History')}>
+        onPress={() =>
+          navigation.navigate('History', {UserId: userDetails.UserId})
+        }>
         <View style={styles.btn}>
           <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
             HISTORY

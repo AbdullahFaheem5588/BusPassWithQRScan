@@ -1,13 +1,5 @@
-import React, {useContext, useState, useEffect} from 'react';
-import {
-  Text,
-  View,
-  StyleSheet,
-  Image,
-  Dimensions,
-  ToastAndroid,
-  Alert,
-} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {Text, View, StyleSheet, Image, Dimensions, Alert} from 'react-native';
 import * as Progress from 'react-native-progress';
 import {enableScreens} from 'react-native-screens';
 import Api_url from '../../Helper/URL';
@@ -115,27 +107,25 @@ const Dashboard = ({route}) => {
   return (
     <View style={styles.container}>
       <View style={styles.progress}>
-        <>
-          <Progress.Circle
-            progress={bookedSeats / userDetails.TotalSeats}
-            size={width * 0.35}
-            showsText={true}
-            color="white"
-            borderWidth={width * 0.015}
-            borderColor="#2FAA98"
-            formatText={() => `${bookedSeats} / ${userDetails.TotalSeats}`}
-          />
-          <Text
-            style={{
-              fontSize: width * 0.035,
-              color: 'white',
-              alignSelf: 'center',
-              marginTop: -(width * 0.12),
-              marginBottom: width * 0.09,
-            }}>
-            Seats Booked
-          </Text>
-        </>
+        <Progress.Circle
+          progress={bookedSeats / userDetails.TotalSeats}
+          size={width * 0.35}
+          showsText={true}
+          color="white"
+          borderWidth={width * 0.015}
+          borderColor="#2FAA98"
+          formatText={() => `${bookedSeats} / ${userDetails.TotalSeats}`}
+        />
+        <Text
+          style={{
+            fontSize: width * 0.035,
+            color: 'white',
+            alignSelf: 'center',
+            marginTop: -(width * 0.12),
+            marginBottom: width * 0.09,
+          }}>
+          Seats Booked
+        </Text>
       </View>
       <View style={styles.MainContainer}>
         <View style={styles.Title}>

@@ -1,7 +1,6 @@
 import React, {createContext, useState, useEffect} from 'react';
 import {PermissionsAndroid, Platform} from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-import {isPointWithinRadius} from 'geolib';
 
 export const getCurrentLocation = () =>
   new Promise((resolve, reject) => {
