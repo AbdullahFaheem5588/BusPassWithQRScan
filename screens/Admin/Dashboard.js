@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   Text,
   View,
@@ -10,17 +10,15 @@ import {
 } from 'react-native';
 import * as Progress from 'react-native-progress';
 import {useNavigation} from '@react-navigation/native';
+import Api_url from '../../Helper/URL';
 
 const {width, height} = Dimensions.get('window');
 
 const Dashboard = () => {
   const [offset, setOffset] = useState(0);
-  const arr = ['Abdullah', 'Adeel', 'Umer', 'Zia'];
   const navigation = useNavigation();
   const scrollViewRef = useRef(null);
-  const [notificationIcon, setNotificationIcon] = useState(
-    require('../../assets/Notification-Focused.png'),
-  );
+  const [busDetails, setBusDetails] = useState([]);
 
   const handleScroll = event => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
@@ -28,22 +26,33 @@ const Dashboard = () => {
     setOffset(index);
   };
 
+  useEffect(() => {
+    const getBusDetails = async () => {
+      try {
+        const response = await fetch(`${Api_url}/Admin/GetBusDetails`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setBusDetails(data);
+        } else {
+          console.log(data);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      }
+    };
+    getBusDetails();
+  }, [busDetails]);
+
   return (
     <View style={styles.container}>
-      <View style={styles.progress}>
-        <Progress.Circle
-          progress={59 / 100}
-          size={200}
-          showsText={true}
-          color="white"
-          borderWidth={7}
-          borderColor="#2FAA98"
-          formatText={() => `${59} / ${100}`}
-        />
-        <Text style={styles.progressText}>Seats Booked</Text>
-      </View>
-      <View style={styles.MyFavStop}>
-        <View style={styles.MyFavStopTitle}>
+      <View style={styles.scrollViewContainer}>
+        <View style={styles.scrollViewTitle}>
           <Text style={styles.titleText}>Buses Seating Capacity</Text>
         </View>
         <ScrollView
@@ -53,34 +62,62 @@ const Dashboard = () => {
           showsHorizontalScrollIndicator={false}
           pagingEnabled={true}
           horizontalScrollEventThrottle={360}>
-          {arr &&
-            arr.map((item, ind) => (
+          {busDetails &&
+            busDetails.map((item, ind) => (
               <View key={ind} style={styles.favoriteStopContainer}>
-                <Text style={styles.favoriteStopText}>Bus # {ind + 1}</Text>
+                <View style={styles.progress}>
+                  <Progress.Circle
+                    progress={item.BookedSeats / item.TotalSeats}
+                    size={200}
+                    showsText={true}
+                    color="white"
+                    borderWidth={7}
+                    borderColor="#2FAA98"
+                    formatText={() =>
+                      `${item.BookedSeats} / ${item.TotalSeats}`
+                    }
+                  />
+                  <Text style={styles.progressText}>Seats Booked</Text>
+                </View>
+                <Text style={styles.busNoText}>Bus # {item.BusId}</Text>
                 <View style={styles.infoContainer}>
                   <View style={styles.infoBox}>
                     <Image
-                      source={require('../../assets/CheckIn.png')}
-                      style={styles.CheckInImage}
+                      source={require('../../assets/RouteNo.png')}
+                      style={{
+                        width: width * 0.04,
+                        height: height * 0.1,
+                        alignSelf: 'center',
+                        marginTop: width * 0.01,
+                      }}
                     />
-                    <Text style={styles.infoLabel}>Students Checked-In</Text>
-                    <Text style={styles.infoText}>11</Text>
+                    <Text style={styles.infoLabel}>Total Stops</Text>
+                    <Text style={styles.infoText}>
+                      {item.TotalStops ? item.TotalStops : ''}
+                    </Text>
                   </View>
                   <View style={[styles.infoBox, {marginRight: 10}]}>
                     <Image
-                      source={require('../../assets/Seats.png')}
-                      style={styles.SeatsImage}
+                      source={require('../../assets/RouteNo.png')}
+                      style={{
+                        width: width * 0.04,
+                        height: height * 0.1,
+                        alignSelf: 'center',
+                        marginTop: width * 0.01,
+                      }}
                     />
-                    <Text style={styles.infoLabel}>Remaining Seats</Text>
-                    <Text style={styles.infoText}>39</Text>
+                    <Text style={styles.infoLabel}>Remaining Stops</Text>
+                    <Text style={styles.infoText}>
+                      {item.TotalStops ? item.RemainingStops : ''}
+                    </Text>
                   </View>
                 </View>
               </View>
             ))}
         </ScrollView>
         <View style={styles.pageIndicatorContainer}>
-          {arr &&
-            arr.map((item, ind) => (
+          {busDetails &&
+            busDetails.map((item, ind) => (
               <View
                 key={ind}
                 style={[
@@ -111,6 +148,7 @@ const styles = StyleSheet.create({
   },
   progress: {
     alignItems: 'center',
+    marginTop: 10,
   },
   progressText: {
     fontSize: 18,
@@ -118,22 +156,22 @@ const styles = StyleSheet.create({
     marginTop: -70,
     marginBottom: 60,
   },
-  MyFavStop: {
+  scrollViewContainer: {
     backgroundColor: '#168070',
     width: width * 0.95,
     borderRadius: width * 0.075,
     elevation: width * 0.025,
   },
-  MyFavStopTitle: {
+  scrollViewTitle: {
     alignItems: 'center',
     backgroundColor: '#D9D9D9',
     width: width * 0.95,
     borderTopLeftRadius: width * 0.075,
     borderTopRightRadius: width * 0.075,
-    height: height * 0.035,
+    height: height * 0.045,
   },
   titleText: {
-    fontSize: width * 0.05,
+    fontSize: width * 0.06,
     fontWeight: 'bold',
     color: '#168070',
   },
@@ -155,12 +193,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginLeft: -5,
   },
-  favoriteStopText: {
+  busNoText: {
     fontSize: 25,
     fontWeight: 'bold',
     color: 'white',
     alignSelf: 'center',
-    marginTop: 10,
   },
   infoContainer: {
     flexDirection: 'row',

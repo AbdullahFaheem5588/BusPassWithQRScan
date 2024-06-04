@@ -462,6 +462,11 @@ const SearchAndUpdate = () => {
             inputStyles={{color: 'white'}}
             placeholder="Select Stops Here"
           />
+          <TouchableOpacity>
+            <View style={styles.btn}>
+              <Text style={styles.btnText}>UPDATE</Text>
+            </View>
+          </TouchableOpacity>
         </View>
       ) : (
         <View></View>

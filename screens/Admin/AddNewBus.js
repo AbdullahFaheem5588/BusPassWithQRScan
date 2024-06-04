@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
     elevation: width * 0.025,
     alignSelf: 'center',
     verticalAlign: 'middle',
-    marginTop: height * 0.15,
+    marginTop: height * 0.02,
     marginBottom: height * 0.02,
   },
   input: {

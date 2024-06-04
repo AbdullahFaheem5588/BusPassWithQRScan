@@ -22,7 +22,7 @@ const {width, height} = Dimensions.get('window');
 const MapScreen = ({route}) => {
   const userDetails = route.params.userDetails;
   const [loading, setLoading] = useState(true);
-  const [Stops, setStops] = useState([]);
+  const [Routes, setRoutes] = useState([]);
   const [busesCords, SetBusesCords] = useState([]);
   const [selectedStopId, setSelectedStopId] = useState([]);
   const [selectedStopsList, setSelectedStopsList] = useState([]);
@@ -56,7 +56,7 @@ const MapScreen = ({route}) => {
 
   const getAllBusesCords = async () => {
     try {
-      const response = await fetch(`${Api_url}/Student/GetBusesLocations`, {
+      const response = await fetch(`${Api_url}/Bus/GetBusesLocations`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -70,16 +70,20 @@ const MapScreen = ({route}) => {
     }
   };
 
-  const getAllStops = async () => {
+  const getAllRoutes = async () => {
     try {
-      const response = await fetch(`${Api_url}/Stops/GetAllStops`, {
+      const response = await fetch(`${Api_url}/Stops/GetAllRoutes`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
       });
       const data = await response.json();
-      setStops(data);
+      if (response.ok) {
+        setRoutes(data);
+      } else {
+        console.log(data);
+      }
     } catch (error) {
       console.error('Error:', error);
       Alert.alert('Error', 'An unexpected error occurred. Please try again.');
@@ -89,7 +93,7 @@ const MapScreen = ({route}) => {
   };
 
   useEffect(() => {
-    getAllStops();
+    getAllRoutes();
   }, []);
 
   useEffect(() => {
@@ -108,8 +112,8 @@ const MapScreen = ({route}) => {
   const handleStopPopupVisibility = id => {
     setSelectedStopId(id);
     setSelectedStopsList([]);
-    for (i = 0; i < Stops.length; i++) {
-      const stop = Stops[i].find(stop => stop.Id === id);
+    for (i = 0; i < Routes.length; i++) {
+      const stop = Routes[i].find(stop => stop.Id === id);
       if (stop) {
         setSelectedStopsList(prevSelectedStopsList => [
           ...prevSelectedStopsList,
@@ -144,7 +148,7 @@ const MapScreen = ({route}) => {
           title="Barani Institute of Information Technology"
           image={require('../../assets/UniMapMarker.png')}
         />
-        {Stops.map((routeStops, routeIndex) => (
+        {Routes.map((routeStops, routeIndex) => (
           <MapViewDirections
             key={routeIndex}
             origin={unicords}
@@ -158,7 +162,7 @@ const MapScreen = ({route}) => {
             strokeWidth={5}
           />
         ))}
-        {Stops.map((routeStops, routeIndex) =>
+        {Routes.map((routeStops, routeIndex) =>
           routeStops.map((stop, stopIndex) => (
             <Marker
               image={require('../../assets/BusStopMapMarker.png')}

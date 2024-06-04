@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   View,
   Text,
@@ -9,18 +9,23 @@ import {
   Dimensions,
   TextInput,
   Modal,
+  ActivityIndicator,
+  ToastAndroid,
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import GoogleMapKey from '../../GoogleMapKey';
 import MapViewDirections from 'react-native-maps-directions';
 import {MultipleSelectList} from 'react-native-dropdown-select-list';
+import Api_url from '../../Helper/URL';
+import convertToAMPM from '../../Helper/convertToAMPM';
 
 const {width, height} = Dimensions.get('window');
 
 const MapScreen = () => {
   const arr = ['Abdullah', 'Adeel', 'Umer', 'Zia'];
-  const [stopName, setStopName] = useState('');
-  const [routeName, setRouteName] = useState('');
+  const [newStopName, setNewStopName] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [newRouteName, setNewRouteName] = useState('');
   const scrollViewRef = useRef(null);
   const mapView = useRef();
   const [offset, setOffset] = useState(0);
@@ -30,45 +35,111 @@ const MapScreen = () => {
   const [AddStopVisible, setAddStopVisible] = useState(false);
   const [AddRouteVisible, setAddRouteVisible] = useState(false);
   const [selectedBusIndex, setselectedBusIndex] = useState(null);
-  const [selectedStops, SetSelectedStops] = useState([]);
-  const Stops = [
-    {key: '1', value: 'Saddar'},
-    {key: '2', value: 'Chandni Chowk'},
-    {key: '3', value: 'Rehmanabad'},
-    {key: '4', value: '6th Road'},
-  ];
+  const [stopPopupList, setStopPopupList] = useState([]);
+  const [newRouteStops, setNewRouteStops] = useState([]);
+  const [Routes, setRoutes] = useState([]);
+  const [Stops, setStops] = useState([]);
+  const [busesCords, setBusesCords] = useState([]);
+  const [longPressCords, setLongPressCords] = useState([]);
   const unicords = {
     latitude: 33.64340057674401,
     longitude: 73.0790521153456,
   };
-  const busesCords = [
-    {
-      Id: 1,
-      Title: 'Chandni Chowk - Saddar (8:30)',
-      Cords: {
-        latitude: 33.60626103098687,
-        longitude: 73.06594487798462,
-      },
-    },
-    {
-      Id: 2,
-      Title: 'Saddar - Chandni Chowk (4:30)',
-      Cords: {
-        latitude: 33.58619836860913,
-        longitude: 73.07261567925178,
-      },
-    },
-  ];
-  const stopsCords = [
-    {latitude: 33.62143941364173, longitude: 73.06649344534786},
-    {latitude: 33.61580806175649, longitude: 73.06536334223695},
-    {latitude: 33.61226103098687, longitude: 73.06514487798462},
-    {latitude: 33.59934934614757, longitude: 73.06264830651558},
-    {latitude: 33.592161870536664, longitude: 73.05439953778502},
-    {latitude: 33.585168200292784, longitude: 73.0645131331935},
-    {latitude: 33.59059836860913, longitude: 73.07861567925173},
-    {latitude: 33.59545700923111, longitude: 73.07889345288326},
-  ];
+  // const busesCords = [
+  //   {
+  //     BusId: 1,
+  //     RouteId: 1,
+  //     RouteTitle: 'Chandni Chowk - Saddar (8:30)',
+  //     Cords: {
+  //       latitude: 33.60626103098687,
+  //       longitude: 73.06594487798462,
+  //     },
+  //   },
+  //   {
+  //     BusId: 2,
+  //     RouteId: 2,
+  //     RouteTitle: 'Saddar - Chandni Chowk (4:30)',
+  //     Cords: {
+  //       latitude: 33.58619836860913,
+  //       longitude: 73.07261567925178,
+  //     },
+  //   },
+  // ];
+
+  const getAllRoutes = async () => {
+    try {
+      const response = await fetch(`${Api_url}/Stops/GetAllRoutes`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setRoutes(data);
+      } else {
+        console.log(data);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  const getAllStops = async () => {
+    try {
+      const response = await fetch(`${Api_url}/Stops/GetAllStops`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setStops([]);
+        data.map(item => {
+          setStops(prevState => [
+            ...prevState,
+            {key: item.Id, value: item.Name},
+          ]);
+        });
+      } else {
+        console.log(data);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getAllRoutes();
+  }, []);
+
+  const getAllBusesCords = async () => {
+    try {
+      const response = await fetch(`${Api_url}/Bus/GetBusesLocations`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      setBusesCords(data);
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
+  };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      getAllBusesCords();
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [busesCords]);
 
   const handleScroll = event => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
@@ -76,7 +147,17 @@ const MapScreen = () => {
     setOffset(index);
   };
 
-  const handleStopPopupVisibility = () => {
+  const handleStopPopupVisibility = id => {
+    setStopPopupList([]);
+    for (i = 0; i < Routes.length; i++) {
+      const stop = Routes[i].find(stop => stop.Id === id);
+      if (stop) {
+        setStopPopupList(prevSelectedStopsList => [
+          ...prevSelectedStopsList,
+          stop,
+        ]);
+      }
+    }
     setStopPopupVisible(!stopPopupVisible);
   };
 
@@ -90,24 +171,105 @@ const MapScreen = () => {
   const handleAddStopPopupVisibility = () => {
     setAddStopVisible(!AddStopVisible);
     setAddOptionsVisible(false);
+    setNewStopName('');
   };
   const handleAddRoutePopupVisibility = () => {
+    getAllStops();
     setAddRouteVisible(!AddRouteVisible);
     setAddOptionsVisible(false);
+    setNewRouteName('');
+    setNewRouteStops([]);
   };
   const handleLongPress = event => {
     const {coordinate} = event.nativeEvent;
+    setLongPressCords(coordinate);
     console.log('Long press detected at:', coordinate);
     handleAddPopupVisibility();
   };
-  const addNewStop = () => {
-    //Adding New Stop Code
-    handleAddStopPopupVisibility();
+  const addNewStop = async () => {
+    try {
+      if (newStopName.length > 0) {
+        const stop = {
+          name: newStopName,
+          latitude: longPressCords.latitude,
+          longitude: longPressCords.longitude,
+        };
+        const response = await fetch(`${Api_url}/Admin/InsertStop`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(stop),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          ToastAndroid.show(data, ToastAndroid.SHORT);
+          handleAddStopPopupVisibility();
+          getAllRoutes();
+        } else {
+          const data = await response.json();
+          console.log(data);
+        }
+      } else {
+        ToastAndroid.show(
+          'Please provide the neccessary details!',
+          ToastAndroid.SHORT,
+        );
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      handleAddStopPopupVisibility();
+    }
   };
-  const addNewRoute = () => {
-    //Adding New Route Code
-    handleAddRoutePopupVisibility();
+  const addNewRoute = async () => {
+    try {
+      if (newRouteName.length > 0 && newRouteStops.length > 0) {
+        const stops = newRouteStops.map(item => ({
+          Id: item,
+        }));
+        const route = {
+          RouteTitle: newRouteName,
+          Stops: stops,
+        };
+        const response = await fetch(`${Api_url}/Admin/InsertRoute`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(route),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          ToastAndroid.show(data, ToastAndroid.SHORT);
+          handleAddRoutePopupVisibility();
+          getAllRoutes();
+        } else {
+          const data = await response.json();
+          console.log(data);
+        }
+      } else {
+        ToastAndroid.show(
+          'Please provide the neccessary details!',
+          ToastAndroid.SHORT,
+        );
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      handleAddPopupVisibility();
+    }
   };
+
+  if (loading) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -126,21 +288,33 @@ const MapScreen = () => {
           title="Barani Institute of Information Technology"
           image={require('../../assets/UniMapMarker.png')}
         />
-        <MapViewDirections
-          origin={unicords}
-          destination={unicords}
-          waypoints={stopsCords}
-          apikey={GoogleMapKey}
-          strokeColor="#d883ff"
-          strokeWidth={5}
-        />
-        {stopsCords.map((waypoint, index) => (
-          <Marker
-            key={index}
-            coordinate={waypoint}
-            onPress={handleStopPopupVisibility}
+        {Routes.map((routeStops, routeIndex) => (
+          <MapViewDirections
+            key={routeIndex}
+            origin={unicords}
+            destination={unicords}
+            waypoints={routeStops.map(stop => ({
+              latitude: parseFloat(stop.Latitude),
+              longitude: parseFloat(stop.Longitude),
+            }))}
+            apikey={GoogleMapKey}
+            strokeColor="#d883ff"
+            strokeWidth={5}
           />
         ))}
+        {Routes.map((routeStops, routeIndex) =>
+          routeStops.map((stop, stopIndex) => (
+            <Marker
+              image={require('../../assets/BusStopMapMarker.png')}
+              key={stopIndex}
+              coordinate={{
+                latitude: parseFloat(stop.Latitude),
+                longitude: parseFloat(stop.Longitude),
+              }}
+              onPress={() => handleStopPopupVisibility(stop.Id)}
+            />
+          )),
+        )}
         {busesCords.map((location, index) => (
           <Marker
             key={index}
@@ -150,6 +324,7 @@ const MapScreen = () => {
           />
         ))}
       </MapView>
+
       <Modal
         animationType="fade"
         transparent={true}
@@ -165,8 +340,8 @@ const MapScreen = () => {
                 showsHorizontalScrollIndicator={false}
                 pagingEnabled={true}
                 horizontalScrollEventThrottle={width * 0.9}>
-                {arr &&
-                  arr.map((item, ind) => (
+                {stopPopupList &&
+                  stopPopupList.map((item, ind) => (
                     <View
                       key={ind}
                       style={{
@@ -186,8 +361,7 @@ const MapScreen = () => {
                           alignSelf: 'center',
                           marginTop: width * 0.025,
                         }}>
-                        {/*favStops[0].Name*/}
-                        Chandni Chowk
+                        {item.Name}
                       </Text>
                       <View
                         style={{
@@ -230,7 +404,7 @@ const MapScreen = () => {
                               color: 'white',
                               alignSelf: 'center',
                             }}>
-                            10
+                            {item.Route}
                           </Text>
                         </View>
                         <View
@@ -267,7 +441,7 @@ const MapScreen = () => {
                               color: 'white',
                               alignSelf: 'center',
                             }}>
-                            8:30
+                            {convertToAMPM(item.Timing)}
                           </Text>
                         </View>
                       </View>
@@ -280,8 +454,8 @@ const MapScreen = () => {
                   alignSelf: 'center',
                   marginBottom: 10,
                 }}>
-                {arr &&
-                  arr.map((item, ind) => (
+                {stopPopupList &&
+                  stopPopupList.map((item, ind) => (
                     <View
                       key={ind}
                       style={{
@@ -319,6 +493,7 @@ const MapScreen = () => {
           </View>
         )}
       </Modal>
+
       <Modal
         animationType="fade"
         transparent={true}
@@ -346,7 +521,7 @@ const MapScreen = () => {
                     alignSelf: 'center',
                     marginTop: width * 0.025,
                   }}>
-                  {busesCords[selectedBusIndex].Title}
+                  {busesCords[selectedBusIndex].RouteTitle}
                 </Text>
                 <View
                   style={{
@@ -389,7 +564,7 @@ const MapScreen = () => {
                         color: 'white',
                         alignSelf: 'center',
                       }}>
-                      10
+                      {busesCords[selectedBusIndex].RouteId}
                     </Text>
                   </View>
                   <View
@@ -426,7 +601,7 @@ const MapScreen = () => {
                         color: 'white',
                         alignSelf: 'center',
                       }}>
-                      {busesCords[selectedBusIndex].Id}
+                      {busesCords[selectedBusIndex].BusId}
                     </Text>
                   </View>
                 </View>
@@ -447,6 +622,7 @@ const MapScreen = () => {
           </View>
         )}
       </Modal>
+
       <Modal
         animationType="fade"
         transparent={true}
@@ -508,6 +684,7 @@ const MapScreen = () => {
           </View>
         )}
       </Modal>
+
       <Modal
         animationType="fade"
         transparent={true}
@@ -537,8 +714,8 @@ const MapScreen = () => {
                   </Text>
                   <TextInput
                     style={styles.input}
-                    onChangeText={setStopName}
-                    value={stopName}
+                    onChangeText={setNewStopName}
+                    value={newStopName}
                     placeholder="Name"
                     placeholderTextColor="white"
                     fontSize={width * 0.04}
@@ -573,6 +750,7 @@ const MapScreen = () => {
           </View>
         )}
       </Modal>
+
       <Modal
         animationType="fade"
         transparent={true}
@@ -602,14 +780,14 @@ const MapScreen = () => {
                   </Text>
                   <TextInput
                     style={styles.input}
-                    onChangeText={setRouteName}
-                    value={routeName}
+                    onChangeText={setNewRouteName}
+                    value={newRouteName}
                     placeholder="Name"
                     placeholderTextColor="white"
                     fontSize={width * 0.04}
                   />
                   <MultipleSelectList
-                    setSelected={SetSelectedStops}
+                    setSelected={setNewRouteStops}
                     data={Stops}
                     save="key"
                     label="Selected Stops"

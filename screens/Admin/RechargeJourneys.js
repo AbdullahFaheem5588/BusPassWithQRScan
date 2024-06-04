@@ -8,11 +8,13 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
+  ToastAndroid,
 } from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import {PermissionsAndroid} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {useNavigation} from '@react-navigation/native';
+import Api_url from '../../Helper/URL';
 
 const {width, height} = Dimensions.get('window');
 
@@ -41,18 +43,57 @@ const RechargeJourneys = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [PassStatus, setPassStatus] = useState('');
   const scannerRef = useRef(null);
+  date = new Date();
   const [journeyDetails, setJourneyDetials] = useState({
-    PassId: null,
-    NoOfJourneys: null,
-    PassExpiry: new Date(),
+    passId: '',
+    noOfJourneys: '',
+    passExpiry:
+      date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate(),
   });
   const [showExpiryDateOPicker, setShowExpiryDatePicker] = useState(false);
 
-  const addJourneys = () => {
-    //Add Journey Code Here
-    console.warn(journeyDetails);
-    setModalVisible(false);
-    navigation.goBack();
+  const addJourneys = async () => {
+    console.log(journeyDetails);
+    if (
+      Object.values(journeyDetails).every(value => {
+        if (typeof value === 'string') {
+          return value.length > 0;
+        } else {
+          return !!value;
+        }
+      })
+    ) {
+      try {
+        const response = await fetch(
+          `${Api_url}/Admin/RechargeJourneys?passId=${journeyDetails.passId}&noOfJourneys=${journeyDetails.noOfJourneys}&passExpiry=${journeyDetails.passExpiry}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          ToastAndroid.show(data, ToastAndroid.SHORT);
+          setModalVisible(false);
+          reactivateScanner();
+          navigation.goBack();
+        } else {
+          const data = await response.json();
+          console.log(data);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      }
+    } else {
+      ToastAndroid.show(
+        'Please provide the necessary details!',
+        ToastAndroid.SHORT,
+      );
+    }
   };
 
   const handleShowExpiryDateOPicker = () => {
@@ -61,8 +102,14 @@ const RechargeJourneys = () => {
   const handleExpiryDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || showExpiryDateOPicker.PassExpiry;
     setShowExpiryDatePicker(false);
+    formattedDate =
+      currentDate.getFullYear() +
+      '-' +
+      (currentDate.getMonth() + 1) +
+      '-' +
+      currentDate.getDate();
     const temp = {...journeyDetails};
-    temp.PassExpiry = currentDate;
+    temp.passExpiry = formattedDate;
     setJourneyDetials(temp);
   };
 
@@ -70,14 +117,48 @@ const RechargeJourneys = () => {
     requestCameraPermission();
   }, []);
 
-  const onSuccess = e => {
-    console.log('Scanned');
-    setJourneyDetials(prevState => ({
-      ...prevState,
-      PassId: e.data,
-    }));
-    setPassStatus(e.data);
-    setModalVisible(true);
+  const onSuccess = async e => {
+    try {
+      console.log('Scanned');
+      if (typeof e.data === 'string' && e.data.length >= 18) {
+        const passIdString = e.data.substring(18);
+
+        if (!isNaN(passIdString)) {
+          passId = parseInt(passIdString);
+          console.log(passId);
+          setJourneyDetials(prevState => ({
+            ...prevState,
+            passId: passId,
+          }));
+          const response = await fetch(
+            `${Api_url}/Admin/ValidatePass?passId=${passId}`,
+            {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            },
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log(data);
+            setPassStatus(data);
+            setModalVisible(true);
+          } else {
+            const data = await response.json();
+            setPassStatus(data);
+            setModalVisible(true);
+          }
+        }
+      } else {
+        ToastAndroid.show('Invalid Pass!', ToastAndroid.SHORT);
+        reactivateScanner();
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
   };
 
   const reactivateScanner = () => {
@@ -117,11 +198,11 @@ const RechargeJourneys = () => {
                   if (!isNaN(value)) {
                     setJourneyDetials(prevState => ({
                       ...prevState,
-                      NoOfJourneys: value,
+                      noOfJourneys: value,
                     }));
                   }
                 }}
-                value={journeyDetails.NoOfJourneys}
+                value={journeyDetails.noOfJourneys}
                 placeholder="No of Journeys"
                 placeholderTextColor="white"
                 fontSize={width * 0.04}
@@ -133,12 +214,12 @@ const RechargeJourneys = () => {
                 <View>
                   <TouchableOpacity onPress={handleShowExpiryDateOPicker}>
                     <Text style={styles.picker}>
-                      {journeyDetails.PassExpiry.toDateString()}
+                      {journeyDetails.passExpiry}
                     </Text>
                   </TouchableOpacity>
                   {showExpiryDateOPicker && (
                     <DateTimePicker
-                      value={journeyDetails.PassExpiry}
+                      value={new Date(journeyDetails.passExpiry)}
                       mode="date"
                       display="default"
                       onChange={handleExpiryDateChange}
@@ -157,6 +238,11 @@ const RechargeJourneys = () => {
               <Text style={styles.passStatusText}>Pass Status: In-Valid</Text>
             </View>
           )}
+          <TouchableOpacity onPress={addJourneys}>
+            <View style={styles.btn}>
+              <Text style={styles.btnText}>ADD</Text>
+            </View>
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
               setModalVisible(false);

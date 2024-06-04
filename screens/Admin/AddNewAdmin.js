@@ -6,12 +6,16 @@ import {
   TextInput,
   TouchableOpacity,
   Dimensions,
+  ToastAndroid,
 } from 'react-native';
 import {SelectList} from 'react-native-dropdown-select-list';
+import Api_url from '../../Helper/URL';
+import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
 const AddNewAdmin = () => {
+  const navigation = useNavigation();
   const Genders = [
     {key: 1, value: 'Male'},
     {Key: 2, value: 'Female'},
@@ -22,6 +26,44 @@ const AddNewAdmin = () => {
     Password: '',
     Gender: '',
   });
+
+  const addNewAdmin = async () => {
+    try {
+      if (
+        Object.values(adminDetails).every(
+          value => typeof value === 'string' && value.trim() !== '',
+        )
+      ) {
+        const response = await fetch(`${Api_url}/Users/InsertAdmin`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(adminDetails),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          navigation.goBack();
+          ToastAndroid.show(data, ToastAndroid.SHORT);
+        } else {
+          const data = await response.json();
+          console.log(data);
+          return;
+        }
+      } else {
+        ToastAndroid.show(
+          'Please provide the necessary details!',
+          ToastAndroid.SHORT,
+        );
+        return;
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.FormContainer}>
@@ -108,7 +150,7 @@ const AddNewAdmin = () => {
           }}
         />
       </View>
-      <TouchableOpacity onPress={()=> console.warn(adminDetails)}>
+      <TouchableOpacity onPress={addNewAdmin}>
         <View style={styles.btn}>
           <Text style={styles.btnText}>ADD</Text>
         </View>
@@ -121,7 +163,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#168070',
-    justifyContent:'center',
+    justifyContent: 'center',
   },
   FormContainer: {
     backgroundColor: '#168070',

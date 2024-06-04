@@ -94,15 +94,15 @@ const Dashboard = ({route}) => {
 
   useEffect(() => {
     getNextStop();
-  }, [nextStop]);
+  }, []);
 
   useEffect(() => {
     getRemainingStops();
-  }, [routeDetails]);
+  }, []);
 
   useEffect(() => {
     getBookedSeats();
-  }, [bookedSeats]);
+  }, []);
 
   return (
     <View style={styles.container}>

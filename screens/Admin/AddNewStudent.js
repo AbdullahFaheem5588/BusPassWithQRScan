@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -7,18 +7,20 @@ import {
   TouchableOpacity,
   Dimensions,
   ScrollView,
+  ToastAndroid,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {SelectList} from 'react-native-dropdown-select-list';
+import Api_url from '../../Helper/URL';
+import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
 const AddNewStudent = () => {
+  const navigation = useNavigation();
   const [newOrOldParent, setNewOrOldParent] = useState('');
-  const ParentIdsFromDB = [
-    {key: 1, value: 'Kh Faheem Akhtar'},
-    {key: 2, value: 'Basar Khan'},
-  ];
+  const [parentsFromDB, setParentsFromDB] = useState([]);
+  const [parentInserted, setParentInserted] = useState(false);
   const ParentSelection = [
     {key: 1, value: 'New Parent'},
     {Key: 2, value: 'Existing Parent'},
@@ -32,7 +34,7 @@ const AddNewStudent = () => {
     RegNo: '',
     Contact: '',
     Password: '',
-    TotalJourneys: null,
+    TotalJourneys: '',
     PassExpiry: new Date(),
     Gender: '',
     ParentId: '',
@@ -43,6 +45,121 @@ const AddNewStudent = () => {
     Password: '',
   });
   const [showExpiryDateOPicker, setShowExpiryDatePicker] = useState(false);
+
+  useEffect(() => {
+    const GetAllParents = async () => {
+      try {
+        const response = await fetch(`${Api_url}/Users/GetAllParents`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setParentsFromDB([]);
+          data.map(item => {
+            setParentsFromDB(prevState => [
+              ...prevState,
+              {key: item.Id, value: item.Name},
+            ]);
+          });
+        } else {
+          console.log(data);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      }
+    };
+    GetAllParents();
+  }, []);
+
+  const addNewStudent = async () => {
+    try {
+      if (newOrOldParent === 'New Parent') {
+        if (
+          Object.values(parentDetails).every(
+            value => typeof value === 'string' && value.trim() !== '',
+          )
+        ) {
+          const response = await fetch(`${Api_url}/Users/InsertParent`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(parentDetails),
+          });
+
+          if (response.ok) {
+            const newParentId = await response.json();
+            setStudentDetails(prevState => ({
+              ...prevState,
+              ParentId: newParentId,
+            }));
+            setParentInserted(true);
+          } else {
+            const data = await response.json();
+            console.log(data);
+            return;
+          }
+        } else {
+          ToastAndroid.show(
+            'Please provide the necessary details!',
+            ToastAndroid.SHORT,
+          );
+          return;
+        }
+      } else {
+        setParentInserted(true);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
+  };
+
+  useEffect(() => {
+    if (parentInserted) {
+      insertStudent();
+    }
+  }, [parentInserted, studentDetails]);
+
+  const insertStudent = async () => {
+    try {
+      if (
+        Object.values(studentDetails).every(value =>
+          typeof value === 'string' ? value.trim() !== '' : value !== '',
+        )
+      ) {
+        const response = await fetch(`${Api_url}/Users/InsertStudent`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(studentDetails),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          navigation.goBack();
+          ToastAndroid.show(data, ToastAndroid.SHORT);
+        } else {
+          const data = await response.json();
+          console.log(data);
+        }
+      } else {
+        ToastAndroid.show(
+          'Please provide the necessary details!',
+          ToastAndroid.SHORT,
+        );
+      }
+      setParentInserted(false);
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
+  };
 
   const handleShowExpiryDateOPicker = () => {
     setShowExpiryDatePicker(true);
@@ -121,8 +238,8 @@ const AddNewStudent = () => {
         <TextInput
           style={styles.input}
           keyboardType="numeric"
-          onChangeText={e => {
-            const value = parseInt(e, 10);
+          onChangeText={text => {
+            const value = parseInt(text, 10);
             if (!isNaN(value)) {
               setStudentDetails(prevState => ({
                 ...prevState,
@@ -130,7 +247,7 @@ const AddNewStudent = () => {
               }));
             }
           }}
-          value={studentDetails.TotalJourneys}
+          value={studentDetails.TotalJourneys.toString()}
           placeholder="Total Journeys"
           placeholderTextColor="white"
           fontSize={width * 0.04}
@@ -287,11 +404,11 @@ const AddNewStudent = () => {
             setSelected={val => {
               setStudentDetails({
                 ...studentDetails,
-                ParentId: val,
+                ParentId: parseInt(val),
               });
             }}
-            data={ParentIdsFromDB}
-            save="value"
+            data={parentsFromDB}
+            save="key"
             searchPlaceholder="Search By Name"
             placeholder="Select Existing Parent"
             inputStyles={{color: 'white'}}
@@ -321,7 +438,7 @@ const AddNewStudent = () => {
       ) : (
         <View></View>
       )}
-      <TouchableOpacity>
+      <TouchableOpacity onPress={addNewStudent}>
         <View style={styles.btn}>
           <Text style={styles.btnText}>ADD</Text>
         </View>

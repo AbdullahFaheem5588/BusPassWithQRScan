@@ -43,7 +43,11 @@ const NotificationDetails = () => {
       <View style={styles.TopContainer}>
         <Image
           source={ImagePath}
-          style={{width: width * 0.5, height: height * 0.2}}
+          style={{
+            width: width * 0.5,
+            height: height * 0.2,
+            resizeMode: 'contain',
+          }}
         />
         <Text style={styles.NotificationType}>{NotificationDetails.Type}</Text>
       </View>

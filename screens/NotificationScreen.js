@@ -20,6 +20,8 @@ const NotificationScreen = ({route}) => {
   const navigation = useNavigation();
 
   const Images = {
+    'Pass Recharged!': require('../assets/Recharged.png'),
+    'Bus En-route!': require('../assets/BusEn-route.png'),
     'Announcement!': require('../assets/Announcement.png'),
     'Check Out!': require('../assets/CheckOut.png'),
     'Check In!': require('../assets/CheckIn.png'),
@@ -108,7 +110,11 @@ const NotificationScreen = ({route}) => {
                     <View style={{width: '20%', justifyContent: 'center'}}>
                       <Image
                         source={Images[item.Type]}
-                        style={{height: '95%', width: '90%'}}
+                        style={{
+                          height: '95%',
+                          width: '90%',
+                          resizeMode: 'contain',
+                        }}
                       />
                     </View>
                     <View style={{width: '80%'}}>

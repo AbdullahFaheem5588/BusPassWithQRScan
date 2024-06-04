@@ -17,13 +17,16 @@ import {SelectList} from 'react-native-dropdown-select-list';
 import Api_url from '../../Helper/URL';
 import convertToAMPM from '../../Helper/convertToAMPM';
 import {isPointWithinRadius} from 'geolib';
-import {LocationServiceContext} from '../../Helper/LocationTracker';
 
 const {width, height} = Dimensions.get('window');
 
 const MapScreen = ({route}) => {
   const userDetails = route.params.userDetails;
-  const {userLocation} = useContext(LocationServiceContext);
+  //const {userLocation} = useContext(LocationServiceContext);
+  const [userLocation, setUserLocation] = useState({
+    latitude: 33.64340057674401,
+    longitude: 73.0790521153456,
+  });
   const mapView = useRef();
   const [stopPopupVisible, setStopPopupVisible] = useState(false);
   const [journeyPopupVisible, setJourneyPopupVisible] = useState(false);
@@ -67,75 +70,139 @@ const MapScreen = ({route}) => {
       Alert.alert('Error', 'An unexpected error occurred. Please try again.');
     }
   };
+  const updateBusLocation = async () => {
+    try {
+      const userLocationDetails = {
+        BusId: userDetails.BusId,
+        Cords: {
+          latitude: userLocation.latitude,
+          longitude: userLocation.longitude,
+        },
+      };
+      const response = await fetch(`${Api_url}/Conductor/UpdateBusLocation`, {
+        method: 'POST',
+        body: JSON.stringify(userLocationDetails),
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
 
-  useEffect(() => {
-    const updateBusLocation = async () => {
-      try {
-        const userLocationDetails = {
-          BusId: userDetails.BusId,
-          Cords: {
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+
+        const stopsWithinRadius = selectedRouteStops
+          .map(stop => {
+            const withinRadius = isPointWithinRadius(
+              {
+                latitude: userLocation.latitude,
+                longitude: userLocation.longitude,
+              },
+              {
+                latitude: parseFloat(stop.Latitude),
+                longitude: parseFloat(stop.Longitude),
+              },
+              100,
+            );
+            return withinRadius ? stop : null;
+          })
+          .filter(stop => stop !== null);
+        console.log(stopsWithinRadius);
+        if (stopsWithinRadius.length > 0) {
+          stopsWithinRadius.forEach(stop => {
+            reachedAtStop(stop.Id, stop.Route);
+          });
+        }
+        const uniWithinRadius = isPointWithinRadius(
+          {
             latitude: userLocation.latitude,
             longitude: userLocation.longitude,
           },
-        };
-        const response = await fetch(`${Api_url}/Conductor/UpdateBusLocation`, {
-          method: 'POST',
-          body: JSON.stringify(userLocationDetails),
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
+          {
+            latitude: unicords.latitude,
+            longitude: unicords.longitude,
           },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log(data);
-
-          const stopsWithinRadius = selectedRouteStops
-            .map(stop => {
-              const withinRadius = isPointWithinRadius(
-                {
-                  latitude: userLocation.latitude,
-                  longitude: userLocation.longitude,
-                },
-                {
-                  latitude: parseFloat(stop.Latitude),
-                  longitude: parseFloat(stop.Longitude),
-                },
-                100,
-              );
-              return withinRadius ? stop : null;
-            })
-            .filter(stop => stop !== null);
-          console.log(stopsWithinRadius);
-          if (stopsWithinRadius.length > 0) {
-            stopsWithinRadius.forEach(stop => {
-              reachedAtStop(stop.Id, stop.Route);
-            });
-          }
-          const uniWithinRadius = isPointWithinRadius(
-            {
-              latitude: userLocation.latitude,
-              longitude: userLocation.longitude,
-            },
-            {
-              latitude: unicords.latitude,
-              longitude: unicords.longitude,
-            },
-            500,
-          );
-          if (uniWithinRadius) reachedAtStop(0, selectedRoute);
-        } else {
-          console.log('Error updating bus location!');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+          100,
+        );
+        if (uniWithinRadius) reachedAtStop(0, selectedRoute);
+      } else {
+        console.log('Error updating bus location!');
       }
-    };
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
+  };
 
-    if (!isJourneyCompleted) updateBusLocation();
-  }, [userLocation]);
+  // useEffect(() => {
+  //   const updateBusLocation = async () => {
+  //     try {
+  //       const userLocationDetails = {
+  //         BusId: userDetails.BusId,
+  //         Cords: {
+  //           latitude: userLocation.latitude,
+  //           longitude: userLocation.longitude,
+  //         },
+  //       };
+  //       const response = await fetch(`${Api_url}/Conductor/UpdateBusLocation`, {
+  //         method: 'POST',
+  //         body: JSON.stringify(userLocationDetails),
+  //         headers: {
+  //           Accept: 'application/json',
+  //           'Content-Type': 'application/json',
+  //         },
+  //       });
+
+  //       if (response.ok) {
+  //         const data = await response.json();
+  //         console.log(data);
+
+  //         const stopsWithinRadius = selectedRouteStops
+  //           .map(stop => {
+  //             const withinRadius = isPointWithinRadius(
+  //               {
+  //                 latitude: userLocation.latitude,
+  //                 longitude: userLocation.longitude,
+  //               },
+  //               {
+  //                 latitude: parseFloat(stop.Latitude),
+  //                 longitude: parseFloat(stop.Longitude),
+  //               },
+  //               100,
+  //             );
+  //             return withinRadius ? stop : null;
+  //           })
+  //           .filter(stop => stop !== null);
+  //         console.log(stopsWithinRadius);
+  //         if (stopsWithinRadius.length > 0) {
+  //           stopsWithinRadius.forEach(stop => {
+  //             reachedAtStop(stop.Id, stop.Route);
+  //           });
+  //         }
+  //         const uniWithinRadius = isPointWithinRadius(
+  //           {
+  //             latitude: userLocation.latitude,
+  //             longitude: userLocation.longitude,
+  //           },
+  //           {
+  //             latitude: unicords.latitude,
+  //             longitude: unicords.longitude,
+  //           },
+  //           500,
+  //         );
+  //         if (uniWithinRadius) reachedAtStop(0, selectedRoute);
+  //       } else {
+  //         console.log('Error updating bus location!');
+  //       }
+  //     } catch (error) {
+  //       console.error('Error:', error);
+  //       Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+  //     }
+  //   };
+
+  //   if (!isJourneyCompleted) updateBusLocation();
+  // }, [userLocation]);
 
   const GetStartedRoute = async () => {
     try {
@@ -263,19 +330,30 @@ const MapScreen = ({route}) => {
       Alert.alert('Error', 'An unexpected error occurred. Please try again.');
     }
   };
+  const handleUserLocationChange = event => {
+    const {coordinate} = event.nativeEvent;
+    setUserLocation(coordinate);
+    if (!isJourneyCompleted) updateBusLocation();
+  };
 
   return (
     <View style={styles.container}>
       <MapView
         ref={mapView}
         style={StyleSheet.absoluteFill}
-        showsUserLocation={true}
+        onPress={handleUserLocationChange}
         initialRegion={{
           latitude: unicords.latitude,
           longitude: unicords.longitude,
           latitudeDelta: 0.02,
           longitudeDelta: 0.02,
         }}>
+        {userLocation.latitude !== 0 && userLocation.longitude !== 0 && (
+          <Marker
+            coordinate={userLocation}
+            image={require('../../assets/BusMapMarker.png')}
+          />
+        )}
         <Marker
           coordinate={unicords}
           title="Barani Institute of Information Technology"
@@ -294,19 +372,6 @@ const MapScreen = ({route}) => {
               strokeWidth={3}
               strokeColor="hotpink"
               optimizeWaypoints={true}
-              onReady={result => {
-                mapView.current.fitToCoordinates(result.coordinates, {
-                  edgePadding: {
-                    right: width / 20,
-                    bottom: height / 20,
-                    left: width / 20,
-                    top: height / 20,
-                  },
-                });
-              }}
-              onError={errorMessage => {
-                console.error('GOT AN ERROR', errorMessage);
-              }}
             />
             {selectedRouteStops.map(stop => (
               <Marker

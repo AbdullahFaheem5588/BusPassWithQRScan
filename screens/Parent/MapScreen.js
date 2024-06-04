@@ -1,8 +1,7 @@
 import React, {useState, useRef, useEffect} from 'react';
 import {View, Text, StyleSheet, Image} from 'react-native';
-import MapView, {Marker} from 'react-native-maps';
+import MapView, {Marker, Polyline} from 'react-native-maps';
 import GoogleMapKey from '../../GoogleMapKey';
-import MapViewDirections from 'react-native-maps-directions';
 import Api_url from '../../Helper/URL';
 
 const MapScreen = ({route}) => {
@@ -14,16 +13,6 @@ const MapScreen = ({route}) => {
     longitude: 73.0790521153456,
   };
   const [ChildLocation, setChildLocation] = useState([]);
-  // const [ChildLocation, setChildLocation] = useState([
-  //   {latitude: 33.62143941364173, longitude: 73.06649344534786},
-  //   {latitude: 33.61580806175649, longitude: 73.06536334223695},
-  //   {latitude: 33.61226103098687, longitude: 73.06514487798462},
-  //   {latitude: 33.59934934614757, longitude: 73.06264830651558},
-  //   {latitude: 33.592161870536664, longitude: 73.05439953778502},
-  //   {latitude: 33.585168200292784, longitude: 73.0645131331935},
-  //   {latitude: 33.59059836860913, longitude: 73.07861567925173},
-  //   {latitude: 33.59545700923111, longitude: 73.07889345288326},
-  // ]);
 
   const getChildrenLocation = async () => {
     try {
@@ -45,7 +34,8 @@ const MapScreen = ({route}) => {
 
   useEffect(() => {
     getChildrenLocation();
-  }, [ChildLocation]);
+  }, []);
+
   return (
     <View style={styles.container}>
       <MapView
@@ -62,14 +52,14 @@ const MapScreen = ({route}) => {
           title="Barani Institute of Information Technology"
           image={require('../../assets/UniMapMarker.png')}
         />
-        {ChildLocation && ChildLocation !== null ? (
+        {Array.isArray(ChildLocation) && ChildLocation.length > 0 ? (
           ChildLocation.map((item, ind) => (
             <View key={ind}>
-              <MapViewDirections
-                origin={item.Location[0]}
-                destination={item.Location[item.Location.length - 1]}
-                waypoints={item.Location}
-                apikey={GoogleMapKey}
+              <Polyline
+                coordinates={item.Location.map(loc => ({
+                  latitude: loc.latitude,
+                  longitude: loc.longitude,
+                }))}
                 strokeColor="#d883ff"
                 strokeWidth={5}
               />
@@ -79,13 +69,10 @@ const MapScreen = ({route}) => {
                 title={item.Name}
                 ref={markerRef}>
                 <Image
-                  source={require('../../assets/ProfilePicture.png')}
+                  source={require('../../assets/ChildLocationMarker.png')}
                   style={{
                     width: 40,
                     height: 40,
-                    resizeMode: 'contain',
-                    backgroundColor: 'black',
-                    borderRadius: 17,
                   }}
                 />
               </Marker>
