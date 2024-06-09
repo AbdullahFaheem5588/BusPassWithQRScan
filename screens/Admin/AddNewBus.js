@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -7,38 +7,40 @@ import {
   TouchableOpacity,
   Dimensions,
   ScrollView,
+  ToastAndroid,
+  Alert,
 } from 'react-native';
 import {
   MultipleSelectList,
   SelectList,
 } from 'react-native-dropdown-select-list';
+import Api_url from '../../Helper/URL';
+import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
 const AddNewBus = () => {
+  const navigation = useNavigation();
   const [newOrOldConductor, setNewOrOldConductor] = useState('');
+  const [conductorsFromDB, setConductorsFromDB] = useState([]);
+  const [routesFromDB, setRoutesFromDB] = useState([]);
+  const [conductorInserted, setConductorInserted] = useState(false);
   const Genders = [
     {key: 1, value: 'Male'},
-    {Key: 2, value: 'Female'},
-  ];
-  const Routes = [
-    {key: '1', value: 'Saddar - Chandni Chowk (8:30)'},
-    {key: '2', value: 'Chandni Chowk - Saddar (4:30)'},
-  ];
-  const ConductorIdsFromDB = [
-    {key: 1, value: 'Ahmed Shehbaz'},
-    {key: 2, value: 'Ali Butt'},
+    {key: 2, value: 'Female'},
   ];
   const ConductorSelection = [
     {key: 1, value: 'New Conductor'},
-    {Key: 2, value: 'Existing Conductor'},
+    {key: 2, value: 'Existing Conductor'},
   ];
   const [selectedRoutes, setSelectedRoutes] = useState([]);
   const [busDetails, setBusDetails] = useState({
     RegNo: '',
-    Seats: '',
-    ConductorId: null,
-    Routes: selectedRoutes,
+    TotalSeats: '',
+    Conductor: {
+      Id: '',
+    },
+    Routes: [],
   });
   const [conductorDetails, setConductorDetails] = useState({
     Name: '',
@@ -47,11 +49,160 @@ const AddNewBus = () => {
     Gender: '',
   });
 
-  const addButton = () => {
-    setBusDetails(prevDetails => ({
-      ...prevDetails,
-      Routes: selectedRoutes,
-    }));
+  useEffect(() => {
+    const GetAllConductors = async () => {
+      try {
+        const response = await fetch(`${Api_url}/Users/GetAllConductors`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setConductorsFromDB([]);
+          data.map(item => {
+            setConductorsFromDB(prevState => [
+              ...prevState,
+              {key: item.Id, value: item.Name},
+            ]);
+          });
+        } else {
+          console.log(data);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      }
+    };
+    GetAllConductors();
+
+    const GetAllRoutesTitle = async () => {
+      try {
+        const response = await fetch(`${Api_url}/Stops/GetAllRoutesTitle`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setRoutesFromDB([]);
+          data.map(item => {
+            setRoutesFromDB(prevState => [
+              ...prevState,
+              {key: item.RouteId, value: item.RouteTitle},
+            ]);
+          });
+        } else {
+          console.log(data);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      }
+    };
+    GetAllRoutesTitle();
+  }, []);
+
+  const addNewBus = async () => {
+    try {
+      if (newOrOldConductor === 'New Conductor') {
+        if (
+          Object.values(conductorDetails).every(
+            value => typeof value === 'string' && value.trim() !== '',
+          )
+        ) {
+          const response = await fetch(`${Api_url}/Users/InsertConductor`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(conductorDetails),
+          });
+
+          if (response.ok) {
+            const newConductorId = await response.json();
+            const temp = {...busDetails};
+            temp.Conductor.Id = newConductorId;
+            setBusDetails(temp);
+            setConductorInserted(true);
+          } else {
+            const data = await response.json();
+            console.log(data);
+            return;
+          }
+        } else {
+          ToastAndroid.show(
+            'Please provide the necessary details!',
+            ToastAndroid.SHORT,
+          );
+          return;
+        }
+      } else {
+        setConductorInserted(true);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
+  };
+
+  useEffect(() => {
+    if (conductorInserted) {
+      if (selectedRoutes.length > 0) {
+        const routeList = [];
+        for (let i = 0; i < selectedRoutes.length; i++) {
+          const routeObj = {RouteId: parseInt(selectedRoutes[i])};
+          routeList.push(routeObj);
+        }
+
+        const temp = {...busDetails, Routes: routeList};
+        setBusDetails(temp);
+      }
+    }
+  }, [conductorInserted]);
+
+  useEffect(() => {
+    if (busDetails.Routes.length > 0) {
+      insertBus();
+    }
+  }, [busDetails]);
+
+  const insertBus = async () => {
+    try {
+      if (
+        Object.values(busDetails).every(value =>
+          typeof value === 'string' ? value.trim() !== '' : value !== '',
+        )
+      ) {
+        const response = await fetch(`${Api_url}/Admin/InsertBus`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(busDetails),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          navigation.goBack();
+          ToastAndroid.show(data, ToastAndroid.SHORT);
+        } else {
+          const data = await response.json();
+          console.log(data);
+        }
+      } else {
+        ToastAndroid.show(
+          'Please provide the necessary details!',
+          ToastAndroid.SHORT,
+        );
+      }
+      setConductorInserted(false);
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
   };
 
   return (
@@ -70,7 +221,7 @@ const AddNewBus = () => {
         <TextInput
           style={styles.input}
           onChangeText={e => {
-            temp = {...busDetails};
+            const temp = {...busDetails};
             temp.RegNo = e;
             setBusDetails(temp);
           }}
@@ -82,11 +233,11 @@ const AddNewBus = () => {
         <TextInput
           style={styles.input}
           onChangeText={e => {
-            temp = {...busDetails};
-            temp.Seats = e;
+            const temp = {...busDetails};
+            temp.TotalSeats = e;
             setBusDetails(temp);
           }}
-          value={busDetails.Seats}
+          value={busDetails.TotalSeats}
           keyboardType="numeric"
           placeholder="No of Seats"
           placeholderTextColor="white"
@@ -94,7 +245,7 @@ const AddNewBus = () => {
         />
         <MultipleSelectList
           setSelected={setSelectedRoutes}
-          data={Routes}
+          data={routesFromDB}
           save="key"
           label="Selected Routes"
           search={false}
@@ -167,7 +318,7 @@ const AddNewBus = () => {
           <TextInput
             style={styles.input}
             onChangeText={e => {
-              temp = {...conductorDetails};
+              const temp = {...conductorDetails};
               temp.Name = e;
               setConductorDetails(temp);
             }}
@@ -180,7 +331,7 @@ const AddNewBus = () => {
             keyboardType="phone-pad"
             style={styles.input}
             onChangeText={e => {
-              temp = {...conductorDetails};
+              const temp = {...conductorDetails};
               temp.Contact = e;
               setConductorDetails(temp);
             }}
@@ -193,7 +344,7 @@ const AddNewBus = () => {
             keyboardType="visible-password"
             style={styles.input}
             onChangeText={e => {
-              temp = {...conductorDetails};
+              const temp = {...conductorDetails};
               temp.Password = e;
               setConductorDetails(temp);
             }}
@@ -251,12 +402,11 @@ const AddNewBus = () => {
           </Text>
           <SelectList
             setSelected={val => {
-              setBusDetails({
-                ...busDetails,
-                ConductorId: val,
-              });
+              const temp = {...busDetails};
+              temp.Conductor.Id = val;
+              setBusDetails(temp);
             }}
-            data={ConductorIdsFromDB}
+            data={conductorsFromDB}
             save="key"
             searchPlaceholder="Search By Name"
             placeholder="Select Existing Conductor"
@@ -287,7 +437,7 @@ const AddNewBus = () => {
       ) : (
         <View></View>
       )}
-      <TouchableOpacity onPress={addButton}>
+      <TouchableOpacity onPress={addNewBus}>
         <View style={styles.btn}>
           <Text style={styles.btnText}>ADD</Text>
         </View>

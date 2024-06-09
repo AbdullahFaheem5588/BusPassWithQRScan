@@ -66,17 +66,21 @@ const Dashboard = () => {
             busDetails.map((item, ind) => (
               <View key={ind} style={styles.favoriteStopContainer}>
                 <View style={styles.progress}>
-                  <Progress.Circle
-                    progress={item.BookedSeats / item.TotalSeats}
-                    size={200}
-                    showsText={true}
-                    color="white"
-                    borderWidth={7}
-                    borderColor="#2FAA98"
-                    formatText={() =>
-                      `${item.BookedSeats} / ${item.TotalSeats}`
-                    }
-                  />
+                  {item.TotalSeats > 0 ? (
+                    <Progress.Circle
+                      progress={item.BookedSeats / item.TotalSeats}
+                      size={200}
+                      showsText={true}
+                      color="white"
+                      borderWidth={7}
+                      borderColor="#2FAA98"
+                      formatText={() =>
+                        `${item.BookedSeats} / ${item.TotalSeats}`
+                      }
+                    />
+                  ) : (
+                    <Text style={styles.noSeatsText}>No Seats Available</Text>
+                  )}
                   <Text style={styles.progressText}>Seats Booked</Text>
                 </View>
                 <Text style={styles.busNoText}>Bus # {item.BusId}</Text>

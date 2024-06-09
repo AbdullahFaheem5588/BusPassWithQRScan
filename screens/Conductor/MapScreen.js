@@ -24,8 +24,8 @@ const MapScreen = ({route}) => {
   const userDetails = route.params.userDetails;
   //const {userLocation} = useContext(LocationServiceContext);
   const [userLocation, setUserLocation] = useState({
-    latitude: 33.64340057674401,
-    longitude: 73.0790521153456,
+    latitude: 0,
+    longitude: 0,
   });
   const mapView = useRef();
   const [stopPopupVisible, setStopPopupVisible] = useState(false);
@@ -359,34 +359,36 @@ const MapScreen = ({route}) => {
           title="Barani Institute of Information Technology"
           image={require('../../assets/UniMapMarker.png')}
         />
-        {selectedRouteStops.length > 0 && (
-          <>
-            <MapViewDirections
-              origin={userLocation}
-              destination={unicords}
-              waypoints={selectedRouteStops.map(stop => ({
-                latitude: parseFloat(stop.Latitude),
-                longitude: parseFloat(stop.Longitude),
-              }))}
-              apikey={GoogleMapKey}
-              strokeWidth={3}
-              strokeColor="hotpink"
-              optimizeWaypoints={true}
-            />
-            {selectedRouteStops.map(stop => (
-              <Marker
-                key={stop.Id}
-                coordinate={{
+        {selectedRouteStops.length > 0 &&
+          userLocation.latitude !== 0 &&
+          userLocation.longitude !== 0 && (
+            <>
+              <MapViewDirections
+                origin={userLocation}
+                destination={unicords}
+                waypoints={selectedRouteStops.map(stop => ({
                   latitude: parseFloat(stop.Latitude),
                   longitude: parseFloat(stop.Longitude),
-                }}
-                title={stop.StopTitle}
-                onPress={() => handleStopPopupVisibility(stop.Id)}
-                image={require('../../assets/BusStopMapMarker.png')}
+                }))}
+                apikey={GoogleMapKey}
+                strokeWidth={3}
+                strokeColor="hotpink"
+                optimizeWaypoints={true}
               />
-            ))}
-          </>
-        )}
+              {selectedRouteStops.map(stop => (
+                <Marker
+                  key={stop.Id}
+                  coordinate={{
+                    latitude: parseFloat(stop.Latitude),
+                    longitude: parseFloat(stop.Longitude),
+                  }}
+                  title={stop.StopTitle}
+                  onPress={() => handleStopPopupVisibility(stop.Id)}
+                  image={require('../../assets/BusStopMapMarker.png')}
+                />
+              ))}
+            </>
+          )}
       </MapView>
       {isJourneyCompleted && (
         <TouchableOpacity

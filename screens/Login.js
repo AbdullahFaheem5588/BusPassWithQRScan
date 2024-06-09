@@ -18,8 +18,8 @@ const {width, height} = Dimensions.get('window');
 
 const Login = () => {
   const navigation = useNavigation();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('Admin');
+  const [password, setPassword] = useState('123');
   const [loading, setLoading] = useState(false);
 
   const handleLoginPress = async () => {

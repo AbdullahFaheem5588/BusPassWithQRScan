@@ -34,7 +34,7 @@ const ProfileScreen = ({route}) => {
             marginTop: height * 0.001,
             alignSelf: 'center',
           }}>
-          Dr Naseer Ahmed
+          {userDetails.Name}
         </Text>
         <View>
           <View
@@ -69,7 +69,7 @@ const ProfileScreen = ({route}) => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                03465100010
+                {userDetails.Contact}
               </Text>
             </View>
             <View
@@ -98,7 +98,7 @@ const ProfileScreen = ({route}) => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                Male
+                {userDetails.Gender}
               </Text>
             </View>
           </View>
@@ -132,7 +132,7 @@ const ProfileScreen = ({route}) => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                0001
+                {userDetails.Id}
               </Text>
             </View>
             <View
@@ -161,7 +161,7 @@ const ProfileScreen = ({route}) => {
                   color: 'white',
                   alignSelf: 'center',
                 }}>
-                DrNaseer_01@Biit.edu.pk
+                {userDetails.UserName}
               </Text>
             </View>
           </View>

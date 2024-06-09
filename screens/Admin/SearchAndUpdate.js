@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -7,69 +7,549 @@ import {
   TouchableOpacity,
   Dimensions,
   ScrollView,
+  ToastAndroid,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import {
   SelectList,
   MultipleSelectList,
 } from 'react-native-dropdown-select-list';
+import Api_url from '../../Helper/URL';
+import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
 const SearchAndUpdate = () => {
+  const navigation = useNavigation();
   const [searchedId, setSearchedId] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [selectedSearchCategory, setSelectedSearchCategory] = useState('');
-  const Stops = [
-    {key: '1', value: 'Saddar'},
-    {key: '2', value: 'Chandni Chowk'},
-    {key: '3', value: 'Rehmanabad'},
-    {key: '4', value: '6th Road'},
-  ];
+  const [conductorsFromDB, setConductorsFromDB] = useState([]);
+  const [routesFromDB, setRoutesFromDB] = useState([]);
+  const [Stops, setStops] = useState([]);
+  const [busUpdatingTrigger, setBusUpdatingTrigger] = useState(false);
+  const [routeUpdatingTrigger, setRouteUpdatingTrigger] = useState(false);
   const SearchingCategories = [
     {key: 1, value: 'Student'},
     {Key: 2, value: 'Parent'},
     {Key: 3, value: 'Conductor'},
-    {Key: 4, value: 'Admin'},
     {Key: 5, value: 'Bus'},
     {Key: 6, value: 'Stop'},
     {Key: 7, value: 'Route'},
   ];
   const [studentDetails, setStudentDetails] = useState({
+    PassId: '',
     Name: '',
     RegNo: '',
     Contact: '',
     PassStatus: '',
   });
   const [userDetails, setUserDetails] = useState({
+    Id: '',
     Name: '',
     Contact: '',
-    Password: '',
   });
   const pasStatuses = [
     {key: 1, value: 'Active'},
     {key: 2, value: 'In-Active'},
   ];
-  const Routes = [
-    {key: '1', value: 'Saddar - Chandni Chowk (8:30)'},
-    {key: '2', value: 'Chandni Chowk - Saddar (4:30)'},
-  ];
   const [busDetails, setBusDetails] = useState({
+    Id: '',
     RegNo: '',
-    Seats: '',
-    ConductorId: null,
-    Routes: selectedRoutes,
+    TotalSeats: '',
+    Conductor: {
+      Id: '',
+    },
+    Routes: {
+      RouteId: '',
+      RouteTitle: '',
+    },
   });
   const [routeDetails, setRouteDetails] = useState({
-    Name: '',
+    RouteId: '',
+    RouteTitle: '',
     Stops: [],
   });
   const [stopDetails, setStopDetails] = useState({
+    Id: '',
     Name: '',
   });
-  const ConductorIdsFromDB = [
-    {key: 1, value: 'Ahmed Shehbaz'},
-    {key: 2, value: 'Ali Butt'},
-  ];
-  const [selectedRoutes, setSelectedRoutes] = useState([1]);
+  const [selectedRoutes, setSelectedRoutes] = useState([]);
+  const [selectedStops, setSelectedStops] = useState([]);
+
+  useEffect(() => {
+    const GetAllConductors = async () => {
+      try {
+        const response = await fetch(`${Api_url}/Users/GetAllConductors`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setConductorsFromDB([]);
+          data.map(item => {
+            setConductorsFromDB(prevState => [
+              ...prevState,
+              {key: item.Id, value: item.Name},
+            ]);
+          });
+        } else {
+          console.log(data);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      }
+    };
+    GetAllConductors();
+
+    const GetAllRoutesTitle = async () => {
+      try {
+        const response = await fetch(`${Api_url}/Stops/GetAllRoutesTitle`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setRoutesFromDB([]);
+          data.map(item => {
+            setRoutesFromDB(prevState => [
+              ...prevState,
+              {key: item.RouteId, value: item.RouteTitle},
+            ]);
+          });
+        } else {
+          console.log(data);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      }
+    };
+    GetAllRoutesTitle();
+
+    const getAllStops = async () => {
+      try {
+        const response = await fetch(`${Api_url}/Stops/GetAllStops`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setStops([]);
+          data.map(item => {
+            setStops(prevState => [
+              ...prevState,
+              {key: item.Id, value: item.Name},
+            ]);
+          });
+        } else {
+          console.log(data);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getAllStops();
+  }, []);
+
+  const resetStates = () => {
+    setStudentDetails({
+      PassId: '',
+      Name: '',
+      RegNo: '',
+      Contact: '',
+      PassStatus: '',
+    });
+    setUserDetails({
+      Id: '',
+      Name: '',
+      Contact: '',
+    });
+    setBusDetails({
+      RegNo: '',
+      TotalSeats: '',
+      Conductor: {
+        Id: '',
+      },
+      Routes: [],
+    });
+    setRouteDetails({
+      RouteTitle: '',
+      Stops: [],
+    });
+    setStopDetails({
+      Name: '',
+    });
+    setSelectedRoutes([]);
+    setSelectedStops([]);
+  };
+
+  useEffect(() => {
+    const updateBusDetails = async () => {
+      try {
+        const response = await fetch(`${Api_url}/Admin/UpdateBus`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(busDetails),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          navigation.goBack();
+          ToastAndroid.show(data, ToastAndroid.SHORT);
+        } else {
+          const data = await response.json();
+          console.log(data);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (busUpdatingTrigger) {
+      updateBusDetails();
+      setBusUpdatingTrigger(false);
+    }
+  }, [busDetails]);
+  useEffect(() => {
+    const updateRouteDetails = async () => {
+      try {
+        const response = await fetch(`${Api_url}/Admin/UpdateRoute`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(routeDetails),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          navigation.goBack();
+          ToastAndroid.show(data, ToastAndroid.SHORT);
+        } else {
+          const data = await response.json();
+          console.log(data);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (routeUpdatingTrigger) {
+      updateRouteDetails();
+      setRouteUpdatingTrigger(false);
+    }
+  }, [routeDetails]);
+
+  useEffect(() => {
+    resetStates();
+  }, [searchedId, selectedSearchCategory]);
+
+  const search = async () => {
+    try {
+      if (searchedId > 0 && selectedSearchCategory != '') {
+        setLoading(true);
+        const response = await fetch(
+          `${Api_url}/Admin/Search?id=${searchedId}&category=${selectedSearchCategory}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        );
+        const data = await response.json();
+        if (response.ok) {
+          if (selectedSearchCategory == 'Student') {
+            setStudentDetails({
+              ...studentDetails,
+              PassId: data.PassId,
+              Name: data.Name,
+              Contact: data.Contact,
+              RegNo: data.RegNo,
+              PassStatus: data.PassStatus,
+            });
+          } else if (
+            selectedSearchCategory === 'Parent' ||
+            selectedSearchCategory === 'Conductor'
+          ) {
+            setUserDetails({
+              ...userDetails,
+              Id: data.Id,
+              Contact: data.Contact,
+              Name: data.Name,
+            });
+          } else if (selectedSearchCategory === 'Bus') {
+            setBusDetails({
+              ...busDetails,
+              Id: data.Id,
+              RegNo: data.RegNo,
+              TotalSeats: data.TotalSeats,
+              Routes: data.Routes,
+              Conductor: {
+                Id: data.Conductor.Id,
+              },
+            });
+          } else if (selectedSearchCategory === 'Stop') {
+            setStopDetails({
+              ...stopDetails,
+              Id: data.Id,
+              Name: data.Name,
+            });
+          } else if (selectedSearchCategory === 'Route') {
+            setRouteDetails({
+              ...routeDetails,
+              RouteId: data.RouteId,
+              RouteTitle: data.RouteTitle,
+            });
+          }
+        } else if (response.status === 404) {
+          ToastAndroid.show(data, ToastAndroid.SHORT);
+        } else {
+          console.log(data);
+        }
+      } else {
+        ToastAndroid.show(
+          'Please provide the necessary details!',
+          ToastAndroid.SHORT,
+        );
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const UpdateStudent = async () => {
+    try {
+      if (
+        Object.values(studentDetails).every(value =>
+          typeof value === 'string' ? value.trim() !== '' : value !== '',
+        )
+      ) {
+        setLoading(true);
+        const response = await fetch(`${Api_url}/Admin/UpdateStudent`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(studentDetails),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          navigation.goBack();
+          ToastAndroid.show(data, ToastAndroid.SHORT);
+        } else {
+          const data = await response.json();
+          console.log(data);
+        }
+      } else {
+        ToastAndroid.show(
+          'Please provide the necessary details!',
+          ToastAndroid.SHORT,
+        );
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  const UpdateParent = async () => {
+    try {
+      if (
+        Object.values(userDetails).every(value =>
+          typeof value === 'string' ? value.trim() !== '' : value !== '',
+        )
+      ) {
+        setLoading(true);
+        const response = await fetch(`${Api_url}/Admin/UpdateParent`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userDetails),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          navigation.goBack();
+          ToastAndroid.show(data, ToastAndroid.SHORT);
+        } else {
+          const data = await response.json();
+          console.log(data);
+        }
+      } else {
+        ToastAndroid.show(
+          'Please provide the necessary details!',
+          ToastAndroid.SHORT,
+        );
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  const UpdateConductor = async () => {
+    try {
+      if (
+        Object.values(userDetails).every(value =>
+          typeof value === 'string' ? value.trim() !== '' : value !== '',
+        )
+      ) {
+        setLoading(true);
+        const response = await fetch(`${Api_url}/Admin/UpdateConductor`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userDetails),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          navigation.goBack();
+          ToastAndroid.show(data, ToastAndroid.SHORT);
+        } else {
+          const data = await response.json();
+          console.log(data);
+        }
+      } else {
+        ToastAndroid.show(
+          'Please provide the necessary details!',
+          ToastAndroid.SHORT,
+        );
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  const UpdateBus = async () => {
+    try {
+      if (
+        Object.values(busDetails).every(value =>
+          typeof value === 'string' ? value.trim() !== '' : value !== '',
+        )
+      ) {
+        setLoading(true);
+        if (selectedRoutes.length > 0) {
+          const routeList = [];
+          for (let i = 0; i < selectedRoutes.length; i++) {
+            const routeObj = {RouteId: parseInt(selectedRoutes[i])};
+            routeList.push(routeObj);
+          }
+          const temp = {...busDetails, Routes: routeList};
+          setBusDetails(temp);
+          setBusUpdatingTrigger(true);
+        }
+      } else {
+        ToastAndroid.show(
+          'Please provide the necessary details!',
+          ToastAndroid.SHORT,
+        );
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
+  };
+  const UpdateStop = async () => {
+    try {
+      if (
+        Object.values(stopDetails).every(value =>
+          typeof value === 'string' ? value.trim() !== '' : value !== '',
+        )
+      ) {
+        setLoading(true);
+        const response = await fetch(`${Api_url}/Admin/UpdateStop`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(stopDetails),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          navigation.goBack();
+          ToastAndroid.show(data, ToastAndroid.SHORT);
+        } else {
+          const data = await response.json();
+          console.log(data);
+        }
+      } else {
+        ToastAndroid.show(
+          'Please provide the necessary details!',
+          ToastAndroid.SHORT,
+        );
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  const UpdateRoute = async () => {
+    try {
+      if (
+        Object.values(routeDetails).every(value =>
+          typeof value === 'string' ? value.trim() !== '' : value !== '',
+        )
+      ) {
+        setLoading(true);
+        const stops = selectedStops.map(item => ({
+          Id: item,
+        }));
+
+        setRouteDetails(prevState => {
+          return {
+            ...prevState,
+            Stops: stops,
+          };
+        });
+        setRouteUpdatingTrigger(true);
+      } else {
+        ToastAndroid.show(
+          'Please provide the necessary details!',
+          ToastAndroid.SHORT,
+        );
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <ScrollView style={styles.container}>
       <View style={styles.FormContainer}>
@@ -122,9 +602,13 @@ const SearchAndUpdate = () => {
             marginBottom: height * 0.02,
           }}
         />
-        <TouchableOpacity>
+        <TouchableOpacity onPress={search}>
           <View style={styles.btn}>
-            <Text style={styles.btnText}>SEARCH</Text>
+            {loading ? (
+              <ActivityIndicator size="large" color="#168070" />
+            ) : (
+              <Text style={styles.btnText}>SEARCH</Text>
+            )}
           </View>
         </TouchableOpacity>
       </View>
@@ -179,15 +663,22 @@ const SearchAndUpdate = () => {
           />
           <SelectList
             setSelected={val => {
-              setStudentDetails(prevDetails => ({
-                ...prevDetails,
-                PassStatus: val,
-              }));
+              if (typeof val === 'string') {
+                setStudentDetails(prevDetails => ({
+                  ...prevDetails,
+                  PassStatus: val,
+                }));
+              }
             }}
             data={pasStatuses}
             save="value"
             search={false}
             placeholder="Select Pass Status"
+            defaultOption={
+              studentDetails.PassStatus !== ''
+                ? pasStatuses.find(ps => ps.value === studentDetails.PassStatus)
+                : {key: 0, value: 'Select Pass Status'}
+            }
             inputStyles={{color: 'white'}}
             dropdownTextStyles={{color: 'white', textAlign: 'center'}}
             dropdownStyles={{
@@ -212,15 +703,18 @@ const SearchAndUpdate = () => {
               marginBottom: height * 0.02,
             }}
           />
-          <TouchableOpacity>
+          <TouchableOpacity onPress={UpdateStudent}>
             <View style={styles.btn}>
-              <Text style={styles.btnText}>UPDATE</Text>
+              {loading ? (
+                <ActivityIndicator size="large" color="#168070" />
+              ) : (
+                <Text style={styles.btnText}>UPDATE</Text>
+              )}
             </View>
           </TouchableOpacity>
         </View>
       ) : selectedSearchCategory === 'Parent' ||
-        selectedSearchCategory === 'Conductor' ||
-        selectedSearchCategory === 'Admin' ? (
+        selectedSearchCategory === 'Conductor' ? (
         <View style={styles.FormContainer}>
           <Text
             style={{
@@ -257,9 +751,17 @@ const SearchAndUpdate = () => {
             placeholderTextColor="white"
             fontSize={width * 0.04}
           />
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              if (selectedSearchCategory === 'Parent') UpdateParent();
+              else UpdateConductor();
+            }}>
             <View style={styles.btn}>
-              <Text style={styles.btnText}>UPDATE</Text>
+              {loading ? (
+                <ActivityIndicator size="large" color="#168070" />
+              ) : (
+                <Text style={styles.btnText}>UPDATE</Text>
+              )}
             </View>
           </TouchableOpacity>
         </View>
@@ -290,11 +792,11 @@ const SearchAndUpdate = () => {
           <TextInput
             style={styles.input}
             onChangeText={e => {
-              temp = {...busDetails};
-              temp.Seats = e;
+              const temp = {...busDetails};
+              temp.TotalSeats = e;
               setBusDetails(temp);
             }}
-            value={busDetails.Seats}
+            value={busDetails.TotalSeats.toString()}
             keyboardType="numeric"
             placeholder="No of Seats"
             placeholderTextColor="white"
@@ -302,7 +804,7 @@ const SearchAndUpdate = () => {
           />
           <MultipleSelectList
             setSelected={setSelectedRoutes}
-            data={Routes}
+            data={routesFromDB}
             save="key"
             label="Selected Routes"
             search={false}
@@ -332,15 +834,21 @@ const SearchAndUpdate = () => {
           />
           <SelectList
             setSelected={val => {
-              setBusDetails({
-                ...busDetails,
-                ConductorId: val,
-              });
+              if (val !== 0) {
+                const temp = {...busDetails};
+                temp.Conductor.Id = val;
+                setBusDetails(temp);
+              }
             }}
-            data={ConductorIdsFromDB}
+            data={conductorsFromDB}
             save="key"
             searchPlaceholder="Search By Name"
             placeholder="Select Conductor"
+            defaultOption={
+              busDetails.Conductor.Id !== ''
+                ? conductorsFromDB.find(c => c.key == busDetails.Conductor.Id)
+                : {key: 0, value: 'Select Conductor'}
+            }
             inputStyles={{color: 'white'}}
             dropdownTextStyles={{color: 'white'}}
             dropdownStyles={{
@@ -364,9 +872,13 @@ const SearchAndUpdate = () => {
               marginBottom: height * 0.02,
             }}
           />
-          <TouchableOpacity>
+          <TouchableOpacity onPress={UpdateBus}>
             <View style={styles.btn}>
-              <Text style={styles.btnText}>UPDATE</Text>
+              {loading ? (
+                <ActivityIndicator size="large" color="#168070" />
+              ) : (
+                <Text style={styles.btnText}>UPDATE</Text>
+              )}
             </View>
           </TouchableOpacity>
         </View>
@@ -394,9 +906,13 @@ const SearchAndUpdate = () => {
             placeholderTextColor="white"
             fontSize={width * 0.04}
           />
-          <TouchableOpacity>
+          <TouchableOpacity onPress={UpdateStop}>
             <View style={styles.btn}>
-              <Text style={styles.btnText}>UPDATE</Text>
+              {loading ? (
+                <ActivityIndicator size="large" color="#168070" />
+              ) : (
+                <Text style={styles.btnText}>UPDATE</Text>
+              )}
             </View>
           </TouchableOpacity>
         </View>
@@ -415,22 +931,17 @@ const SearchAndUpdate = () => {
           <TextInput
             style={styles.input}
             onChangeText={e => {
-              temp = [...routeDetails];
-              temp.Name = e;
+              const temp = {...routeDetails};
+              temp.RouteTitle = e;
               setRouteDetails(temp);
             }}
-            value={routeDetails.Name}
+            value={routeDetails.RouteTitle}
             placeholder="Name"
             placeholderTextColor="white"
             fontSize={width * 0.04}
           />
           <MultipleSelectList
-            setSelected={val => {
-              setRouteDetails(prevDetails => ({
-                ...prevDetails,
-                Stops: val,
-              }));
-            }}
+            setSelected={setSelectedStops}
             data={Stops}
             save="key"
             label="Selected Stops"
@@ -462,9 +973,13 @@ const SearchAndUpdate = () => {
             inputStyles={{color: 'white'}}
             placeholder="Select Stops Here"
           />
-          <TouchableOpacity>
+          <TouchableOpacity onPress={UpdateRoute}>
             <View style={styles.btn}>
-              <Text style={styles.btnText}>UPDATE</Text>
+              {loading ? (
+                <ActivityIndicator size="large" color="#168070" />
+              ) : (
+                <Text style={styles.btnText}>UPDATE</Text>
+              )}
             </View>
           </TouchableOpacity>
         </View>
