@@ -14,7 +14,8 @@ import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
-const AddNewAdmin = () => {
+const AddNewAdmin = ({route}) => {
+  const OrganizationId = route.params.OrganizationId;
   const navigation = useNavigation();
   const Genders = [
     {key: 1, value: 'Male'},
@@ -25,6 +26,7 @@ const AddNewAdmin = () => {
     Contact: '',
     Password: '',
     Gender: '',
+    OrganizationId: OrganizationId,
   });
 
   const addNewAdmin = async () => {

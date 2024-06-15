@@ -12,14 +12,14 @@ const {width, height} = Dimensions.get('window');
 const Dashboard = ({route}) => {
   const userDetails = route.params.userDetails;
   const [nextStop, setNextStop] = useState({
-    Id: Number,
+    Id: '',
     Name: '',
     Timing: '',
-    Route: Number,
+    Route: '',
   });
   const [routeDetails, setRouteDetails] = useState({
-    TotalStops: Number,
-    RemainingStops: Number,
+    TotalStops: '',
+    RemainingStops: '',
   });
   const [bookedSeats, setBookedSeats] = useState(0);
 

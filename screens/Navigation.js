@@ -35,6 +35,9 @@ import {default as StudentHistoryScreen} from './Student/HistoryScreen';
 import {default as ConductorHistoryScreen} from './Conductor/HistoryScreen';
 import {default as ParentHistoryScreen} from './Parent/HistoryScreen';
 import {default as AdminHistoryScreen} from './Admin/HistoryScreen';
+import {default as SuperAdminDashboard} from './SuperAdmin/Dashboard';
+import {default as SuperAdminMapScreen} from './SuperAdmin/MapScreen';
+import {default as SuperAdminProfileScreen} from './SuperAdmin/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -48,6 +51,7 @@ const MainStack = () => {
         <Stack.Screen name="ParentTabs" component={ParentTabs} />
         <Stack.Screen name="ConductorTabs" component={ConductorTabs} />
         <Stack.Screen name="AdminTabs" component={AdminTabs} />
+        <Stack.Screen name="SuperAdminTabs" component={SuperAdminTabs} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -230,7 +234,11 @@ const ConductorDashboardStack = ({route}) => {
           title: 'Dashboard',
           headerRight: () => (
             <TouchableOpacity
-              onPress={() => navigation.navigate('Announcement')}>
+              onPress={() =>
+                navigation.navigate('Announcement', {
+                  OrganizationId: route.params.userDetails.OrganizationId,
+                })
+              }>
               <Image
                 source={require('../assets/Announcement.png')}
                 style={{
@@ -269,11 +277,16 @@ const AdminDashboardStack = ({route}) => {
       <Stack.Screen
         name="DashboardScreen"
         component={AdminDashboard}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{
           title: 'Dashboard',
           headerRight: () => (
             <TouchableOpacity
-              onPress={() => navigation.navigate('Announcement')}>
+              onPress={() =>
+                navigation.navigate('Announcement', {
+                  OrganizationId: route.params.userDetails.OrganizationId,
+                })
+              }>
               <Image
                 source={require('../assets/Announcement.png')}
                 style={{
@@ -311,6 +324,7 @@ const AdminAddStack = ({route}) => {
       <Stack.Screen
         name="AddScreen"
         component={AdminAddScreen}
+        initialParams={{userDetails: route.params.userDetails}}
         options={{title: 'Add'}}
       />
       <Stack.Screen
@@ -369,6 +383,33 @@ const AdminProfileStack = ({route}) => {
         name="History"
         component={AdminHistoryScreen}
         options={{title: 'History'}}
+      />
+    </Stack.Navigator>
+  );
+};
+const SuperAdminProfileStack = ({route}) => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#2FAA98',
+        },
+        headerTintColor: 'white',
+        tabBarStyle: {
+          backgroundColor: '#2FAA98',
+        },
+      }}
+      initialRouteName="ProfileScreen">
+      <Stack.Screen
+        name="ProfileScreen"
+        component={SuperAdminProfileScreen}
+        initialParams={{userDetails: route.params.userDetails}}
+        options={{title: 'Profile'}}
+      />
+      <Stack.Screen
+        name="ChangePassword"
+        component={ChangePasswordScreen}
+        options={{title: 'Change Password'}}
       />
     </Stack.Navigator>
   );
@@ -782,6 +823,80 @@ const AdminTabs = ({route}) => {
       <Tab.Screen
         name="Profile"
         component={AdminProfileStack}
+        initialParams={{userDetails: route.params.userDetails}}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({focused}) => (
+            <Image
+              source={
+                focused
+                  ? require('../assets/Profile-Focused.png')
+                  : require('../assets/Profile-UnFocused.png')
+              }
+              style={{width: 25, height: 30}}
+            />
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  );
+};
+const SuperAdminTabs = ({route}) => {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#2FAA98',
+        },
+        headerTintColor: 'white',
+        tabBarStyle: {
+          backgroundColor: '#2FAA98',
+          height: 60,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          marginBottom: 3,
+        },
+        tabBarActiveTintColor: 'white',
+        tabBarInactiveTintColor: 'transparent',
+      }}>
+      <Tab.Screen
+        name="Dashboard"
+        component={SuperAdminDashboard}
+        initialParams={{userDetails: route.params.userDetails}}
+        options={{
+          tabBarIcon: ({focused}) => (
+            <Image
+              source={
+                focused
+                  ? require('../assets/Home-Focused.png')
+                  : require('../assets/Home-UnFocused.png')
+              }
+              style={{width: 25, height: 25}}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Map"
+        component={SuperAdminMapScreen}
+        initialParams={{userDetails: route.params.userDetails}}
+        options={{
+          tabBarIcon: ({focused}) => (
+            <Image
+              source={
+                focused
+                  ? require('../assets/Map-Focused.png')
+                  : require('../assets/Map-UnFocused.png')
+              }
+              style={{width: 25, height: 25}}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={SuperAdminProfileStack}
         initialParams={{userDetails: route.params.userDetails}}
         options={{
           headerShown: false,

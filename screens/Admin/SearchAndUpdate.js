@@ -20,7 +20,8 @@ import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
-const SearchAndUpdate = () => {
+const SearchAndUpdate = ({route}) => {
+  const OrganizationId = route.params.OrganizationId;
   const navigation = useNavigation();
   const [searchedId, setSearchedId] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -81,12 +82,15 @@ const SearchAndUpdate = () => {
   useEffect(() => {
     const GetAllConductors = async () => {
       try {
-        const response = await fetch(`${Api_url}/Users/GetAllConductors`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await fetch(
+          `${Api_url}/Users/GetAllConductors?OrganizationId=${OrganizationId}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
           },
-        });
+        );
         const data = await response.json();
         if (response.ok) {
           setConductorsFromDB([]);
@@ -108,12 +112,15 @@ const SearchAndUpdate = () => {
 
     const GetAllRoutesTitle = async () => {
       try {
-        const response = await fetch(`${Api_url}/Stops/GetAllRoutesTitle`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await fetch(
+          `${Api_url}/Stops/GetAllRoutesTitle?OrganizationId=${OrganizationId}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
           },
-        });
+        );
         const data = await response.json();
         if (response.ok) {
           setRoutesFromDB([]);
@@ -269,7 +276,7 @@ const SearchAndUpdate = () => {
       if (searchedId > 0 && selectedSearchCategory != '') {
         setLoading(true);
         const response = await fetch(
-          `${Api_url}/Admin/Search?id=${searchedId}&category=${selectedSearchCategory}`,
+          `${Api_url}/Admin/Search?id=${searchedId}&category=${selectedSearchCategory}&OrganizationId=${OrganizationId}`,
           {
             method: 'GET',
             headers: {

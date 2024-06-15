@@ -8,10 +8,6 @@ const MapScreen = ({route}) => {
   const userDetails = route.params.userDetails;
   const mapRef = useRef();
   const markerRef = useRef();
-  const unicords = {
-    latitude: 33.64340057674401,
-    longitude: 73.0790521153456,
-  };
   const [ChildLocation, setChildLocation] = useState([]);
 
   const getChildrenLocation = async () => {
@@ -34,7 +30,7 @@ const MapScreen = ({route}) => {
 
   useEffect(() => {
     getChildrenLocation();
-  }, []);
+  }, [ChildLocation]);
 
   return (
     <View style={styles.container}>
@@ -42,14 +38,14 @@ const MapScreen = ({route}) => {
         ref={mapRef}
         style={StyleSheet.absoluteFill}
         initialRegion={{
-          latitude: unicords.latitude,
-          longitude: unicords.longitude,
+          latitude: userDetails.OrganizationCords.latitude,
+          longitude: userDetails.OrganizationCords.longitude,
           latitudeDelta: 0.02,
           longitudeDelta: 0.02,
         }}>
         <Marker
-          coordinate={unicords}
-          title="Barani Institute of Information Technology"
+          coordinate={userDetails.OrganizationCords}
+          title={userDetails.OrganizationName}
           image={require('../../assets/UniMapMarker.png')}
         />
         {Array.isArray(ChildLocation) && ChildLocation.length > 0 ? (

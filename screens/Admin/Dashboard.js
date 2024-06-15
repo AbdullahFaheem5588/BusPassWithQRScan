@@ -14,7 +14,8 @@ import Api_url from '../../Helper/URL';
 
 const {width, height} = Dimensions.get('window');
 
-const Dashboard = () => {
+const Dashboard = ({route}) => {
+  const userDetails = route.params.userDetails;
   const [offset, setOffset] = useState(0);
   const navigation = useNavigation();
   const scrollViewRef = useRef(null);
@@ -29,12 +30,15 @@ const Dashboard = () => {
   useEffect(() => {
     const getBusDetails = async () => {
       try {
-        const response = await fetch(`${Api_url}/Admin/GetBusDetails`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await fetch(
+          `${Api_url}/Admin/GetBusDetails?OrganizationId=${userDetails.OrganizationId}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
           },
-        });
+        );
         const data = await response.json();
         if (response.ok) {
           setBusDetails(data);

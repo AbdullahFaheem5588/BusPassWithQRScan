@@ -16,7 +16,8 @@ import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
-const AddNewStudent = () => {
+const AddNewStudent = ({route}) => {
+  const OrganizationId = route.params.OrganizationId;
   const navigation = useNavigation();
   const [newOrOldParent, setNewOrOldParent] = useState('');
   const [parentsFromDB, setParentsFromDB] = useState([]);
@@ -38,23 +39,28 @@ const AddNewStudent = () => {
     PassExpiry: new Date(),
     Gender: '',
     ParentId: '',
+    OrganizationId: OrganizationId,
   });
   const [parentDetails, setParentDetails] = useState({
     Name: '',
     Contact: '',
     Password: '',
+    OrganizationId: OrganizationId,
   });
   const [showExpiryDateOPicker, setShowExpiryDatePicker] = useState(false);
 
   useEffect(() => {
     const GetAllParents = async () => {
       try {
-        const response = await fetch(`${Api_url}/Users/GetAllParents`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await fetch(
+          `${Api_url}/Users/GetAllParents?OrganizationId=${OrganizationId}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
           },
-        });
+        );
         const data = await response.json();
         if (response.ok) {
           setParentsFromDB([]);

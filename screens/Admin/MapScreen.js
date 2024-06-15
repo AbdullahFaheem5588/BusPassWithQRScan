@@ -21,8 +21,8 @@ import convertToAMPM from '../../Helper/convertToAMPM';
 
 const {width, height} = Dimensions.get('window');
 
-const MapScreen = () => {
-  const arr = ['Abdullah', 'Adeel', 'Umer', 'Zia'];
+const MapScreen = ({route}) => {
+  const userDetails = route.params.userDetails;
   const [newStopName, setNewStopName] = useState('');
   const [loading, setLoading] = useState(true);
   const [newRouteName, setNewRouteName] = useState('');
@@ -41,10 +41,6 @@ const MapScreen = () => {
   const [Stops, setStops] = useState([]);
   const [busesCords, setBusesCords] = useState([]);
   const [longPressCords, setLongPressCords] = useState([]);
-  const unicords = {
-    latitude: 33.64340057674401,
-    longitude: 73.0790521153456,
-  };
   // const busesCords = [
   //   {
   //     BusId: 1,
@@ -68,12 +64,15 @@ const MapScreen = () => {
 
   const getAllRoutes = async () => {
     try {
-      const response = await fetch(`${Api_url}/Stops/GetAllRoutes`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${Api_url}/Stops/GetAllRoutes?OrganizationId=${userDetails.OrganizationId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         },
-      });
+      );
       const data = await response.json();
       if (response.ok) {
         setRoutes(data);
@@ -121,12 +120,15 @@ const MapScreen = () => {
 
   const getAllBusesCords = async () => {
     try {
-      const response = await fetch(`${Api_url}/Bus/GetBusesLocations`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${Api_url}/Bus/GetBusesLocations?OrganizationId=${userDetails.OrganizationId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         },
-      });
+      );
       const data = await response.json();
       setBusesCords(data);
     } catch (error) {
@@ -230,6 +232,7 @@ const MapScreen = () => {
           Id: item,
         }));
         const route = {
+          OrganizationId: userDetails.OrganizationId,
           RouteTitle: newRouteName,
           Stops: stops,
         };
@@ -277,22 +280,22 @@ const MapScreen = () => {
         ref={mapView}
         style={StyleSheet.absoluteFill}
         initialRegion={{
-          latitude: 33.64340057674401,
-          longitude: 73.0790521153456,
+          latitude: userDetails.OrganizationCords.latitude,
+          longitude: userDetails.OrganizationCords.longitude,
           latitudeDelta: 0.02,
           longitudeDelta: 0.02,
         }}
         onLongPress={handleLongPress}>
         <Marker
-          coordinate={unicords}
-          title="Barani Institute of Information Technology"
+          coordinate={userDetails.OrganizationCords}
+          title={userDetails.OrganizationName}
           image={require('../../assets/UniMapMarker.png')}
         />
         {Routes.map((routeStops, routeIndex) => (
           <MapViewDirections
             key={routeIndex}
-            origin={unicords}
-            destination={unicords}
+            origin={userDetails.OrganizationCords}
+            destination={userDetails.OrganizationCords}
             waypoints={routeStops.map(stop => ({
               latitude: parseFloat(stop.Latitude),
               longitude: parseFloat(stop.Longitude),

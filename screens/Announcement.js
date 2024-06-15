@@ -13,14 +13,15 @@ import Api_url from '../Helper/URL';
 
 const {width, height} = Dimensions.get('window');
 
-const Announcement = () => {
+const Announcement = ({route}) => {
+  const OrganizationId = route.params.OrganizationId;
   const [description, setDescription] = useState('');
   const navigation = useNavigation();
 
   const makeAnnouncement = async () => {
     try {
       const response = await fetch(
-        `${Api_url}/Users/MakeAnnouncement?Description=${description}`,
+        `${Api_url}/Users/MakeAnnouncement?Description=${description}&OrganizationId=${OrganizationId}`,
         {
           method: 'POST',
           headers: {

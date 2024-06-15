@@ -19,7 +19,8 @@ import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
-const AddNewBus = () => {
+const AddNewBus = ({route}) => {
+  const OrganizationId = route.params.OrganizationId;
   const navigation = useNavigation();
   const [newOrOldConductor, setNewOrOldConductor] = useState('');
   const [conductorsFromDB, setConductorsFromDB] = useState([]);
@@ -41,23 +42,28 @@ const AddNewBus = () => {
       Id: '',
     },
     Routes: [],
+    OrganizationId: OrganizationId,
   });
   const [conductorDetails, setConductorDetails] = useState({
     Name: '',
     Contact: '',
     Password: '',
     Gender: '',
+    OrganizationId: OrganizationId,
   });
 
   useEffect(() => {
     const GetAllConductors = async () => {
       try {
-        const response = await fetch(`${Api_url}/Users/GetAllConductors`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await fetch(
+          `${Api_url}/Users/GetAllConductors?OrganizationId=${OrganizationId}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
           },
-        });
+        );
         const data = await response.json();
         if (response.ok) {
           setConductorsFromDB([]);
@@ -79,12 +85,15 @@ const AddNewBus = () => {
 
     const GetAllRoutesTitle = async () => {
       try {
-        const response = await fetch(`${Api_url}/Stops/GetAllRoutesTitle`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await fetch(
+          `${Api_url}/Stops/GetAllRoutesTitle?OrganizationId=${OrganizationId}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
           },
-        });
+        );
         const data = await response.json();
         if (response.ok) {
           setRoutesFromDB([]);

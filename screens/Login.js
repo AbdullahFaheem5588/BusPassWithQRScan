@@ -18,7 +18,7 @@ const {width, height} = Dimensions.get('window');
 
 const Login = () => {
   const navigation = useNavigation();
-  const [username, setUsername] = useState('Admin');
+  const [username, setUsername] = useState('Student');
   const [password, setPassword] = useState('123');
   const [loading, setLoading] = useState(false);
 
@@ -55,6 +55,8 @@ const Login = () => {
         navigation.replace('ConductorTabs', {userDetails: data.Conductors});
       } else if (data.userRole === 'Admin') {
         navigation.replace('AdminTabs', {userDetails: data.Admins});
+      } else if (data.userRole === 'SuperAdmin') {
+        navigation.replace('SuperAdminTabs', {userDetails: data.SuperAdmin});
       } else {
         ToastAndroid.show(data, ToastAndroid.SHORT);
       }

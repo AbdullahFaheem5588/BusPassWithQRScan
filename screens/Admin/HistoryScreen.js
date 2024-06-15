@@ -70,7 +70,6 @@ const HistoryScreen = ({route}) => {
         },
       );
       const data = await response.json();
-      console.log(data);
       setHistory(data);
     } catch (error) {
       console.error('Error:', error);

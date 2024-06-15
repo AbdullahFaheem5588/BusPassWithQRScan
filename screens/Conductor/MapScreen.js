@@ -36,10 +36,6 @@ const MapScreen = ({route}) => {
   const [selectedRouteStops, setSelectedRouteStops] = useState([]);
   const [selectedStopDetails, setSelectedStopDetails] = useState({});
   const [isJourneyCompleted, setIsJourneyCompleted] = useState(Boolean);
-  const unicords = {
-    latitude: 33.64340057674401,
-    longitude: 73.0790521153456,
-  };
 
   const handleStopPopupVisibility = id => {
     const stop = selectedRouteStops.find(stop => stop.Id === id);
@@ -120,8 +116,8 @@ const MapScreen = ({route}) => {
             longitude: userLocation.longitude,
           },
           {
-            latitude: unicords.latitude,
-            longitude: unicords.longitude,
+            latitude: userDetails.OrganizationCords.latitude,
+            longitude: userDetails.OrganizationCords.longitude,
           },
           100,
         );
@@ -343,8 +339,8 @@ const MapScreen = ({route}) => {
         style={StyleSheet.absoluteFill}
         onPress={handleUserLocationChange}
         initialRegion={{
-          latitude: unicords.latitude,
-          longitude: unicords.longitude,
+          latitude: userDetails.OrganizationCords.latitude,
+          longitude: userDetails.OrganizationCords.longitude,
           latitudeDelta: 0.02,
           longitudeDelta: 0.02,
         }}>
@@ -355,8 +351,8 @@ const MapScreen = ({route}) => {
           />
         )}
         <Marker
-          coordinate={unicords}
-          title="Barani Institute of Information Technology"
+          coordinate={userDetails.OrganizationCords}
+          title={userDetails.OrganizationName}
           image={require('../../assets/UniMapMarker.png')}
         />
         {selectedRouteStops.length > 0 &&
@@ -365,7 +361,7 @@ const MapScreen = ({route}) => {
             <>
               <MapViewDirections
                 origin={userLocation}
-                destination={unicords}
+                destination={userDetails.OrganizationCords}
                 waypoints={selectedRouteStops.map(stop => ({
                   latitude: parseFloat(stop.Latitude),
                   longitude: parseFloat(stop.Longitude),
