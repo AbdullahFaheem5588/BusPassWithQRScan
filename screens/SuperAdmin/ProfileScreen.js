@@ -31,7 +31,7 @@ const ProfileScreen = ({route}) => {
             fontSize: width * 0.07,
             fontWeight: 'bold',
             color: 'white',
-            marginTop: height * 0.001,
+            marginVertical: height * 0.005,
             alignSelf: 'center',
           }}>
           Super Admin
@@ -40,7 +40,7 @@ const ProfileScreen = ({route}) => {
       <TouchableOpacity
         style={{marginTop: 15}}
         onPress={() =>
-          navigation.navigate('ChangePassword', {UserId: userDetails.Id})
+          navigation.navigate('ChangePassword', {UserId: userDetails.UserId})
         }>
         <View style={styles.btn}>
           <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>

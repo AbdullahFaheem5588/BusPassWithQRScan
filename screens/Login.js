@@ -18,7 +18,7 @@ const {width, height} = Dimensions.get('window');
 
 const Login = () => {
   const navigation = useNavigation();
-  const [username, setUsername] = useState('Student');
+  const [username, setUsername] = useState('SuperAdmin');
   const [password, setPassword] = useState('123');
   const [loading, setLoading] = useState(false);
 

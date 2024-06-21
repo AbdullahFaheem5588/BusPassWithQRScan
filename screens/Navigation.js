@@ -895,6 +895,24 @@ const SuperAdminTabs = ({route}) => {
         }}
       />
       <Tab.Screen
+        name="Notification"
+        component={NotificationStack}
+        initialParams={{userDetails: route.params.userDetails}}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({focused}) => (
+            <Image
+              source={
+                focused
+                  ? require('../assets/Notification-Focused.png')
+                  : require('../assets/Notification-UnFocused.png')
+              }
+              style={{width: 25, height: 25}}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
         name="Profile"
         component={SuperAdminProfileStack}
         initialParams={{userDetails: route.params.userDetails}}
