@@ -18,7 +18,7 @@ const {width, height} = Dimensions.get('window');
 
 const Login = () => {
   const navigation = useNavigation();
-  const [username, setUsername] = useState('SuperAdmin');
+  const [username, setUsername] = useState('Admin');
   const [password, setPassword] = useState('123');
   const [loading, setLoading] = useState(false);
 
@@ -117,8 +117,7 @@ const Login = () => {
         <TouchableOpacity
           style={{marginTop: width * 0.05, marginBottom: width * 0.0625}}
           onPress={handleLoginPress}
-          disabled={loading} // Disable button when loading
-        >
+          disabled={loading}>
           <View style={styles.btn}>
             {loading ? (
               <ActivityIndicator size="large" color="#168070" />

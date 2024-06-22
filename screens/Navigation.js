@@ -30,6 +30,8 @@ import {default as AdminRechargeJourneys} from './Admin/RechargeJourneys';
 import {default as AdminAddNewBus} from './Admin/AddNewBus';
 import {default as AdminAddNewAdmin} from './Admin/AddNewAdmin';
 import {default as AdminSearchAndUpdate} from './Admin/SearchAndUpdate';
+import {default as AdminSharedRoutesRecord} from './Admin/SharedRoutesRecord';
+import {default as AdminFindNewRoutes} from './Admin/FindNewRoutes';
 import {default as AdminProfileScreen} from './Admin/ProfileScreen';
 import {default as StudentHistoryScreen} from './Student/HistoryScreen';
 import {default as ConductorHistoryScreen} from './Conductor/HistoryScreen';
@@ -351,6 +353,16 @@ const AdminAddStack = ({route}) => {
         name="AdminSearchAndUpdate"
         component={AdminSearchAndUpdate}
         options={{title: 'Search & Update'}}
+      />
+      <Stack.Screen
+        name="SharedRoutesRecord"
+        component={AdminSharedRoutesRecord}
+        options={{title: 'Shared Routes Record'}}
+      />
+      <Stack.Screen
+        name="FindNewRoutes"
+        component={AdminFindNewRoutes}
+        options={{title: 'Find New Routes'}}
       />
     </Stack.Navigator>
   );

@@ -47,7 +47,7 @@ const AddNewAdmin = ({route}) => {
         if (response.ok) {
           const data = await response.json();
           navigation.goBack();
-          ToastAndroid.show(data, ToastAndroid.SHORT);
+          ToastAndroid.show('Admin Added Successfully!', ToastAndroid.SHORT);
         } else {
           const data = await response.json();
           console.log(data);
