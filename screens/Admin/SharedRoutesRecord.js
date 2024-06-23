@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Text,
   View,
@@ -6,121 +6,20 @@ import {
   Dimensions,
   TouchableOpacity,
   FlatList,
+  ActivityIndicator,
+  Alert,
+  ToastAndroid,
 } from 'react-native';
+import Api_url from '../../Helper/URL';
 
 const {width, height} = Dimensions.get('window');
 
 const SharedRoutesRecord = ({route}) => {
   const OrganizationId = route.params.OrganizationId;
   const [selectedFilter, setSelectedFilter] = useState(1);
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      title: 'Item 1',
-      description: 'Description 1',
-      status: 'Pending',
-      requestedByUser: true,
-    },
-    {
-      id: 2,
-      title: 'Item 2',
-      description: 'Description 2',
-      status: 'Accepted',
-      requestedByUser: false,
-    },
-    {
-      id: 3,
-      title: 'Item 3',
-      description: 'Description 3',
-      status: 'Rejected',
-      requestedByUser: true,
-    },
-    {
-      id: 4,
-      title: 'Item 4',
-      description: 'Description 4',
-      status: 'Pending',
-      requestedByUser: false,
-    },
-    {
-      id: 5,
-      title: 'Item 5',
-      description: 'Description 5',
-      status: 'Accepted',
-      requestedByUser: true,
-    },
-    {
-      id: 6,
-      title: 'Item 1',
-      description: 'Description 1',
-      status: 'Pending',
-      requestedByUser: true,
-    },
-    {
-      id: 7,
-      title: 'Item 2',
-      description: 'Description 2',
-      status: 'Accepted',
-      requestedByUser: false,
-    },
-    {
-      id: 8,
-      title: 'Item 3',
-      description: 'Description 3',
-      status: 'Rejected',
-      requestedByUser: true,
-    },
-    {
-      id: 9,
-      title: 'Item 4',
-      description: 'Description 4',
-      status: 'Pending',
-      requestedByUser: false,
-    },
-    {
-      id: 10,
-      title: 'Item 5',
-      description: 'Description 5',
-      status: 'Accepted',
-      requestedByUser: true,
-    },
-    {
-      id: 11,
-      title: 'Item 1',
-      description: 'Description 1',
-      status: 'Pending',
-      requestedByUser: true,
-    },
-    {
-      id: 12,
-      title: 'Item 2',
-      description: 'Description 2',
-      status: 'Accepted',
-      requestedByUser: false,
-    },
-    {
-      id: 13,
-      title: 'Item 3',
-      description: 'Description 3',
-      status: 'Rejected',
-      requestedByUser: true,
-    },
-    {
-      id: 14,
-      title: 'Item 4',
-      description: 'Description 4',
-      status: 'Pending',
-      requestedByUser: false,
-    },
-    {
-      id: 15,
-      title: 'Item 5',
-      description: 'Description 5',
-      status: 'Accepted',
-      requestedByUser: true,
-    },
-    // Add more items as needed
-  ]);
+  const [sharedRoutesRecord, setSharedRoutesRecord] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [buttonLoading, setButtonLoading] = useState(null);
 
   const filterOptions = [
     {id: 1, label: 'Pending'},
@@ -128,24 +27,65 @@ const SharedRoutesRecord = ({route}) => {
     {id: 3, label: 'Rejected'},
   ];
 
+  const GetSharedRoutesRecord = async () => {
+    try {
+      const response = await fetch(
+        `${Api_url}/Admin/GetSharedRoutesRecord?OrganizationId=${OrganizationId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const data = await response.json();
+      if (response.ok) {
+        setSharedRoutesRecord(data);
+      } else {
+        console.log(data);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    GetSharedRoutesRecord();
+  }, []);
+
+  const UpdateRequestStatus = async (id, status) => {
+    try {
+      setButtonLoading(id); // Set the loading state to the button's ID
+      const response = await fetch(
+        `${Api_url}/Admin/UpdateRequestStatus?Id=${id}&Status=${status}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const data = await response.json();
+      if (response.ok) {
+        ToastAndroid.show(data, ToastAndroid.SHORT);
+        GetSharedRoutesRecord();
+      } else {
+        console.log(data);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    } finally {
+      setButtonLoading(null); // Reset the loading state
+      setLoading(false);
+    }
+  };
+
   const handleFilterSelect = id => {
     setSelectedFilter(id);
-  };
-
-  const handleAccept = itemId => {
-    setItems(prevItems =>
-      prevItems.map(item =>
-        item.id === itemId ? {...item, status: 'Accepted'} : item,
-      ),
-    );
-  };
-
-  const handleReject = itemId => {
-    setItems(prevItems =>
-      prevItems.map(item =>
-        item.id === itemId ? {...item, status: 'Rejected'} : item,
-      ),
-    );
   };
 
   const renderSection = (title, data) => (
@@ -158,22 +98,32 @@ const SharedRoutesRecord = ({route}) => {
       ) : (
         <FlatList
           data={data}
-          keyExtractor={item => item.id.toString()}
+          keyExtractor={item => item.Id.toString()}
           renderItem={({item}) => (
             <View style={styles.itemContainer}>
-              <Text style={styles.itemTitle}>{item.title}</Text>
-              <Text style={styles.itemDescription}>{item.description}</Text>
-              {selectedFilter === 1 && !item.requestedByUser && (
+              <Text style={styles.itemTitle}>{item.RouteTitle}</Text>
+              <Text style={styles.itemDescription}>{item.Description}</Text>
+              {selectedFilter === 1 && !item.RequestedByUser && (
                 <View style={styles.buttonContainer}>
                   <TouchableOpacity
                     style={styles.acceptButton}
-                    onPress={() => handleAccept(item.id)}>
-                    <Text style={styles.buttonText}>Accept</Text>
+                    onPress={() => UpdateRequestStatus(item.Id, 'Accepted')}
+                    disabled={buttonLoading === item.Id}>
+                    {buttonLoading === item.Id ? (
+                      <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                      <Text style={styles.buttonText}>Accept</Text>
+                    )}
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.rejectButton}
-                    onPress={() => handleReject(item.id)}>
-                    <Text style={styles.buttonText}>Reject</Text>
+                    onPress={() => UpdateRequestStatus(item.Id, 'Rejected')}
+                    disabled={buttonLoading === item.Id}>
+                    {buttonLoading === item.Id ? (
+                      <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                      <Text style={styles.buttonText}>Reject</Text>
+                    )}
                   </TouchableOpacity>
                 </View>
               )}
@@ -185,15 +135,15 @@ const SharedRoutesRecord = ({route}) => {
   );
 
   const renderSelectedView = () => {
-    const requestedByUserItems = items.filter(
+    const requestedByUserItems = sharedRoutesRecord.filter(
       item =>
-        item.status === filterOptions[selectedFilter - 1].label &&
-        item.requestedByUser,
+        item.Status === filterOptions[selectedFilter - 1].label &&
+        item.RequestedByUser,
     );
-    const needsResponseItems = items.filter(
+    const needsResponseItems = sharedRoutesRecord.filter(
       item =>
-        item.status === filterOptions[selectedFilter - 1].label &&
-        !item.requestedByUser,
+        item.Status === filterOptions[selectedFilter - 1].label &&
+        !item.RequestedByUser,
     );
 
     return (
@@ -228,7 +178,11 @@ const SharedRoutesRecord = ({route}) => {
           </TouchableOpacity>
         ))}
       </View>
-      {renderSelectedView()}
+      {loading ? (
+        <ActivityIndicator size="large" color="#ffffff" style={styles.loader} />
+      ) : (
+        renderSelectedView()
+      )}
     </View>
   );
 };
@@ -358,6 +312,9 @@ const styles = StyleSheet.create({
     fontSize: width * 0.04,
     fontWeight: 'bold',
     marginVertical: 10,
+  },
+  loader: {
+    marginTop: height * 0.4,
   },
 });
 

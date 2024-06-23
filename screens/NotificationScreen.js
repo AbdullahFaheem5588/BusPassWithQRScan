@@ -27,6 +27,7 @@ const NotificationScreen = ({route}) => {
     'Check In!': require('../assets/CheckIn.png'),
     'Bus Arrived!': require('../assets/BusArrived.png'),
     'New User Added!': require('../assets/NewUserAdded.png'),
+    'Route Sharing Request!': require('../assets/RouteSharing.png'),
   };
   const markAllAsRead = async () => {
     try {
@@ -115,6 +116,7 @@ const NotificationScreen = ({route}) => {
                           height: '95%',
                           width: '90%',
                           resizeMode: 'contain',
+                          tintColor: 'white',
                         }}
                       />
                     </View>

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -7,9 +7,14 @@ import {
   Dimensions,
   TouchableOpacity,
   Modal,
+  Alert,
+  ToastAndroid,
 } from 'react-native';
-import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView, {Marker} from 'react-native-maps';
 import {MultipleSelectList} from 'react-native-dropdown-select-list';
+import MapViewDirections from 'react-native-maps-directions';
+import Api_url from '../../Helper/URL';
+import GoogleMapKey from '../../GoogleMapKey';
 
 const {width, height} = Dimensions.get('window');
 
@@ -20,23 +25,125 @@ const FindNewRoutes = ({route}) => {
   const [RouteSharingPopupVisible, setRouteSharingPopupVisible] =
     useState(false);
   const [selectedRoute, setSelectedRoute] = useState(null);
-  const [routes, setRoutes] = useState([
-    {id: 1, title: 'Route 1', stops: ['Stop A', 'Stop B', 'Stop C']},
-    {id: 2, title: 'Route 2', stops: ['Stop D', 'Stop E', 'Stop F']},
-    {id: 3, title: 'Route 3', stops: ['Stop G', 'Stop H', 'Stop I']},
-  ]);
+  const [routes, setRoutes] = useState([]);
+  const [Stops, setStops] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const allStops = [
-    {key: 1, value: 'Stop A'},
-    {key: 2, value: 'Stop B'},
-    {key: 3, value: 'Stop C'},
-    {key: 4, value: 'Stop D'},
-    {key: 5, value: 'Stop E'},
-    {key: 6, value: 'Stop F'},
-    {key: 7, value: 'Stop G'},
-    {key: 8, value: 'Stop H'},
-    {key: 9, value: 'Stop I'},
-  ];
+  const getAllStops = async () => {
+    try {
+      const response = await fetch(`${Api_url}/Stops/GetAllStops`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setStops(
+          data.map(item => ({
+            key: item.Id.toString(),
+            value: item.Name,
+            timing: item.Timing,
+            longitude: item.Longitude,
+            latitude: item.Latitude,
+            route: item.Route,
+          })),
+        );
+      } else {
+        console.log(data);
+        Alert.alert('Error', 'Failed to load stops.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
+  };
+
+  const GetAvailableRoutes = async () => {
+    try {
+      const response = await fetch(
+        `${Api_url}/Stops/GetAvailableRoutes?OrganizationId=${OrganizationId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const data = await response.json();
+      if (response.ok) {
+        setRoutes(data);
+      } else {
+        console.log(data);
+        Alert.alert('Error', 'Failed to load routes.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  const SendRouteSharingRequest = async () => {
+    try {
+      const response = await fetch(
+        `${Api_url}/Admin/SendRouteSharingRequest?RouteId=${selectedRoute.RouteId}&OrganizationId=${OrganizationId}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const data = await response.json();
+      if (response.ok) {
+        ToastAndroid.show(data, ToastAndroid.SHORT);
+        GetAvailableRoutes();
+        handleRouteSharingPopupVisibility(null);
+      } else {
+        console.log(data);
+        handleRouteSharingPopupVisibility(null);
+        Alert.alert('Error', 'Failed to load routes.');
+      }
+    } catch (error) {
+      handleRouteSharingPopupVisibility(null);
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+    }
+  };
+
+  useEffect(() => {
+    GetAvailableRoutes();
+    getAllStops();
+  }, []);
+
+  const calculateRegion = stops => {
+    if (stops.length === 0) return null;
+
+    let minLat = parseFloat(stops[0].Latitude);
+    let maxLat = parseFloat(stops[0].Latitude);
+    let minLon = parseFloat(stops[0].Longitude);
+    let maxLon = parseFloat(stops[0].Longitude);
+
+    stops.forEach(stop => {
+      minLat = Math.min(minLat, parseFloat(stop.Latitude));
+      maxLat = Math.max(maxLat, parseFloat(stop.Latitude));
+      minLon = Math.min(minLon, parseFloat(stop.Longitude));
+      maxLon = Math.max(maxLon, parseFloat(stop.Longitude));
+    });
+
+    const midLat = (minLat + maxLat) / 2;
+    const midLon = (minLon + maxLon) / 2;
+    const deltaLat = (maxLat - minLat) * 1.1; // 10% padding
+    const deltaLon = (maxLon - minLon) * 1.1; // 10% padding
+
+    return {
+      latitude: midLat,
+      longitude: midLon,
+      latitudeDelta: Math.max(deltaLat, 0.02),
+      longitudeDelta: Math.max(deltaLon, 0.02),
+    };
+  };
 
   const handleRouteSharingPopupVisibility = route => {
     setSelectedRoute(route);
@@ -44,7 +151,7 @@ const FindNewRoutes = ({route}) => {
   };
 
   const filteredRoutes = routes.filter(route =>
-    selectedStops.every(stop => route.stops.includes(stop)),
+    selectedStops.every(stop => route.Stops.some(s => s.Name === stop)),
   );
 
   return (
@@ -52,10 +159,9 @@ const FindNewRoutes = ({route}) => {
       <Text style={styles.title}>Select Stops to Filter Routes</Text>
       <MultipleSelectList
         setSelected={setSelectedStops}
-        data={allStops}
+        data={Stops}
         save="value"
         label="Selected Stops"
-        search={true}
         boxStyles={{
           borderWidth: 1,
           borderColor: 'white',
@@ -81,23 +187,27 @@ const FindNewRoutes = ({route}) => {
         inputStyles={{color: 'white'}}
         placeholder="Select Stops Here"
       />
-      <FlatList
-        data={filteredRoutes}
-        keyExtractor={item => item.id.toString()}
-        renderItem={({item}) => (
-          <TouchableOpacity
-            style={styles.routeContainer}
-            onPress={() => handleRouteSharingPopupVisibility(item)}>
-            <Text style={styles.routeTitle}>{item.title}</Text>
-            <Text style={styles.routeStops}>
-              Stops: {item.stops.join(', ')}
-            </Text>
-          </TouchableOpacity>
-        )}
-        ListEmptyComponent={
-          <Text style={styles.noResultsText}>No routes found</Text>
-        }
-      />
+      {loading ? (
+        <Text style={styles.noResultsText}>Loading...</Text>
+      ) : (
+        <FlatList
+          data={filteredRoutes}
+          keyExtractor={item => item.RouteId.toString()}
+          renderItem={({item}) => (
+            <TouchableOpacity
+              style={styles.routeContainer}
+              onPress={() => handleRouteSharingPopupVisibility(item)}>
+              <Text style={styles.routeTitle}>{item.RouteTitle}</Text>
+              <Text style={styles.description}>
+                Stops: {item.Stops.map(stop => stop.Name).join(', ')}
+              </Text>
+            </TouchableOpacity>
+          )}
+          ListEmptyComponent={
+            <Text style={styles.noResultsText}>No routes found</Text>
+          }
+        />
+      )}
 
       <Modal
         animationType="fade"
@@ -105,26 +215,55 @@ const FindNewRoutes = ({route}) => {
         visible={RouteSharingPopupVisible}
         onRequestClose={() => handleRouteSharingPopupVisibility(null)}>
         <View style={styles.modalContainer}>
-          <MapView
-            provider={PROVIDER_GOOGLE}
-            style={styles.map}
-            initialRegion={{
-              latitude: 33.56606783485247,
-              longitude: 73.09835087034504,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-            }}></MapView>
+          {selectedRoute && (
+            <MapView
+              style={styles.map}
+              initialRegion={calculateRegion(selectedRoute.Stops)}>
+              <MapViewDirections
+                origin={{
+                  latitude: parseFloat(selectedRoute.Stops[0].Latitude),
+                  longitude: parseFloat(selectedRoute.Stops[0].Longitude),
+                }}
+                destination={{
+                  latitude: parseFloat(
+                    selectedRoute.Stops[selectedRoute.Stops.length - 1]
+                      .Latitude,
+                  ),
+                  longitude: parseFloat(
+                    selectedRoute.Stops[selectedRoute.Stops.length - 1]
+                      .Longitude,
+                  ),
+                }}
+                waypoints={selectedRoute.Stops.slice(1, -1).map(stop => ({
+                  latitude: parseFloat(stop.Latitude),
+                  longitude: parseFloat(stop.Longitude),
+                }))}
+                apikey={GoogleMapKey}
+                strokeColor="#d883ff"
+                strokeWidth={5}
+              />
+              {selectedRoute &&
+                selectedRoute.Stops.map((stop, index) => (
+                  <Marker
+                    key={index}
+                    coordinate={{
+                      latitude: parseFloat(stop.Latitude),
+                      longitude: parseFloat(stop.Longitude),
+                    }}
+                    title={stop.Name}
+                  />
+                ))}
+            </MapView>
+          )}
+          <TouchableOpacity onPress={SendRouteSharingRequest}>
+            <View style={styles.btn}>
+              <Text style={styles.btnText}>SEND SHARING REQUEST</Text>
+            </View>
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={() => handleRouteSharingPopupVisibility(null)}>
             <View style={styles.btn}>
-              <Text
-                style={{
-                  fontSize: width * 0.055,
-                  fontWeight: 'bold',
-                  color: '#168070',
-                }}>
-                CLOSE
-              </Text>
+              <Text style={styles.btnText}>CLOSE</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -159,7 +298,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#168070',
   },
-  routeStops: {
+  description: {
     fontSize: 16,
     color: '#555',
   },
@@ -176,7 +315,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   map: {
-    width: width * 0.9,
+    width: width * 0.8,
     height: height * 0.8,
   },
   btn: {
@@ -188,8 +327,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: width * 0.0125,
-    marginBottom: width * 0.025,
     marginTop: width * 0.025,
+  },
+  btnText: {
+    fontSize: width * 0.055,
+    fontWeight: 'bold',
+    color: '#168070',
   },
 });
 
