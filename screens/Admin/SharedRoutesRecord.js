@@ -10,7 +10,7 @@ import {
   Alert,
   ToastAndroid,
 } from 'react-native';
-import Api_url from '../../Helper/URL';
+import {Api_url} from '../../Helper/URL';
 
 const {width, height} = Dimensions.get('window');
 

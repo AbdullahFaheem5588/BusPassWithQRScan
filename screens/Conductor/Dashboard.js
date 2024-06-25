@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {Text, View, StyleSheet, Image, Dimensions, Alert} from 'react-native';
 import * as Progress from 'react-native-progress';
 import {enableScreens} from 'react-native-screens';
-import Api_url from '../../Helper/URL';
+import {Api_url} from '../../Helper/URL';
 import convertToAMPM from '../../Helper/convertToAMPM';
 
 enableScreens();

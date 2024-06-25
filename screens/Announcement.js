@@ -9,7 +9,7 @@ import {
   Image,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import Api_url from '../Helper/URL';
+import {Api_url} from '../Helper/URL';
 
 const {width, height} = Dimensions.get('window');
 

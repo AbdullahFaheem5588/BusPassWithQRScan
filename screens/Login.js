@@ -12,13 +12,13 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import Api_url from '../Helper/URL';
+import {Api_url} from '../Helper/URL';
 
 const {width, height} = Dimensions.get('window');
 
 const Login = () => {
   const navigation = useNavigation();
-  const [username, setUsername] = useState('Admin');
+  const [username, setUsername] = useState('Conductor');
   const [password, setPassword] = useState('123');
   const [loading, setLoading] = useState(false);
 

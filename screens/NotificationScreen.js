@@ -9,7 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import Api_url from '../Helper/URL';
+import {Api_url} from '../Helper/URL';
 import convertToAMPM from '../Helper/convertToAMPM';
 
 const {width, height} = Dimensions.get('window');

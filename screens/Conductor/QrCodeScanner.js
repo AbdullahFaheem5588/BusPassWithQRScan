@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import {PermissionsAndroid} from 'react-native';
-import Api_url from '../../Helper/URL';
+import {Api_url, Api_Image_url} from '../../Helper/URL';
 
 const {width, height} = Dimensions.get('window');
 
@@ -39,8 +39,8 @@ const QrCodeScanner = ({route}) => {
   const userDetails = route.params.userDetails;
   const [modalVisible, setModalVisible] = useState(false);
   const [studentDetails, setStudentDetails] = useState({});
-  const [PassStatus, setPassStatus] = useState('');
   const scannerRef = useRef(null);
+  const [isImageFullScreen, setIsImageFullScreen] = useState(false);
 
   useEffect(() => {
     requestCameraPermission();
@@ -95,6 +95,10 @@ const QrCodeScanner = ({route}) => {
     }
   };
 
+  const toggleFullScreenImage = () => {
+    setIsImageFullScreen(!isImageFullScreen);
+  };
+
   return (
     <View style={styles.container}>
       <QRCodeScanner
@@ -114,10 +118,18 @@ const QrCodeScanner = ({route}) => {
           {!studentDetails || typeof studentDetails === 'object' ? (
             studentDetails.PassStatus === 'Active' ? (
               <View style={styles.ContentContainer}>
-                <Image
+                {/* <Image
                   source={require('../../assets/ActivePass.png')}
                   style={styles.passImage}
-                />
+                /> */}
+                {studentDetails.Image && (
+                  <TouchableOpacity onPress={toggleFullScreenImage}>
+                    <Image
+                      style={styles.studentImage}
+                      source={{uri: Api_Image_url + studentDetails.Image}}
+                    />
+                  </TouchableOpacity>
+                )}
                 <Text style={styles.passStatusText}>
                   Pass Status: {studentDetails.PassStatus}
                 </Text>
@@ -540,6 +552,24 @@ const QrCodeScanner = ({route}) => {
           </TouchableOpacity>
         </View>
       </Modal>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={isImageFullScreen}
+        onRequestClose={toggleFullScreenImage}>
+        <View style={styles.fullScreenContainer}>
+          <TouchableOpacity
+            style={styles.fullScreenCloseButton}
+            onPress={toggleFullScreenImage}>
+            <Text style={styles.fullScreenCloseText}>Close</Text>
+          </TouchableOpacity>
+          <Image
+            style={styles.fullScreenImage}
+            source={{uri: Api_Image_url + studentDetails.Image}}
+            resizeMode="contain"
+          />
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -597,6 +627,35 @@ const styles = StyleSheet.create({
     fontSize: width * 0.055,
     fontWeight: 'bold',
     color: '#168070',
+  },
+  studentImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 2,
+    borderColor: 'white',
+  },
+  fullScreenContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fullScreenCloseButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    padding: 10,
+    zIndex: 1,
+  },
+  fullScreenCloseText: {
+    fontSize: 20,
+    color: 'white',
+  },
+  fullScreenImage: {
+    width: '90%',
+    height: '90%',
+    resizeMode: 'contain',
   },
 });
 

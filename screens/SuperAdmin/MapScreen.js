@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
 import {SelectList} from 'react-native-dropdown-select-list';
-import Api_url from '../../Helper/URL';
+import {Api_url} from '../../Helper/URL';
 
 const {width, height} = Dimensions.get('window');
 

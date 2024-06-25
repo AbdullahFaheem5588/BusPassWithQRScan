@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import Api_url from '../../Helper/URL';
+import {Api_url} from '../../Helper/URL';
 import convertToAMPM from '../../Helper/convertToAMPM';
 
 const {width, height} = Dimensions.get('window');

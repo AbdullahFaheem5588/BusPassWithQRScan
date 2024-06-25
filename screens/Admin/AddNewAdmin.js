@@ -9,7 +9,7 @@ import {
   ToastAndroid,
 } from 'react-native';
 import {SelectList} from 'react-native-dropdown-select-list';
-import Api_url from '../../Helper/URL';
+import {Api_url} from '../../Helper/URL';
 import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');

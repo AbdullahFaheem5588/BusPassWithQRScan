@@ -16,7 +16,7 @@ import MapView, {Marker} from 'react-native-maps';
 import GoogleMapKey from '../../GoogleMapKey';
 import MapViewDirections from 'react-native-maps-directions';
 import {MultipleSelectList} from 'react-native-dropdown-select-list';
-import Api_url from '../../Helper/URL';
+import {Api_url} from '../../Helper/URL';
 import convertToAMPM from '../../Helper/convertToAMPM';
 
 const {width, height} = Dimensions.get('window');
@@ -47,8 +47,8 @@ const MapScreen = ({route}) => {
   //     RouteId: 1,
   //     RouteTitle: 'Chandni Chowk - Saddar (8:30)',
   //     Cords: {
-  //       latitude: 33.60626103098687,
-  //       longitude: 73.06594487798462,
+  //       latitude: 33.62374538747422,
+  //       longitude: 73.0679390206933,
   //     },
   //   },
   //   {
@@ -56,8 +56,8 @@ const MapScreen = ({route}) => {
   //     RouteId: 2,
   //     RouteTitle: 'Saddar - Chandni Chowk (4:30)',
   //     Cords: {
-  //       latitude: 33.58619836860913,
-  //       longitude: 73.07261567925178,
+  //       latitude: 33.619592459760305,
+  //       longitude: 73.08326113969088,
   //     },
   //   },
   // ];

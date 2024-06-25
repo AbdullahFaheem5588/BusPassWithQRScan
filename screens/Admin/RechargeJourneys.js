@@ -14,7 +14,7 @@ import QRCodeScanner from 'react-native-qrcode-scanner';
 import {PermissionsAndroid} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {useNavigation} from '@react-navigation/native';
-import Api_url from '../../Helper/URL';
+import {Api_url} from '../../Helper/URL';
 
 const {width, height} = Dimensions.get('window');
 

@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import {useRoute} from '@react-navigation/native';
 import convertToAMPM from '../Helper/convertToAMPM';
-import Api_url from '../Helper/URL';
+import {Api_url} from '../Helper/URL';
 
 const {width, height} = Dimensions.get('window');
 
@@ -47,6 +47,7 @@ const NotificationDetails = () => {
             width: width * 0.5,
             height: height * 0.2,
             resizeMode: 'contain',
+            tintColor: 'white',
           }}
         />
         <Text style={styles.NotificationType}>{NotificationDetails.Type}</Text>

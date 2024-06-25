@@ -13,7 +13,7 @@ import {
 import MapView, {Marker} from 'react-native-maps';
 import {MultipleSelectList} from 'react-native-dropdown-select-list';
 import MapViewDirections from 'react-native-maps-directions';
-import Api_url from '../../Helper/URL';
+import {Api_url} from '../../Helper/URL';
 import GoogleMapKey from '../../GoogleMapKey';
 
 const {width, height} = Dimensions.get('window');

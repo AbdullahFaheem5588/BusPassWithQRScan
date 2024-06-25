@@ -14,7 +14,7 @@ import {
 import MapView, {Marker} from 'react-native-maps';
 import GoogleMapKey from '../../GoogleMapKey';
 import MapViewDirections from 'react-native-maps-directions';
-import Api_url from '../../Helper/URL';
+import {Api_url} from '../../Helper/URL';
 import convertToAMPM from '../../Helper/convertToAMPM';
 
 const {width, height} = Dimensions.get('window');
@@ -30,6 +30,26 @@ const MapScreen = ({route}) => {
   const mapView = useRef();
   const [offset, setOffset] = useState(0);
   const [stopPopupVisible, setStopPopupVisible] = useState(false);
+  // const busesCords = [
+  //   {
+  //     BusId: 1,
+  //     RouteId: 1,
+  //     RouteTitle: 'Chandni Chowk - Saddar (8:30)',
+  //     Cords: {
+  //       latitude: 33.62374538747422,
+  //       longitude: 73.0679390206933,
+  //     },
+  //   },
+  //   {
+  //     BusId: 2,
+  //     RouteId: 2,
+  //     RouteTitle: 'Saddar - Chandni Chowk (4:30)',
+  //     Cords: {
+  //       latitude: 33.619592459760305,
+  //       longitude: 73.08326113969088,
+  //     },
+  //   },
+  // ];
 
   const addFavStop = async () => {
     try {

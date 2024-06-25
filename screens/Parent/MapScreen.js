@@ -2,7 +2,7 @@ import React, {useState, useRef, useEffect} from 'react';
 import {View, Text, StyleSheet, Image} from 'react-native';
 import MapView, {Marker, Polyline} from 'react-native-maps';
 import GoogleMapKey from '../../GoogleMapKey';
-import Api_url from '../../Helper/URL';
+import {Api_url} from '../../Helper/URL';
 
 const MapScreen = ({route}) => {
   const userDetails = route.params.userDetails;

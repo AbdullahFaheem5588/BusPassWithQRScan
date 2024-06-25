@@ -8,11 +8,16 @@ import {
   Dimensions,
   ScrollView,
   ToastAndroid,
+  PermissionsAndroid,
+  Alert,
+  Linking,
+  Platform,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {SelectList} from 'react-native-dropdown-select-list';
-import Api_url from '../../Helper/URL';
+import {Api_url} from '../../Helper/URL';
 import {useNavigation} from '@react-navigation/native';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
 const {width, height} = Dimensions.get('window');
 
@@ -39,6 +44,11 @@ const AddNewStudent = ({route}) => {
     PassExpiry: new Date(),
     Gender: '',
     ParentId: '',
+    ImageData: {
+      uri: '',
+      name: '',
+      type: '',
+    },
     OrganizationId: OrganizationId,
   });
   const [parentDetails, setParentDetails] = useState({
@@ -48,6 +58,35 @@ const AddNewStudent = ({route}) => {
     OrganizationId: OrganizationId,
   });
   const [showExpiryDateOPicker, setShowExpiryDatePicker] = useState(false);
+
+  const requestPermissions = async () => {
+    try {
+      const storageGranted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+      );
+      const cameraGranted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+      );
+
+      if (
+        storageGranted === PermissionsAndroid.RESULTS.GRANTED &&
+        cameraGranted === PermissionsAndroid.RESULTS.GRANTED
+      ) {
+        console.log('Storage and Camera permissions given');
+        return true;
+      } else {
+        console.log('Storage or Camera permission denied');
+        Alert.alert(
+          'Permission Denied',
+          'Cannot access photos or camera without permission. Please grant permissions to use this feature.',
+        );
+        return false;
+      }
+    } catch (err) {
+      console.warn(err);
+      return false;
+    }
+  };
 
   useEffect(() => {
     const GetAllParents = async () => {
@@ -80,6 +119,83 @@ const AddNewStudent = ({route}) => {
     };
     GetAllParents();
   }, []);
+
+  const chooseImage = async () => {
+    const hasPermission = await requestPermissions();
+    if (!hasPermission) return;
+
+    Alert.alert(
+      'Select Image',
+      'Choose an option',
+      [
+        {
+          text: 'Take Photo',
+          onPress: takePhoto,
+        },
+        {
+          text: 'Choose from Library',
+          onPress: chooseFromLibrary,
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ],
+      {cancelable: true},
+    );
+  };
+
+  const chooseFromLibrary = () => {
+    const options = {
+      mediaType: 'photo',
+      includeBase64: true,
+      selectionLimit: 1,
+    };
+
+    launchImageLibrary(options, response => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.errorCode) {
+        console.log('ImagePicker Error: ', response.errorCode);
+      } else if (response.assets && response.assets.length > 0) {
+        const selectedImage = response.assets[0];
+        setStudentDetails(prevState => ({
+          ...prevState,
+          ImageData: {
+            uri: selectedImage.uri,
+            name: selectedImage.fileName || 'image.jpg',
+            type: selectedImage.type || 'image/jpeg',
+          },
+        }));
+      }
+    });
+  };
+
+  const takePhoto = () => {
+    const options = {
+      mediaType: 'photo',
+      includeBase64: true,
+      selectionLimit: 1,
+    };
+
+    launchCamera(options, response => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.errorCode) {
+        console.log('ImagePicker Error: ', response.errorCode);
+      } else if (response.assets && response.assets.length > 0) {
+        const selectedImage = response.assets[0];
+        setStudentDetails(prevState => ({
+          ...prevState,
+          ImageData: {
+            uri: selectedImage.uri,
+            name: selectedImage.fileName || 'image.jpg',
+            type: selectedImage.type || 'image/jpeg',
+          },
+        }));
+      }
+    });
+  };
 
   const addNewStudent = async () => {
     try {
@@ -126,6 +242,7 @@ const AddNewStudent = ({route}) => {
   };
 
   useEffect(() => {
+    //console.log(studentDetails);
     if (parentInserted) {
       insertStudent();
     }
@@ -138,18 +255,37 @@ const AddNewStudent = ({route}) => {
           typeof value === 'string' ? value.trim() !== '' : value !== '',
         )
       ) {
+        const formData = new FormData();
+        formData.append('Name', studentDetails.Name);
+        formData.append('RegNo', studentDetails.RegNo);
+        formData.append('Contact', studentDetails.Contact);
+        formData.append('Password', studentDetails.Password);
+        formData.append('TotalJourneys', studentDetails.TotalJourneys);
+        formData.append('PassExpiry', studentDetails.PassExpiry.toISOString());
+        formData.append('Gender', studentDetails.Gender);
+        formData.append('ParentId', studentDetails.ParentId);
+        formData.append('OrganizationId', studentDetails.OrganizationId);
+        formData.append('Image', {
+          uri: studentDetails.ImageData.uri,
+          name: studentDetails.ImageData.name,
+          type: studentDetails.ImageData.type,
+        });
+
         const response = await fetch(`${Api_url}/Users/InsertStudent`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'multipart/form-data',
           },
-          body: JSON.stringify(studentDetails),
+          body: formData,
         });
 
         if (response.ok) {
           const data = await response.json();
           navigation.goBack();
-          ToastAndroid.show(data, ToastAndroid.SHORT);
+          ToastAndroid.show(
+            'Student Inserted Successfully',
+            ToastAndroid.SHORT,
+          );
         } else {
           const data = await response.json();
           console.log(data);
@@ -260,7 +396,7 @@ const AddNewStudent = ({route}) => {
         />
         <View style={styles.PickerContainer}>
           <View>
-            <Text style={styles.pickerText}>Pass Expiry:</Text>
+            <Text style={styles.placeHolder}>Pass Expiry:</Text>
           </View>
           <View>
             <TouchableOpacity onPress={handleShowExpiryDateOPicker}>
@@ -313,6 +449,13 @@ const AddNewStudent = ({route}) => {
             marginBottom: height * 0.02,
           }}
         />
+        <TouchableOpacity
+          style={[styles.btn, {width: width * 0.8}]}
+          onPress={chooseImage}>
+          <Text style={styles.btnText}>
+            {studentDetails.ImageData.uri ? 'Image Chosen' : 'Choose Image'}
+          </Text>
+        </TouchableOpacity>
         <SelectList
           setSelected={val => setNewOrOldParent(val)}
           data={ParentSelection}
@@ -495,7 +638,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     textAlignVertical: 'center',
   },
-  pickerText: {
+  placeHolder: {
     color: 'white',
     fontSize: width * 0.04,
   },

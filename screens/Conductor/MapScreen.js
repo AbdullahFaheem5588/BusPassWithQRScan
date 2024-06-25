@@ -14,7 +14,7 @@ import MapView, {Marker} from 'react-native-maps';
 import GoogleMapKey from '../../GoogleMapKey';
 import MapViewDirections from 'react-native-maps-directions';
 import {SelectList} from 'react-native-dropdown-select-list';
-import Api_url from '../../Helper/URL';
+import {Api_url} from '../../Helper/URL';
 import convertToAMPM from '../../Helper/convertToAMPM';
 import {isPointWithinRadius} from 'geolib';
 

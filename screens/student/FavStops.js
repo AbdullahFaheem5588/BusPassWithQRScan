@@ -8,7 +8,7 @@ import {
   Dimensions,
   ToastAndroid,
 } from 'react-native';
-import Api_url from '../../Helper/URL';
+import {Api_url} from '../../Helper/URL';
 import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
