@@ -198,11 +198,14 @@ const AddNewStudent = ({route}) => {
   };
 
   const addNewStudent = async () => {
+    console.log(parentDetails);
     try {
       if (newOrOldParent === 'New Parent') {
         if (
           Object.values(parentDetails).every(
-            value => typeof value === 'string' && value.trim() !== '',
+            value =>
+              (typeof value === 'string' && value.trim() !== '') ||
+              (typeof value === 'number' && value !== 0),
           )
         ) {
           const response = await fetch(`${Api_url}/Users/InsertParent`, {

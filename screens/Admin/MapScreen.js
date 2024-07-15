@@ -11,8 +11,9 @@ import {
   Modal,
   ActivityIndicator,
   ToastAndroid,
+  FlatList,
 } from 'react-native';
-import MapView, {Marker} from 'react-native-maps';
+import MapView, {Marker, Polygon} from 'react-native-maps';
 import GoogleMapKey from '../../GoogleMapKey';
 import MapViewDirections from 'react-native-maps-directions';
 import {MultipleSelectList} from 'react-native-dropdown-select-list';
@@ -41,11 +42,64 @@ const MapScreen = ({route}) => {
   const [Stops, setStops] = useState([]);
   const [busesCords, setBusesCords] = useState([]);
   const [longPressCords, setLongPressCords] = useState([]);
+  //const [polygonCoordinates, setPolygonCoordinates] = useState([]);
+
+  // const isPointInPolygon = (point, vs) => {
+  //   const x = point.latitude,
+  //     y = point.longitude;
+
+  //   let inside = false;
+  //   for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+  //     const xi = vs[i].latitude,
+  //       yi = vs[i].longitude;
+  //     const xj = vs[j].latitude,
+  //       yj = vs[j].longitude;
+
+  //     const intersect =
+  //       yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+  //     if (intersect) inside = !inside;
+  //   }
+
+  //   return inside;
+  // };
+
+  // const handleMapPress = event => {
+  //   const newCoordinate = event.nativeEvent.coordinate;
+  //   setPolygonCoordinates([...polygonCoordinates, newCoordinate]);
+
   // const busesCords = [
   //   {
   //     BusId: 1,
   //     RouteId: 1,
   //     RouteTitle: 'Chandni Chowk - Saddar (8:30)',
+  //     TotalSeats: 50,
+  //     Passengers: 20,
+  //     PassengersDetails: [
+  //       {
+  //         Name: 'Abdullah Faheem',
+  //         PassId: 10,
+  //         RegNo: '2020-Arid-3587',
+  //         StopName: 'Chandni Chowk',
+  //       },
+  //       {
+  //         Name: 'Hamid Basar Wahab',
+  //         PassId: 20,
+  //         RegNo: '2020-Arid-3634',
+  //         StopName: 'Saddar',
+  //       },
+  //       {
+  //         Name: 'Romeesa Akram',
+  //         PassId: 30,
+  //         RegNo: '2020-Arid-3759',
+  //         StopName: '6th Road',
+  //       },
+  //       {
+  //         Name: 'Romeesa Akram',
+  //         PassId: 30,
+  //         RegNo: '2020-Arid-3759',
+  //         StopName: '6th Road',
+  //       },
+  //     ],
   //     Cords: {
   //       latitude: 33.62374538747422,
   //       longitude: 73.0679390206933,
@@ -55,6 +109,28 @@ const MapScreen = ({route}) => {
   //     BusId: 2,
   //     RouteId: 2,
   //     RouteTitle: 'Saddar - Chandni Chowk (4:30)',
+  //     TotalSeats: 50,
+  //     Passengers: 20,
+  //     PassengersDetails: [
+  //       {
+  //         Name: 'Abdullah Faheem',
+  //         PassId: 10,
+  //         RegNo: '2020-Arid-3587',
+  //         StopName: 'Chandni Chowk',
+  //       },
+  //       {
+  //         Name: 'Hamid Basar Wahab',
+  //         PassId: 20,
+  //         RegNo: '2020-Arid-3634',
+  //         StopName: 'Saddar',
+  //       },
+  //       {
+  //         Name: 'Romeesa Akram',
+  //         PassId: 30,
+  //         RegNo: '2020-Arid-3759',
+  //         StopName: '6th Road',
+  //       },
+  //     ],
   //     Cords: {
   //       latitude: 33.619592459760305,
   //       longitude: 73.08326113969088,
@@ -184,6 +260,7 @@ const MapScreen = ({route}) => {
   };
   const handleLongPress = event => {
     const {coordinate} = event.nativeEvent;
+    //console.log(isPointInPolygon(coordinate, polygonCoordinates));
     setLongPressCords(coordinate);
     console.log('Long press detected at:', coordinate);
     handleAddPopupVisibility();
@@ -286,6 +363,16 @@ const MapScreen = ({route}) => {
           longitudeDelta: 0.02,
         }}
         onLongPress={handleLongPress}>
+        {/* onPress={handleMapPress}>
+        {polygonCoordinates.length > 0 && (
+          <Polygon
+            coordinates={polygonCoordinates}
+            fillColor="rgba(0, 200, 0, 0.5)"
+            strokeColor="rgba(0,0,0,0.5)"
+            strokeWidth={2}
+          />
+        )} */}
+
         <Marker
           coordinate={userDetails.OrganizationCords}
           title={userDetails.OrganizationName}
@@ -497,7 +584,7 @@ const MapScreen = ({route}) => {
         )}
       </Modal>
 
-      <Modal
+      {/* <Modal
         animationType="fade"
         transparent={true}
         visible={BusPopupVisible}
@@ -622,6 +709,258 @@ const MapScreen = ({route}) => {
                 </Text>
               </View>
             </TouchableOpacity>
+          </View>
+        )}
+      </Modal> */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={BusPopupVisible}
+        onRequestClose={handleBusPopupVisibility}>
+        {BusPopupVisible && (
+          <View style={styles.modalContainer}>
+            <ScrollView>
+              <View style={[styles.Popup]}>
+                <View
+                  style={{
+                    borderColor: 'white',
+                    borderStyle: 'solid',
+                    borderWidth: 1,
+                    width: width * 0.9,
+                    margin: width * 0.025,
+                    marginTop: width * 0.01,
+                    marginBottom: width * 0.01,
+                    borderRadius: width * 0.075,
+                  }}>
+                  <Text
+                    style={{
+                      fontSize: width * 0.055,
+                      fontWeight: 'bold',
+                      color: 'white',
+                      alignSelf: 'center',
+                      marginTop: width * 0.025,
+                    }}>
+                    {busesCords[selectedBusIndex].RouteTitle}
+                  </Text>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      marginTop: width * 0.01,
+                      marginBottom: width * 0.01,
+                    }}>
+                    <View
+                      style={{
+                        marginLeft: width * 0.025,
+                        backgroundColor: '#2FAA98',
+                        borderRadius: width * 0.075,
+                        elevation: width * 0.025,
+                        width: width * 0.4,
+                        height: width * 0.4,
+                      }}>
+                      <Image
+                        source={require('../../assets/RouteNo.png')}
+                        style={{
+                          width: width * 0.05,
+                          height: width * 0.2,
+                          alignSelf: 'center',
+                          marginTop: width * 0.025,
+                        }}
+                      />
+                      <Text
+                        style={{
+                          fontSize: width * 0.035,
+                          color: 'white',
+                          alignSelf: 'center',
+                          marginTop: width * 0.0125,
+                        }}>
+                        Route No
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: width * 0.055,
+                          fontWeight: 'bold',
+                          color: 'white',
+                          alignSelf: 'center',
+                        }}>
+                        {busesCords[selectedBusIndex].RouteId}
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        marginRight: width * 0.025,
+                        width: width * 0.4,
+                        height: width * 0.4,
+                        backgroundColor: '#2FAA98',
+                        borderRadius: width * 0.075,
+                        elevation: width * 0.025,
+                      }}>
+                      <Image
+                        source={require('../../assets/BusEn-route.png')}
+                        style={{
+                          width: width * 0.35,
+                          height: width * 0.2,
+                          alignSelf: 'center',
+                          marginTop: width * 0.025,
+                        }}
+                      />
+                      <Text
+                        style={{
+                          fontSize: width * 0.035,
+                          color: 'white',
+                          alignSelf: 'center',
+                          marginTop: width * 0.0125,
+                        }}>
+                        Bus No
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: width * 0.055,
+                          fontWeight: 'bold',
+                          color: 'white',
+                          alignSelf: 'center',
+                        }}>
+                        {busesCords[selectedBusIndex].BusId}
+                      </Text>
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      marginTop: width * 0.01,
+                      marginBottom: width * 0.01,
+                    }}>
+                    <View
+                      style={{
+                        marginLeft: width * 0.025,
+                        backgroundColor: '#2FAA98',
+                        borderRadius: width * 0.075,
+                        elevation: width * 0.025,
+                        width: width * 0.4,
+                        height: width * 0.4,
+                      }}>
+                      <Image
+                        source={require('../../assets/Seats.png')}
+                        style={{
+                          height: width * 0.21,
+                          alignSelf: 'center',
+                          marginTop: width * 0.025,
+                          resizeMode: 'contain',
+                        }}
+                      />
+                      <Text
+                        style={{
+                          fontSize: width * 0.035,
+                          color: 'white',
+                          alignSelf: 'center',
+                          marginTop: width * 0.0125,
+                        }}>
+                        Total Seats
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: width * 0.055,
+                          fontWeight: 'bold',
+                          color: 'white',
+                          alignSelf: 'center',
+                        }}>
+                        {busesCords[selectedBusIndex].TotalSeats}
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        marginRight: width * 0.025,
+                        width: width * 0.4,
+                        height: width * 0.4,
+                        backgroundColor: '#2FAA98',
+                        borderRadius: width * 0.075,
+                        elevation: width * 0.025,
+                      }}>
+                      <Image
+                        source={require('../../assets/CheckIn.png')}
+                        style={{
+                          height: width * 0.21,
+                          resizeMode: 'contain',
+                          alignSelf: 'center',
+                          marginTop: width * 0.025,
+                        }}
+                      />
+                      <Text
+                        style={{
+                          fontSize: width * 0.035,
+                          color: 'white',
+                          alignSelf: 'center',
+                          marginTop: width * 0.0125,
+                        }}>
+                        Passengers
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: width * 0.055,
+                          fontWeight: 'bold',
+                          color: 'white',
+                          alignSelf: 'center',
+                        }}>
+                        {busesCords[selectedBusIndex].Passengers}
+                      </Text>
+                    </View>
+                  </View>
+                  <View>
+                    {busesCords[selectedBusIndex].PassengersDetails && (
+                      <FlatList
+                        data={busesCords[selectedBusIndex].PassengersDetails}
+                        renderItem={({passenger, index}) => {
+                          return (
+                            <View style={styles.flatListRow}>
+                              <Text style={styles.Type}>
+                                {
+                                  busesCords[selectedBusIndex]
+                                    .PassengersDetails[index].Name
+                                }
+                              </Text>
+                              <Text style={styles.Description}>
+                                Pass Id:{' '}
+                                {
+                                  busesCords[selectedBusIndex]
+                                    .PassengersDetails[index].PassId
+                                }
+                              </Text>
+                              <Text style={styles.Description}>
+                                Reg No:{' '}
+                                {
+                                  busesCords[selectedBusIndex]
+                                    .PassengersDetails[index].RegNo
+                                }
+                              </Text>
+                              <Text style={styles.Description}>
+                                Stop Name:{' '}
+                                {
+                                  busesCords[selectedBusIndex]
+                                    .PassengersDetails[index].StopName
+                                }
+                              </Text>
+                            </View>
+                          );
+                        }}
+                      />
+                    )}
+                  </View>
+                </View>
+              </View>
+              <TouchableOpacity onPress={handleBusPopupVisibility}>
+                <View style={styles.btn}>
+                  <Text
+                    style={{
+                      fontSize: width * 0.055,
+                      fontWeight: 'bold',
+                      color: '#168070',
+                    }}>
+                    CLOSE
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </ScrollView>
           </View>
         )}
       </Modal>
@@ -896,6 +1235,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  flatListRow: {
+    borderColor: 'white',
+    borderWidth: 1,
+    borderRadius: 10,
+    margin: 7,
+    padding: 10,
+  },
+  Type: {
+    color: 'white',
+    fontSize: 25,
+    fontWeight: 'bold',
+  },
+  Description: {
+    color: 'white',
+    fontSize: 20,
   },
 });
 

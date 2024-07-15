@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  Modal,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 
@@ -14,6 +15,12 @@ const {width, height} = Dimensions.get('window');
 const ProfileScreen = ({route}) => {
   const userDetails = route.params.userDetails;
   const navigation = useNavigation();
+  const [RouteRankingPopupVisible, setRouteRankingPopupVisible] =
+    useState(false);
+
+  const handleRouteRankingPopupVisibility = () => {
+    setRouteRankingPopupVisible(!RouteRankingPopupVisible);
+  };
   return (
     <View style={styles.container}>
       <View style={styles.ContentContainer}>
@@ -169,9 +176,7 @@ const ProfileScreen = ({route}) => {
       </View>
       <TouchableOpacity
         style={{marginTop: 15}}
-        onPress={() =>
-          navigation.navigate('History', {UserId: userDetails.UserId})
-        }>
+        onPress={handleRouteRankingPopupVisibility}>
         <View style={styles.btn}>
           <Text style={{fontSize: 25, fontWeight: 'bold', color: '#168070'}}>
             HISTORY
@@ -198,6 +203,80 @@ const ProfileScreen = ({route}) => {
           </Text>
         </View>
       </TouchableOpacity>
+
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={RouteRankingPopupVisible}
+        onRequestClose={handleRouteRankingPopupVisibility}>
+        {RouteRankingPopupVisible && (
+          <View style={styles.modalContainer}>
+            <View style={[styles.Popup]}>
+              <View
+                style={{
+                  borderColor: 'white',
+                  borderStyle: 'solid',
+                  borderWidth: 1,
+                  width: width * 0.9,
+                  margin: width * 0.025,
+                  borderRadius: width * 0.075,
+                }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    handleRouteRankingPopupVisibility();
+                    navigation.navigate('History', {
+                      UserId: userDetails.UserId,
+                    });
+                  }}
+                  style={{marginVertical: 10}}>
+                  <View style={[styles.btn, {width: width * 0.8}]}>
+                    <Text
+                      style={{
+                        fontSize: width * 0.055,
+                        fontWeight: 'bold',
+                        color: '#168070',
+                      }}>
+                      ALL HISTORY
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    handleRouteRankingPopupVisibility();
+                    navigation.navigate('RouteRanking', {
+                      OrganizationId: userDetails.OrganizationId,
+                    });
+                  }}
+                  style={{marginVertical: 10}}>
+                  <View style={[styles.btn, {width: width * 0.8}]}>
+                    <Text
+                      style={{
+                        fontSize: width * 0.055,
+                        fontWeight: 'bold',
+                        color: '#168070',
+                      }}>
+                      ROUTE RANKING
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+            <TouchableOpacity onPress={handleRouteRankingPopupVisibility}>
+              <View style={styles.btn}>
+                <Text
+                  style={{
+                    fontSize: width * 0.055,
+                    fontWeight: 'bold',
+                    color: '#168070',
+                  }}>
+                  CLOSE
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        )}
+      </Modal>
     </View>
   );
 };
@@ -225,6 +304,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: width * 0.0125,
+  },
+  Popup: {
+    backgroundColor: '#168070',
+    width: width * 0.95,
+    borderRadius: width * 0.075,
+    elevation: width * 0.025,
+    marginBottom: width * 0.075,
+  },
+  modalContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 });
 

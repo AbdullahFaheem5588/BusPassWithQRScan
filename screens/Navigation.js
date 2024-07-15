@@ -33,6 +33,7 @@ import {default as AdminSearchAndUpdate} from './Admin/SearchAndUpdate';
 import {default as AdminSharedRoutesRecord} from './Admin/SharedRoutesRecord';
 import {default as AdminFindNewRoutes} from './Admin/FindNewRoutes';
 import {default as AdminProfileScreen} from './Admin/ProfileScreen';
+import {default as AdminRouteRanking} from './Admin/RouteRanking';
 import {default as StudentHistoryScreen} from './Student/HistoryScreen';
 import {default as ConductorHistoryScreen} from './Conductor/HistoryScreen';
 import {default as ParentHistoryScreen} from './Parent/HistoryScreen';
@@ -395,6 +396,11 @@ const AdminProfileStack = ({route}) => {
         name="History"
         component={AdminHistoryScreen}
         options={{title: 'History'}}
+      />
+      <Stack.Screen
+        name="RouteRanking"
+        component={AdminRouteRanking}
+        options={{title: 'Route Ranking'}}
       />
     </Stack.Navigator>
   );

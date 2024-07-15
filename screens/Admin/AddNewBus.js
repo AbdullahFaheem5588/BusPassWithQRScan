@@ -119,7 +119,9 @@ const AddNewBus = ({route}) => {
       if (newOrOldConductor === 'New Conductor') {
         if (
           Object.values(conductorDetails).every(
-            value => typeof value === 'string' && value.trim() !== '',
+            value =>
+              (typeof value === 'string' && value.trim() !== '') ||
+              (typeof value === 'number' && value !== 0),
           )
         ) {
           const response = await fetch(`${Api_url}/Users/InsertConductor`, {
