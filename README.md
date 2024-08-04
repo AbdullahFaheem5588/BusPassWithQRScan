@@ -12,7 +12,7 @@ Bus Pass with QR Scan is a user-friendly platform that allows passengers to mana
 ## Technologies Used
 
 - **Frontend:** React Native
-- **QR Code Scanning:** [Specify any QR code library used, e.g., `react-qr-reader`]
+- **QR Code Scanning:** Utilized react-native-qrcode-scanner
 - **State Management:** React Hooks
 - **Development Tools:** Vs Code, Android Studio, Gradle, Metro, XCode
 
