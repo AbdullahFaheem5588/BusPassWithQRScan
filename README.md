@@ -1,4 +1,4 @@
-##**Bus Pass with QR Scan**
+## Bus Pass with QR Scan
 
 Bus Pass with QR Scan is a user-friendly platform that allows passengers to manage their bus passes using QR code technology. The frontend of this project is designed to provide a seamless experience for users to view and manage their bus passes, scan QR codes, and interact with the system. The backend functionality is handled separately.
 
