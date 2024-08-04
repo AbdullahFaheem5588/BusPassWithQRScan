@@ -16,6 +16,9 @@ Bus Pass with QR Scan is a user-friendly platform that allows passengers to mana
 - **State Management:** React Hooks
 - **Development Tools:** Vs Code, Android Studio, Gradle, Metro, XCode
 
+## Backend Repository Link
+https://github.com/AbdullahFaheem5588/BusPassWithQRSCAN-API
+
 ## Contact
 
 For any questions or inquiries, you can reach me at abdullah.faheem02@gmail.com
